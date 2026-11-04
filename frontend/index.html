@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FloatChat – AI-Powered ARGO Ocean Data Discovery</title>
+  <meta name="description" content="Discover and interact conversationally with real ARGO oceanographic data (Bay of Bengal)." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Plotly.js for interactive charts -->
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ── Auth Screen (Login / Register) ──────────────────────────────────────── -->
+<div class="auth-screen" id="auth-screen">
+  <div class="auth-container">
+    <div class="auth-brand">
+      <span class="auth-logo">🌊</span>
+      <h1 class="auth-title">FloatChat</h1>
+      <p class="auth-subtitle">ARGO Ocean Data Discovery Assistant</p>
+    </div>
+
+    <!-- Login Form -->
+    <form class="auth-form" id="login-form">
+      <h2>Welcome back</h2>
+      <div class="auth-field">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email" />
+      </div>
+      <div class="auth-field">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="Your password" required autocomplete="current-password" />
+      </div>
+      <div id="login-notice" class="auth-notice" role="status" hidden></div>
+      <div id="login-error" class="auth-error" hidden></div>
+      <button type="submit" class="auth-submit-btn" id="login-submit-btn">Sign In</button>
+      <p class="auth-switch">Don't have an account? <a href="#" id="show-register">Create one</a></p>
+    </form>
+
+    <!-- Register Form -->
+    <form class="auth-form" id="register-form" hidden>
+      <h2>Create account</h2>
+      <div class="auth-field">
+        <label for="register-username">Username</label>
+        <input type="text" id="register-username" placeholder="Letters, numbers, - and _" required minlength="3" maxlength="50" pattern="[A-Za-z0-9_\-]+" title="Letters, numbers, hyphens and underscores only (no spaces or dots)" autocomplete="username" />
+      </div>
+      <div class="auth-field">
+        <label for="register-email">Email</label>
+        <input type="email" id="register-email" placeholder="you@example.com" required autocomplete="email" />
+      </div>
+      <div class="auth-field">
+        <label for="register-password">Password</label>
+        <input type="password" id="register-password" placeholder="Create a password (min 10 chars)" required minlength="10" maxlength="128" autocomplete="new-password" />
+      </div>
+      <div id="register-error" class="auth-error" hidden></div>
+      <button type="submit" class="auth-submit-btn" id="register-submit-btn">Create Account</button>
+      <p class="auth-switch">Already have an account? <a href="#" id="show-login">Sign in</a></p>
+    </form>
+  </div>
+</div>
+
+<!-- ── Main App ────────────────────────────────────────────────────────────── -->
+<div class="app-shell" id="app-shell" hidden>
+
+  <!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-wrap">
+        <span class="logo-icon">🌊</span>
+        <span class="logo-text">FloatChat</span>
+      </div>
+      <button id="user-menu-btn" class="user-avatar-btn" title="Account menu">
+        <span id="user-initial">U</span>
+      </button>
+    </div>
+
+    <!-- User dropdown -->
+    <div class="user-dropdown" id="user-dropdown" hidden>
+      <div class="user-dropdown-info">
+        <strong id="dropdown-username">User</strong>
+        <small id="dropdown-email">user@email.com</small>
+      </div>
+      <button id="logout-btn" class="user-dropdown-btn">🚪 Sign Out</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button id="new-chat-btn" class="sidebar-btn primary-btn" aria-label="New conversation">
+        <span class="btn-icon">＋</span> New Chat
+      </button>
+
+      <!-- View Switcher Tabs in Sidebar -->
+      <div class="tab-switch-group">
+        <button id="tab-chat-btn" class="view-tab active">💬 Chat</button>
+        <button id="tab-discover-btn" class="view-tab">🧭 Discover</button>
+        <button id="tab-simulator-btn" class="view-tab">🤿 Sonar &amp; Dive</button>
+      </div>
+
+      <!-- Search bar -->
+      <div class="search-wrap">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="search-input" class="search-input" placeholder="Search conversations..." />
+      </div>
+
+      <!-- Conversation history -->
+      <div class="nav-section-label">Recent Conversations</div>
+      <div class="conversation-list" id="conversation-list">
+        <div class="conv-empty" id="conv-empty">No conversations yet</div>
+      </div>
+
+      <!-- Example questions: Data / Knowledge / Discovery -->
+      <div class="nav-section-label">Data Questions</div>
+      <div class="example-list" id="example-list-data">
+        <button class="example-pill" data-q="What is the average temperature in January 2023?">
+          🌡️ Avg temperature, Jan 2023
+        </button>
+        <button class="example-pill" data-q="What is the maximum salinity in March 2023?">
+          🧂 Max salinity, Mar 2023
+        </button>
+        <button class="example-pill" data-q="Compare temperature in January and June 2023">
+          ⚖️ Compare Jan vs Jun temperature
+        </button>
+        <button class="example-pill" data-q="Show salinity vs depth for float 2902758">
+          📈 Salinity depth profile, float 2902758
+        </button>
+      </div>
+
+      <div class="nav-section-label">Knowledge Questions</div>
+      <div class="example-list" id="example-list-knowledge">
+        <button class="example-pill" data-q="What is a thermocline?">
+          📚 What is a thermocline?
+        </button>
+        <button class="example-pill" data-q="What is an ARGO float?">
+          🛟 What is an ARGO float?
+        </button>
+        <button class="example-pill" data-q="How do monsoons affect the Bay of Bengal?">
+          🌀 Monsoons &amp; the Bay of Bengal
+        </button>
+        <button class="example-pill" data-q="How do I read a depth profile chart?">
+          📖 How to read a depth profile
+        </button>
+      </div>
+
+      <div class="nav-section-label">Discovery Questions</div>
+      <div class="example-list" id="example-list-discovery">
+        <button class="example-pill" data-q="List floats in 2023">
+          🔍 List floats in 2023
+        </button>
+        <button class="example-pill" data-q="Tell me about float 2902758">
+          🤖 Details of float 2902758
+        </button>
+        <button class="example-pill" data-q="Where did float 2902758 travel?">
+          📍 Trajectory of float 2902758
+        </button>
+        <button class="example-pill" data-q="What data do you have in the Bay of Bengal?">
+          📊 Dataset coverage
+        </button>
+        <button class="example-pill" data-q="Profiles similar to 2902758_139">
+          🧬 Profiles similar to 2902758_139
+        </button>
+      </div>
+
+      <div class="nav-section-label">System</div>
+      <button id="health-btn" class="sidebar-btn" aria-label="Check server health">
+        <span class="btn-icon">💡</span> Server Status
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="data-badge">ARGO · Bay of Bengal (bundled data)</span>
+    </div>
+  </aside>
+
+  <!-- ── Main area ────────────────────────────────────────────────────────── -->
+  <main class="main-area">
+
+    <!-- Top bar -->
+    <header class="topbar">
+      <button class="hamburger" id="sidebar-toggle" aria-label="Toggle sidebar">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-title" id="current-view-title">ARGO Ocean Data Chat</div>
+      <div class="topbar-actions">
+        <button id="speech-toggle-btn" class="topbar-icon-btn" title="Toggle audio responses (Read answers aloud)" aria-label="Toggle audio response">
+          <svg id="speech-icon-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+          <svg id="speech-icon-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <line x1="23" y1="9" x2="17" y2="15"/>
+            <line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+        </button>
+        <button id="theme-toggle-btn" class="topbar-icon-btn" title="Toggle light/dark mode" aria-label="Toggle theme">
+          <svg id="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </button>
+        <button id="dive-sim-top-btn" class="topbar-icon-btn" title="Open ARGO 4D Mission Simulator & Sonar" aria-label="Open Dive Simulator">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+            <path d="M2 12h20"/>
+          </svg>
+        </button>
+        <button id="share-btn" class="topbar-icon-btn" title="Share this chat" aria-label="Share chat">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </button>
+        <button id="export-btn" class="topbar-icon-btn" title="Export current results as CSV" aria-label="Export CSV">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ── View 1: Chat Feed ──────────────────────────────────────────────── -->
+    <div class="chat-feed" id="chat-feed">
+      <!-- Welcome card -->
+      <div class="welcome-card" id="welcome-card">
+        <div class="welcome-icon">🌊</div>
+        <h1>FloatChat</h1>
+        <p class="welcome-sub">Explore real robotic ARGO float observations in the Bay of Bengal. Only the Bay of Bengal is covered; the Discover tab shows the exact period and floats.<br/>Instant statistical answers, interactive visualisations, and zero-quota reliability.</p>
+        <div class="feature-pills">
+          <span class="feature-pill">⚡ Rules-First & No Quota Failure</span>
+          <span class="feature-pill">🧭 Interactive Data Discovery</span>
+          <span class="feature-pill">📚 Offline Oceanographic RAG</span>
+          <span class="feature-pill">📊 High-Density Plotly Charts</span>
+          <span class="feature-pill">💾 CSV Data Export</span>
+        </div>
+      </div>
+
+      <!-- Messages injected here -->
+      <div id="messages" role="log" aria-label="Chat messages" aria-live="polite"></div>
+    </div><!-- .chat-feed -->
+
+    <!-- ── View 2: Discover Tab ───────────────────────────────────────────── -->
+    <div class="discover-feed" id="discover-feed" style="display:none;">
+      <div class="discover-container">
+        <!-- Coverage metric cards -->
+        <div class="coverage-grid" id="coverage-grid">
+          <div class="metric-card">
+            <span class="metric-label">Total Profiles</span>
+            <span class="metric-val" id="metric-profiles">-</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Active Floats</span>
+            <span class="metric-val" id="metric-floats">-</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Measurement Levels</span>
+            <span class="metric-val" id="metric-measurements">-</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Observation Window</span>
+            <span class="metric-val small" id="metric-dates">-</span>
+          </div>
+        </div>
+
+        <!-- Coverage Chart Container -->
+        <div class="chart-box" id="coverage-chart-box" style="margin-bottom: 20px;">
+          <div id="coverage-chart-div" class="chart-plotly"></div>
+        </div>
+
+        <!-- Float Search and Filter Bar -->
+        <div class="discover-toolbar">
+          <input type="text" id="float-search-input" class="search-input" placeholder="Filter floats by ID or region..." />
+          <button id="export-floats-csv" class="action-btn">📥 Export Floats CSV</button>
+          <button id="refresh-discover-btn" class="action-btn secondary">🔄 Refresh</button>
+        </div>
+
+        <!-- Floats Table Container -->
+        <div class="table-wrap">
+          <table class="floats-table" id="floats-table">
+            <thead>
+              <tr>
+                <th>Platform ID</th>
+                <th>Profiles</th>
+                <th>First Date</th>
+                <th>Last Date</th>
+                <th>Bounding Lat/Lon</th>
+                <th>Avg Max Depth</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="floats-table-body">
+              <tr><td colspan="7" style="text-align:center; padding: 20px;">Loading ARGO floats data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" id="db-empty-state" style="display:none;">
+          <h3>⚠️ Database is Empty</h3>
+          <p>No ARGO float profiles loaded. Please run <code>fetch_data.bat</code> to populate real ocean data.</p>
+        </div>
+      </div>
+    </div><!-- .discover-feed -->
+
+    <!-- ── View 3: ARGO 4D Mission Simulator & Sonar ──────────────────────── -->
+    <div class="simulator-feed" id="simulator-feed" style="display:none;">
+      <div class="sim-container">
+        <!-- Simulator Header & Mission Status -->
+        <div class="sim-header-card">
+          <div class="sim-header-main">
+            <div class="sim-title-wrap">
+              <h2>🤿 ARGO 4D Mission Simulator &amp; Underwater Sonar</h2>
+              <p class="sim-desc">Experience an oceanic robotic ARGO float mission in the Bay of Bengal. Follow the 10-day lifecycle from surface satellite fix, 1000 dbar parking drift, and 2000 dbar deep dive, while exploring mixed layer depths and the <strong>SOFAR acoustic sound channel</strong>.</p>
+            </div>
+            <div class="sim-phase-wrap">
+              <span class="sim-phase-label">Mission Cycle Phase:</span>
+              <span id="sim-phase-badge" class="sim-phase-pill phase-surface">📡 Phase 1: Surface GPS &amp; Telemetry (0 dbar)</span>
+            </div>
+          </div>
+
+          <!-- Controls Toolbar -->
+          <div class="sim-toolbar">
+            <div class="sim-control-group">
+              <label for="sim-float-select" class="sim-label">Target Float:</label>
+              <select id="sim-float-select" class="sim-select" aria-label="Select float platform"></select>
+              <button id="sim-load-btn" class="action-btn" title="Load Float Profile">📥 Load Profile</button>
+            </div>
+            <div class="sim-control-group sim-actions">
+              <button id="sim-play-btn" class="action-btn primary" title="Play / Pause Dive">▶ Start Dive</button>
+              <button id="sim-reset-btn" class="action-btn" title="Reset to Surface">↺ Reset Surface</button>
+              <div class="sim-speed-group">
+                <span class="sim-label">Speed:</span>
+                <button class="sim-speed-btn active" data-speed="1">1x</button>
+                <button class="sim-speed-btn" data-speed="2">2x</button>
+                <button class="sim-speed-btn" data-speed="5">5x</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Split View: Ocean Column Canvas (Left) & Telemetry HUD / Profile Chart (Right) -->
+        <div class="sim-split-layout">
+          <!-- Left: Ocean Column Canvas -->
+          <div class="sim-column-panel">
+            <div class="sim-panel-title">
+              <span>🌊 Water Column &amp; Robotic Float</span>
+              <span id="sim-zone-tag" class="zone-badge epipelagic">Sunlight Zone (0–200m)</span>
+            </div>
+            <div class="sim-canvas-wrap">
+              <!-- Depth ruler on left -->
+              <div class="sim-depth-ruler">
+                <span style="top: 2%;">0m Surface</span>
+                <span style="top: 10%;">200m MLD</span>
+                <span style="top: 50%;">1000m Drift</span>
+                <span style="top: 75%;">1500m SOFAR Axis</span>
+                <span style="top: 96%;">2000m Abyss</span>
+              </div>
+              <canvas id="sim-ocean-canvas" width="420" height="580"></canvas>
+              <!-- Depth scrubber slider on right -->
+              <input type="range" id="sim-depth-slider" min="0" max="2000" step="1" value="0" orient="vertical" class="sim-vertical-slider" title="Drag to change depth" aria-label="Depth scrubber" />
+            </div>
+          </div>
+
+          <!-- Right: Telemetry & Sound Speed Profile Graph -->
+          <div class="sim-telemetry-panel">
+            <!-- Telemetry Metrics Grid -->
+            <div class="sim-telemetry-grid">
+              <div class="sim-stat-card">
+                <span class="stat-name">🧭 Depth / Pressure</span>
+                <span class="stat-value" id="sim-hud-depth">0.0 <small>dbar</small></span>
+              </div>
+              <div class="sim-stat-card">
+                <span class="stat-name">🌡️ In-Situ Temperature</span>
+                <span class="stat-value" id="sim-hud-temp">-- <small>°C</small></span>
+              </div>
+              <div class="sim-stat-card">
+                <span class="stat-name">🧂 Salinity</span>
+                <span class="stat-value" id="sim-hud-sal">-- <small>PSU</small></span>
+              </div>
+              <div class="sim-stat-card highlight">
+                <span class="stat-name">🔊 Underwater Sound Speed</span>
+                <span class="stat-value" id="sim-hud-speed">-- <small>m/s</small></span>
+              </div>
+            </div>
+
+            <!-- Oceanographic Physics Features Cards -->
+            <div class="sim-physics-row">
+              <div class="sim-phys-card">
+                <span class="phys-title">🌊 Mixed Layer Depth</span>
+                <span class="phys-val" id="sim-phys-mld">--</span>
+              </div>
+              <div class="sim-phys-card">
+                <span class="phys-title">📉 Thermocline Core</span>
+                <span class="phys-val" id="sim-phys-thermocline">--</span>
+              </div>
+              <div class="sim-phys-card sofar-card">
+                <span class="phys-title">📻 Deep Sound Channel (SOFAR)</span>
+                <span class="phys-val" id="sim-phys-sofar">--</span>
+              </div>
+            </div>
+
+            <!-- Profile Plotly Graph -->
+            <div class="sim-chart-box">
+              <div class="sim-chart-header">
+                <span>Vertical In-Situ Curves (Temperature, Salinity &amp; Sound Speed)</span>
+              </div>
+              <div id="sim-plotly-chart" class="chart-plotly" style="height: 340px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- .simulator-feed -->
+
+    <!-- Status bar (health / error notices) -->
+    <div id="status-bar" class="status-bar hidden" role="status"></div>
+
+    <!-- Input form (Visible in Chat view) -->
+    <form id="ask-form" class="input-bar" autocomplete="off">
+      <div class="input-inner">
+        <textarea
+          id="question-input"
+          rows="1"
+          maxlength="500"
+          placeholder="Ask about temperature, salinity, floats, thermoclines… (Bay of Bengal only)"
+          aria-label="Your question"
+          spellcheck="true"
+        ></textarea>
+        <button type="button" id="mic-btn" class="mic-btn" aria-label="Voice search" title="Voice search">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="1" width="6" height="12" rx="3"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </button>
+        <button type="submit" id="send-btn" aria-label="Send message">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="input-hint">Shift+Enter for new line · Enter to send</div>
+    </form>
+
+  </main><!-- .main-area -->
+</div><!-- .app-shell -->
+
+<!-- ── Float Detail / Trajectory Modal ────────────────────────────────────── -->
+<div class="modal-overlay" id="float-modal" hidden>
+  <div class="modal-card float-modal-card" role="dialog" aria-modal="true" aria-label="Float Details">
+    <button class="modal-close" id="float-modal-close" aria-label="Close">✕</button>
+    <h2 id="float-modal-title">ARGO Float Details</h2>
+    <div id="float-modal-body">
+      <div id="float-modal-stats" class="modal-stats-grid"></div>
+      <div id="float-trajectory-chart" class="chart-plotly" style="height: 350px; margin-top: 15px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Share chat modal ───────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="share-modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-label="Share chat">
+    <button class="modal-close" id="share-modal-close" aria-label="Close">✕</button>
+    <h2>Share this chat</h2>
+    <p class="share-note">Anyone with the link can <strong>view</strong> this chat as it is right now (read-only, no sign-in needed). Messages you add later are not included until you refresh the link. Your name and email are never shown.</p>
+    <div class="share-link-row">
+      <input type="text" id="share-link-input" readonly aria-label="Share link" />
+      <button type="button" id="share-copy-btn" class="action-btn">📋 Copy link</button>
+    </div>
+    <div class="share-actions">
+      <button type="button" id="share-native-btn" class="action-btn" hidden>📤 Share…</button>
+      <button type="button" id="share-refresh-btn" class="action-btn">🔄 Update with latest messages</button>
+      <button type="button" id="share-stop-btn" class="action-btn danger">🚫 Stop sharing</button>
+    </div>
+    <div id="share-status" class="share-status" role="status"></div>
+  </div>
+</div>
+
+<!-- ── Shared (read-only) view banner ─────────────────────────────────────── -->
+<div id="shared-banner" class="shared-banner" hidden>
+  <span id="shared-banner-text">Shared chat (read-only)</span>
+  <a href="/" class="shared-banner-link">Open FloatChat</a>
+</div>
+
+<!-- ── Health modal ───────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="health-modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-label="Server status">
+    <button class="modal-close" id="health-modal-close" aria-label="Close">✕</button>
+    <h2>Server Status</h2>
+    <div id="health-content" class="health-content">Checking…</div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

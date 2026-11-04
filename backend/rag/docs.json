@@ -1,0 +1,438 @@
+[
+  {
+    "id": "kb_argo_basics",
+    "title": "ARGO Ocean Data Basics",
+    "content": "# ARGO Ocean Data Basics\n\nARGO is a global array of free-drifting profiling floats that measures the temperature and salinity of the upper 2000 m of the ocean. This allows continuous monitoring of the climate state of the ocean.\n\n## Variables\n- **Temperature**: Measured in \u00b0C. Reflects the heat content. Important for finding the thermocline (a steep temperature gradient in a body of water).\n- **Salinity**: Measured in PSU (Practical Salinity Units). Helps identify different water masses. \n- **Pressure**: Measured in dbar. It is used as a proxy for depth (1 dbar is approximately 1 meter of depth).\n\n## Bay of Bengal Regimes\nThe Bay of Bengal is heavily influenced by monsoons:\n- **Southwest Monsoon (Summer)**: Brings heavy rainfall and river discharge, creating a very fresh (low salinity) surface layer.\n- **Northeast Monsoon (Winter)**: Cool and dry air causes cooling of the sea surface.\nSub-regions include the Andaman Sea (eastern part) and the coastal margins.\n\n## Charts\n- **Depth Profile**: Shows how a variable changes with depth (pressure). The y-axis is reversed because pressure increases downwards.\n- **Timeseries**: Shows how the average of a variable changes over months/years.\n- **Map**: Shows the geographical distribution of floats.\n",
+    "source": "ARGO Ocean Data Basics",
+    "type": "concept"
+  },
+  {
+    "id": "kb_argo_float_technology",
+    "title": "ARGO Float Technology & Operations",
+    "content": "# ARGO Float Technology & Operations\n\n## Float Design\nARGO floats are autonomous, battery-powered profiling instruments. Each float carries a CTD (Conductivity-Temperature-Depth) sensor package that measures temperature, salinity, and pressure as it ascends through the water column. Floats are identified globally by unique 7-digit WMO platform IDs.\n\n## Profiling Cycle\nA typical ARGO float follows a 10-day cycle:\n1. **Descent** to a parking depth of approximately 1000 dbar.\n2. **Drift** at parking depth for ~9 days, carried by deep ocean currents.\n3. **Deep descent** to 2000 dbar (the profile start depth).\n4. **Ascending profile**: the float rises to the surface while its CTD sensor samples temperature, salinity, and pressure at regular intervals (typically every 2 dbar in the upper ocean, every 25-50 dbar at depth).\n5. **Surface transmission**: the float transmits its data via Iridium or ARGOS satellite systems, then descends to begin a new cycle.\n\n## Battery Life & Data Volume\nEach float operates for approximately 4-5 years, completing roughly 150 profiles before its lithium battery is exhausted. A single profile typically contains 100-200 depth levels of measurement data.\n\n## Global ARGO Program\nThe international ARGO program maintains over 3,800 active floats worldwide, providing near-real-time coverage of the global ocean. Data is freely available through Global Data Assembly Centres (GDACs) and services like Argovis. The program began in 2000 and has now collected over 2.5 million profiles.\n",
+    "source": "ARGO Float Technology & Operations",
+    "type": "concept"
+  },
+  {
+    "id": "kb_bay_of_bengal_monsoons",
+    "title": "Bay of Bengal Monsoon Seasons & Dynamics",
+    "content": "# Bay of Bengal Monsoon Seasons & Dynamics\n\n## Southwest Monsoon (June \u2013 September)\nDuring the Summer or Southwest Monsoon, strong southwesterly winds drive heavy precipitation and trigger peak freshwater river discharges into the northern Bay of Bengal (Ganges-Brahmaputra and Irrawaddy river basins). This creates an extraordinarily fresh, low-salinity surface layer and intense vertical salinity stratification.\n\n## Northeast Monsoon (November \u2013 February)\nDuring the Winter or Northeast Monsoon, dry, cool winds blow from the Asian continent across the bay, causing surface evaporative cooling and wind-driven mixing. Surface waters cool down to ~25\u00b0C - 27\u00b0C, deepening the mixed layer.\n\n## Spring & Fall Intermonsoon Transitions\n- **Pre-monsoon (March \u2013 May)**: Maximum solar heating results in sea surface temperatures exceeding 29\u00b0C-30\u00b0C, fostering cyclone genesis.\n- **Post-monsoon (October \u2013 November)**: Second period of active tropical cyclone formation with complex eddies and meandering boundary currents.\n",
+    "source": "Bay of Bengal Monsoon Seasons & Dynamics",
+    "type": "concept"
+  },
+  {
+    "id": "kb_data_quality_qc",
+    "title": "ARGO Data Quality Control",
+    "content": "# ARGO Data Quality Control\n\n## Real-Time vs Delayed-Mode QC\nARGO data undergoes two stages of quality control. **Real-time QC** is automated and applied within 24 hours of data receipt: it includes range checks, spike tests, and gradient tests. **Delayed-mode QC** is a manual, expert review performed 6-12 months later, correcting sensor drift (especially salinity) and applying climatological comparisons.\n\n## QC Flag System\nEvery measurement carries a quality flag:\n- **Flag 1**: Good data, passed all tests.\n- **Flag 2**: Probably good, but some tests not performed.\n- **Flag 3**: Probably bad, failed non-critical tests.\n- **Flag 4**: Bad data, failed critical tests or clearly erroneous.\n- **Flag 9**: Missing value, no measurement recorded.\nOnly data with flags 1 or 2 should be used for scientific analysis.\n\n## Common Quality Issues\n- **Pressure sensor drift**: Pressure sensors can drift over time; corrected in delayed mode.\n- **Salinity sensor biofouling**: Conductivity cells may become contaminated by biological growth, causing salinity to read high. The Owens-Wong method is used for correction.\n- **Spikes**: Sudden single-point anomalies, usually electrical noise, detected by comparing adjacent levels.\n- **Density inversions**: Physically impossible density decreases with depth, indicating measurement errors.\n\n## FloatChat Data Note\nFloatChat stores temperature, salinity, and pressure without the full Argo QC flags. The ingestion process removes clearly invalid values (negative pressure, salinity below 20 PSU), but does not apply the complete flag-based filtering. Results are intended for exploration and education, not peer-reviewed research. Always verify QC handling before using results for scientific publication.\n",
+    "source": "ARGO Data Quality Control",
+    "type": "concept"
+  },
+  {
+    "id": "kb_ocean_circulation_bob",
+    "title": "Bay of Bengal Circulation & Dynamics",
+    "content": "# Bay of Bengal Circulation & Dynamics\n\n## East India Coastal Current (EICC)\nThe EICC is a seasonally reversing boundary current along India's eastern coast. During the southwest monsoon (June-September) it flows northward, while during the northeast monsoon (November-February) it reverses to flow southward. This current plays a crucial role in redistributing freshwater from river discharge.\n\n## Sri Lanka Dome\nThe Sri Lanka Dome is a semi-permanent cyclonic eddy located southwest of Sri Lanka, centred near 8\u00b0N, 83\u00b0E. It forms due to wind stress curl during the southwest monsoon and is associated with upwelling of cold, nutrient-rich water from depth.\n\n## River Plume Dynamics\nThe Ganges-Brahmaputra river system discharges approximately 1,200 km\u00b3 of freshwater annually into the northern Bay of Bengal, peaking during the southwest monsoon (July-September). This creates an extremely fresh surface layer (salinity below 28 PSU) that spreads southward along the coast and eastward into the central bay.\n\n## Mesoscale Eddies\nThe Bay of Bengal is rich in mesoscale eddies (50-200 km diameter) that form from instabilities in the boundary currents and wind forcing. These eddies transport heat, salt, and nutrients, and they influence mixed layer depth and tropical cyclone intensification.\n\n## Barrier Layer\nWhen the halocline is shallower than the isothermal layer depth, a barrier layer forms. This is common in the Bay of Bengal due to heavy freshwater input. The barrier layer traps warm water near the surface, inhibiting vertical mixing and maintaining high sea surface temperatures that can fuel tropical cyclones.\n\n## Andaman Sea\nThe Andaman Sea, east of the Andaman and Nicobar Islands, connects to the Bay of Bengal through several channels. It has its own internal tides and circulation patterns, with relatively higher salinity than the central bay due to reduced freshwater input.\n",
+    "source": "Bay of Bengal Circulation & Dynamics",
+    "type": "concept"
+  },
+  {
+    "id": "kb_ocean_layers",
+    "title": "Ocean Layers: Thermocline, Halocline, and Pycnocline",
+    "content": "# Ocean Layers: Thermocline, Halocline, and Pycnocline\n\n## Mixed Layer\nThe ocean Mixed Layer is the turbulent, near-surface zone where salinity, temperature, and density are nearly uniform due to wind and wave stirring. In the Bay of Bengal, the mixed layer depth varies between 15 meters and 50 meters depending on seasonal monsoon winds.\n\n## Thermocline\nThe **Thermocline** is the oceanic layer where water temperature decreases rapidly with increasing depth. In the tropical Bay of Bengal, the permanent thermocline generally spans from roughly 50 dbar down to 300 dbar, where temperature drops from ~28\u00b0C near the surface to under 12\u00b0C.\n\n## Halocline\nThe **Halocline** is a layer of water where salinity changes rapidly with depth. In the Bay of Bengal, strong river runoff and precipitation create a very sharp positive halocline between 10 dbar and 80 dbar, where salinity rises sharply from low surface values (~30-32 PSU) up to ~34.8 PSU.\n\n## Pycnocline & Barrier Layer\nThe **Pycnocline** is the zone of maximum vertical density gradient, controlled by both temperature and salinity. When the halocline is shallower than the isothermal layer, a \"Barrier Layer\" forms, isolating the warm surface water from deep cold water and inhibiting vertical mixing.\n",
+    "source": "Ocean Layers: Thermocline, Halocline, and Pycnocline",
+    "type": "concept"
+  },
+  {
+    "id": "kb_ocean_variables",
+    "title": "Oceanographic Variables in ARGO Data",
+    "content": "# Oceanographic Variables in ARGO Data\n\n## Temperature (\u00b0C)\nOcean temperature measures the thermal heat content of seawater. In the Bay of Bengal, surface temperatures typically range between 27\u00b0C and 30\u00b0C due to intense solar radiation in the tropics. As depth increases, temperature decreases rapidly through the thermocline layer and stabilizes at 4\u00b0C to 6\u00b0C at depths below 1000 dbar.\n\n## Salinity (PSU)\nSalinity measures the concentration of dissolved mineral salts in seawater, expressed in Practical Salinity Units (PSU). \n- Normal open ocean salinity is approximately 34.5 to 35.5 PSU.\n- In the Bay of Bengal, massive river runoff from the Ganges, Brahmaputra, and Irrawaddy rivers during the monsoon season causes strong surface freshening, with surface salinity often dropping below 31.0 PSU.\n- Below the surface layer (around 100 dbar), salinity increases sharply forming a pronounced halocline.\n\n## Pressure (dbar) & Depth\nHydrostatic pressure is measured in decibars (dbar). In seawater, 1 dbar corresponds very closely to 1 meter of depth (e.g., 500 dbar \u2248 500 meters depth). ARGO profiling floats typically sample from the surface down to 2000 dbar.\n",
+    "source": "Oceanographic Variables in ARGO Data",
+    "type": "concept"
+  },
+  {
+    "id": "kb_reading_charts",
+    "title": "How to Read FloatChat Oceanographic Charts",
+    "content": "# How to Read FloatChat Oceanographic Charts\n\n## 1. Vertical Depth Profile\n- **Axes**: The horizontal x-axis shows the physical variable (Temperature in \u00b0C or Salinity in PSU). The vertical y-axis shows Pressure in dbar (proxy for depth), reversed so that 0 dbar is at the top (sea surface) and 2000 dbar is at the bottom (deep ocean).\n- **Interpretation**: A steep horizontal shift over a narrow depth band marks the thermocline (temperature drop) or halocline (salinity increase). Multiple lines represent individual profiles.\n\n## 2. Timeseries Chart\n- **Axes**: The x-axis represents chronological time (months / years), and the y-axis indicates the parameter's measured value.\n- **Interpretation**: Reveals seasonal warming/cooling cycles, monsoon freshening events, and multi-month trends.\n\n## 3. Spatial Map\n- **Axes**: Latitude (\u00b0N) and Longitude (\u00b0E).\n- **Interpretation**: Displays geographical coordinates of profiling floats across the Bay of Bengal, Andaman Sea, and coastal boundaries.\n\n## 4. Trajectory Map\n- **Interpretation**: Connected chronological track showing the ocean current drift path taken by a robotic ARGO float over its operational lifetime.\n\n## 5. Parameter Distribution (Histogram)\n- **Axes**: Measured parameter value bins on x-axis vs. frequency/count of observations on y-axis.\n- **Interpretation**: Shows median values, dispersion, outliers, and modal water mass characteristics.\n",
+    "source": "How to Read FloatChat Oceanographic Charts",
+    "type": "concept"
+  },
+  {
+    "id": "float_1902198",
+    "title": "ARGO Float 1902198",
+    "content": "ARGO Float Platform 1902198 in Bay of Bengal. Recorded 6 profiles between 2024-10-06 and 2024-11-25. Bounding coordinates: latitude 5.37 to 6.85, longitude 83.08 to 83.81. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 1902198 Summary",
+    "type": "float_metadata",
+    "platform": "1902198",
+    "lat": 6.1123,
+    "lon": 83.44425
+  },
+  {
+    "id": "float_1902594",
+    "title": "ARGO Float 1902594",
+    "content": "ARGO Float Platform 1902594 in Bay of Bengal. Recorded 66 profiles between 2023-06-16 and 2024-12-27. Bounding coordinates: latitude 5.36 to 13.64, longitude 80.07 to 87.02. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 1902594 Summary",
+    "type": "float_metadata",
+    "platform": "1902594",
+    "lat": 9.501090083333333,
+    "lon": 83.54223875000001
+  },
+  {
+    "id": "float_1902669",
+    "title": "ARGO Float 1902669",
+    "content": "ARGO Float Platform 1902669 in Bay of Bengal. Recorded 47 profiles between 2023-09-19 and 2024-12-22. Bounding coordinates: latitude 13.05 to 16.35, longitude 86.20 to 89.10. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 1902669 Summary",
+    "type": "float_metadata",
+    "platform": "1902669",
+    "lat": 14.700000000000001,
+    "lon": 87.65
+  },
+  {
+    "id": "float_1902670",
+    "title": "ARGO Float 1902670",
+    "content": "ARGO Float Platform 1902670 in Bay of Bengal. Recorded 43 profiles between 2023-09-26 and 2024-12-29. Bounding coordinates: latitude 5.02 to 7.20, longitude 81.28 to 89.75. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 1902670 Summary",
+    "type": "float_metadata",
+    "platform": "1902670",
+    "lat": 6.108333333333333,
+    "lon": 85.51666666666667
+  },
+  {
+    "id": "float_1902681",
+    "title": "ARGO Float 1902681",
+    "content": "ARGO Float Platform 1902681 in Bay of Bengal. Recorded 27 profiles between 2024-04-27 and 2024-12-30. Bounding coordinates: latitude 11.47 to 13.88, longitude 84.54 to 89.85. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 1902681 Summary",
+    "type": "float_metadata",
+    "platform": "1902681",
+    "lat": 12.677185000000001,
+    "lon": 87.19525666666667
+  },
+  {
+    "id": "float_2902216",
+    "title": "ARGO Float 2902216",
+    "content": "ARGO Float Platform 2902216 in Bay of Bengal. Recorded 2 profiles between 2023-06-14 and 2023-07-24. Bounding coordinates: latitude 5.06 to 5.52, longitude 81.84 to 82.12. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902216 Summary",
+    "type": "float_metadata",
+    "platform": "2902216",
+    "lat": 5.291499999999999,
+    "lon": 81.983
+  },
+  {
+    "id": "float_2902264",
+    "title": "ARGO Float 2902264",
+    "content": "ARGO Float Platform 2902264 in Bay of Bengal. Recorded 11 profiles between 2023-01-09 and 2023-04-19. Bounding coordinates: latitude 9.33 to 10.44, longitude 86.69 to 87.98. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902264 Summary",
+    "type": "float_metadata",
+    "platform": "2902264",
+    "lat": 9.8849,
+    "lon": 87.33461166666666
+  },
+  {
+    "id": "float_2902294",
+    "title": "ARGO Float 2902294",
+    "content": "ARGO Float Platform 2902294 in Bay of Bengal. Recorded 14 profiles between 2023-01-05 and 2023-03-27. Bounding coordinates: latitude 6.77 to 7.70, longitude 89.71 to 90.03. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902294 Summary",
+    "type": "float_metadata",
+    "platform": "2902294",
+    "lat": 7.233523999999999,
+    "lon": 89.8707355
+  },
+  {
+    "id": "float_2902394",
+    "title": "ARGO Float 2902394",
+    "content": "ARGO Float Platform 2902394 in Bay of Bengal. Recorded 48 profiles between 2023-01-10 and 2024-05-02. Bounding coordinates: latitude 7.08 to 11.65, longitude 81.12 to 87.92. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902394 Summary",
+    "type": "float_metadata",
+    "platform": "2902394",
+    "lat": 9.366440966642058,
+    "lon": 84.517955
+  },
+  {
+    "id": "float_2902680",
+    "title": "ARGO Float 2902680",
+    "content": "ARGO Float Platform 2902680 in Bay of Bengal. Recorded 1 profiles between 2023-01-20 and 2023-01-20. Bounding coordinates: latitude 6.10 to 6.10, longitude 81.92 to 81.92. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902680 Summary",
+    "type": "float_metadata",
+    "platform": "2902680",
+    "lat": 6.102,
+    "lon": 81.922
+  },
+  {
+    "id": "float_2902758",
+    "title": "ARGO Float 2902758",
+    "content": "ARGO Float Platform 2902758 in Bay of Bengal. Recorded 14 profiles between 2023-01-04 and 2023-03-07. Bounding coordinates: latitude 17.71 to 19.11, longitude 87.10 to 88.65. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902758 Summary",
+    "type": "float_metadata",
+    "platform": "2902758",
+    "lat": 18.412,
+    "lon": 87.87700000000001
+  },
+  {
+    "id": "float_2902764",
+    "title": "ARGO Float 2902764",
+    "content": "ARGO Float Platform 2902764 in Bay of Bengal. Recorded 10 profiles between 2023-07-29 and 2024-03-27. Bounding coordinates: latitude 5.05 to 5.80, longitude 87.63 to 89.30. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902764 Summary",
+    "type": "float_metadata",
+    "platform": "2902764",
+    "lat": 5.4295,
+    "lon": 88.463
+  },
+  {
+    "id": "float_2902765",
+    "title": "ARGO Float 2902765",
+    "content": "ARGO Float Platform 2902765 in Bay of Bengal. Recorded 72 profiles between 2023-01-10 and 2024-12-26. Bounding coordinates: latitude 8.10 to 13.38, longitude 81.66 to 87.66. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902765 Summary",
+    "type": "float_metadata",
+    "platform": "2902765",
+    "lat": 10.741,
+    "lon": 84.6585
+  },
+  {
+    "id": "float_2902766",
+    "title": "ARGO Float 2902766",
+    "content": "ARGO Float Platform 2902766 in Bay of Bengal. Recorded 76 profiles between 2023-01-09 and 2024-12-28. Bounding coordinates: latitude 13.34 to 16.64, longitude 86.17 to 89.49. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902766 Summary",
+    "type": "float_metadata",
+    "platform": "2902766",
+    "lat": 14.992,
+    "lon": 87.828
+  },
+  {
+    "id": "float_2902768",
+    "title": "ARGO Float 2902768",
+    "content": "ARGO Float Platform 2902768 in Bay of Bengal. Recorded 72 profiles between 2023-01-06 and 2024-12-21. Bounding coordinates: latitude 10.75 to 14.44, longitude 80.81 to 86.17. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902768 Summary",
+    "type": "float_metadata",
+    "platform": "2902768",
+    "lat": 12.596,
+    "lon": 83.4925
+  },
+  {
+    "id": "float_2902769",
+    "title": "ARGO Float 2902769",
+    "content": "ARGO Float Platform 2902769 in Bay of Bengal. Recorded 41 profiles between 2023-01-01 and 2024-06-30. Bounding coordinates: latitude 5.00 to 7.00, longitude 83.08 to 87.46. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902769 Summary",
+    "type": "float_metadata",
+    "platform": "2902769",
+    "lat": 6.0,
+    "lon": 85.2715
+  },
+  {
+    "id": "float_2902770",
+    "title": "ARGO Float 2902770",
+    "content": "ARGO Float Platform 2902770 in Bay of Bengal. Recorded 72 profiles between 2023-01-06 and 2024-12-21. Bounding coordinates: latitude 10.25 to 14.06, longitude 86.19 to 90.60. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902770 Summary",
+    "type": "float_metadata",
+    "platform": "2902770",
+    "lat": 12.154,
+    "lon": 88.3925
+  },
+  {
+    "id": "float_2902771",
+    "title": "ARGO Float 2902771",
+    "content": "ARGO Float Platform 2902771 in Bay of Bengal. Recorded 10 profiles between 2023-01-10 and 2023-04-30. Bounding coordinates: latitude 5.01 to 5.90, longitude 84.72 to 85.86. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902771 Summary",
+    "type": "float_metadata",
+    "platform": "2902771",
+    "lat": 5.452500000000001,
+    "lon": 85.2935
+  },
+  {
+    "id": "float_2902772",
+    "title": "ARGO Float 2902772",
+    "content": "ARGO Float Platform 2902772 in Bay of Bengal. Recorded 72 profiles between 2023-01-06 and 2024-12-21. Bounding coordinates: latitude 13.57 to 16.50, longitude 85.28 to 89.04. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902772 Summary",
+    "type": "float_metadata",
+    "platform": "2902772",
+    "lat": 15.031,
+    "lon": 87.1605
+  },
+  {
+    "id": "float_2902775",
+    "title": "ARGO Float 2902775",
+    "content": "ARGO Float Platform 2902775 in Bay of Bengal. Recorded 73 profiles between 2023-01-09 and 2024-12-29. Bounding coordinates: latitude 5.79 to 9.82, longitude 83.33 to 88.25. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902775 Summary",
+    "type": "float_metadata",
+    "platform": "2902775",
+    "lat": 7.804,
+    "lon": 85.7865
+  },
+  {
+    "id": "float_2902837",
+    "title": "ARGO Float 2902837",
+    "content": "ARGO Float Platform 2902837 in Bay of Bengal. Recorded 56 profiles between 2023-01-01 and 2023-10-28. Bounding coordinates: latitude 9.03 to 12.05, longitude 81.83 to 86.05. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2902837 Summary",
+    "type": "float_metadata",
+    "platform": "2902837",
+    "lat": 10.5415,
+    "lon": 83.939
+  },
+  {
+    "id": "float_2903132",
+    "title": "ARGO Float 2903132",
+    "content": "ARGO Float Platform 2903132 in Bay of Bengal. Recorded 2 profiles between 2023-02-05 and 2023-02-15. Bounding coordinates: latitude 5.05 to 5.10, longitude 91.91 to 91.93. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2903132 Summary",
+    "type": "float_metadata",
+    "platform": "2903132",
+    "lat": 5.075044999999999,
+    "lon": 91.916055
+  },
+  {
+    "id": "float_2903434",
+    "title": "ARGO Float 2903434",
+    "content": "ARGO Float Platform 2903434 in Bay of Bengal. Recorded 28 profiles between 2024-05-04 and 2024-12-31. Bounding coordinates: latitude 10.77 to 13.78, longitude 85.67 to 87.91. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2903434 Summary",
+    "type": "float_metadata",
+    "platform": "2903434",
+    "lat": 12.275625,
+    "lon": 86.79054
+  },
+  {
+    "id": "float_2903891",
+    "title": "ARGO Float 2903891",
+    "content": "ARGO Float Platform 2903891 in Bay of Bengal. Recorded 46 profiles between 2023-09-21 and 2024-12-24. Bounding coordinates: latitude 12.35 to 13.10, longitude 88.93 to 90.33. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2903891 Summary",
+    "type": "float_metadata",
+    "platform": "2903891",
+    "lat": 12.725,
+    "lon": 89.63333333333333
+  },
+  {
+    "id": "float_2903892",
+    "title": "ARGO Float 2903892",
+    "content": "ARGO Float Platform 2903892 in Bay of Bengal. Recorded 46 profiles between 2023-09-23 and 2024-12-26. Bounding coordinates: latitude 6.33 to 13.10, longitude 81.33 to 89.55. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 2903892 Summary",
+    "type": "float_metadata",
+    "platform": "2903892",
+    "lat": 9.716666666666667,
+    "lon": 85.44166666666666
+  },
+  {
+    "id": "float_4903775",
+    "title": "ARGO Float 4903775",
+    "content": "ARGO Float Platform 4903775 in Bay of Bengal. Recorded 47 profiles between 2023-09-19 and 2024-12-22. Bounding coordinates: latitude 11.33 to 14.70, longitude 85.20 to 89.85. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 4903775 Summary",
+    "type": "float_metadata",
+    "platform": "4903775",
+    "lat": 13.016666666666666,
+    "lon": 87.525
+  },
+  {
+    "id": "float_4903776",
+    "title": "ARGO Float 4903776",
+    "content": "ARGO Float Platform 4903776 in Bay of Bengal. Recorded 46 profiles between 2023-09-21 and 2024-12-24. Bounding coordinates: latitude 9.58 to 12.40, longitude 88.10 to 90.70. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 4903776 Summary",
+    "type": "float_metadata",
+    "platform": "4903776",
+    "lat": 10.991666666666667,
+    "lon": 89.4
+  },
+  {
+    "id": "float_4903793",
+    "title": "ARGO Float 4903793",
+    "content": "ARGO Float Platform 4903793 in Bay of Bengal. Recorded 9 profiles between 2024-10-20 and 2024-12-29. Bounding coordinates: latitude 5.85 to 7.05, longitude 90.20 to 91.07. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 4903793 Summary",
+    "type": "float_metadata",
+    "platform": "4903793",
+    "lat": 6.450714166666667,
+    "lon": 90.63714083333333
+  },
+  {
+    "id": "float_4903794",
+    "title": "ARGO Float 4903794",
+    "content": "ARGO Float Platform 4903794 in Bay of Bengal. Recorded 9 profiles between 2024-10-21 and 2024-12-30. Bounding coordinates: latitude 6.12 to 7.28, longitude 87.96 to 89.28. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 4903794 Summary",
+    "type": "float_metadata",
+    "platform": "4903794",
+    "lat": 6.6970600000000005,
+    "lon": 88.6192625
+  },
+  {
+    "id": "float_5907082",
+    "title": "ARGO Float 5907082",
+    "content": "ARGO Float Platform 5907082 in Bay of Bengal. Recorded 48 profiles between 2023-09-18 and 2024-12-31. Bounding coordinates: latitude 11.27 to 15.40, longitude 80.63 to 84.13. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 5907082 Summary",
+    "type": "float_metadata",
+    "platform": "5907082",
+    "lat": 13.333333333333334,
+    "lon": 82.38333333333334
+  },
+  {
+    "id": "float_5907083",
+    "title": "ARGO Float 5907083",
+    "content": "ARGO Float Platform 5907083 in Bay of Bengal. Recorded 47 profiles between 2023-09-19 and 2024-12-22. Bounding coordinates: latitude 12.72 to 15.28, longitude 83.77 to 87.53. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 5907083 Summary",
+    "type": "float_metadata",
+    "platform": "5907083",
+    "lat": 14.0,
+    "lon": 85.65
+  },
+  {
+    "id": "float_5907086",
+    "title": "ARGO Float 5907086",
+    "content": "ARGO Float Platform 5907086 in Bay of Bengal. Recorded 9 profiles between 2024-08-09 and 2024-12-25. Bounding coordinates: latitude 5.01 to 5.70, longitude 88.22 to 89.12. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 5907086 Summary",
+    "type": "float_metadata",
+    "platform": "5907086",
+    "lat": 5.354664166666667,
+    "lon": 88.6701325
+  },
+  {
+    "id": "float_6990608",
+    "title": "ARGO Float 6990608",
+    "content": "ARGO Float Platform 6990608 in Bay of Bengal. Recorded 61 profiles between 2023-09-27 and 2024-12-26. Bounding coordinates: latitude 5.97 to 9.95, longitude 85.67 to 89.88. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 6990608 Summary",
+    "type": "float_metadata",
+    "platform": "6990608",
+    "lat": 7.958333333333333,
+    "lon": 87.775
+  },
+  {
+    "id": "float_6990609",
+    "title": "ARGO Float 6990609",
+    "content": "ARGO Float Platform 6990609 in Bay of Bengal. Recorded 47 profiles between 2023-09-22 and 2024-12-25. Bounding coordinates: latitude 7.35 to 9.48, longitude 87.85 to 91.42. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 6990609 Summary",
+    "type": "float_metadata",
+    "platform": "6990609",
+    "lat": 8.416666666666666,
+    "lon": 89.63333333333333
+  },
+  {
+    "id": "float_7901125",
+    "title": "ARGO Float 7901125",
+    "content": "ARGO Float Platform 7901125 in Bay of Bengal. Recorded 47 profiles between 2023-09-20 and 2024-12-23. Bounding coordinates: latitude 12.33 to 15.32, longitude 88.35 to 90.42. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 7901125 Summary",
+    "type": "float_metadata",
+    "platform": "7901125",
+    "lat": 13.825,
+    "lon": 89.38333333333333
+  },
+  {
+    "id": "float_7901126",
+    "title": "ARGO Float 7901126",
+    "content": "ARGO Float Platform 7901126 in Bay of Bengal. Recorded 47 profiles between 2023-09-21 and 2024-12-24. Bounding coordinates: latitude 11.18 to 13.77, longitude 87.07 to 88.97. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 7901126 Summary",
+    "type": "float_metadata",
+    "platform": "7901126",
+    "lat": 12.475000000000001,
+    "lon": 88.01666666666667
+  },
+  {
+    "id": "float_7901127",
+    "title": "ARGO Float 7901127",
+    "content": "ARGO Float Platform 7901127 in Bay of Bengal. Recorded 47 profiles between 2023-09-22 and 2024-12-25. Bounding coordinates: latitude 7.47 to 10.78, longitude 87.80 to 91.38. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 7901127 Summary",
+    "type": "float_metadata",
+    "platform": "7901127",
+    "lat": 9.125,
+    "lon": 89.59166666666667
+  },
+  {
+    "id": "float_7902190",
+    "title": "ARGO Float 7902190",
+    "content": "ARGO Float Platform 7902190 in Bay of Bengal. Recorded 22 profiles between 2024-05-15 and 2024-12-29. Bounding coordinates: latitude 16.63 to 18.16, longitude 86.13 to 88.63. Measures temperature, salinity, and pressure down to 2000 dbar.",
+    "source": "Float 7902190 Summary",
+    "type": "float_metadata",
+    "platform": "7902190",
+    "lat": 17.394830499999998,
+    "lon": 87.3816645
+  }
+]
