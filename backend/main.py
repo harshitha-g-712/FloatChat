@@ -29,7 +29,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
-from fastapi import FastAPI, HTTPException, Request, Query, status
+from fastapi import FastAPI, HTTPException, Request, Query, status, Response
 # pyrefly: ignore[missing-import]
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
@@ -680,6 +680,79 @@ def api_me(request: Request):
 
 # ── Discovery Endpoints ───────────────────────────────────────────────────────
 
+@app.get("/api/map/points")
+def api_map_points(
+    request: Request,
+    platform: Optional[str] = None,
+    year: Optional[int] = None,
+    month: Optional[int] = None,
+    region: Optional[str] = None,
+    limit: int = 2000
+):
+    """Return geospatial points of ARGO profiles for interactive mapping."""
+    import sqlite3
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    try:
+        sql = """
+            SELECT p.id, p.platform, p.lat, p.lon, p.timestamp, p.region,
+                   (SELECT temperature FROM measurements m WHERE m.profile_id = p.id AND m.temperature IS NOT NULL AND m.pressure <= 20 ORDER BY m.pressure ASC LIMIT 1) as surface_temp,
+                   (SELECT salinity FROM measurements m WHERE m.profile_id = p.id AND m.salinity IS NOT NULL AND m.pressure <= 20 ORDER BY m.pressure ASC LIMIT 1) as surface_sal,
+                   (SELECT MAX(pressure) FROM measurements m WHERE m.profile_id = p.id) as max_depth
+            FROM profiles p
+            WHERE p.lat IS NOT NULL AND p.lon IS NOT NULL
+        """
+        params = []
+        plat = validate_platform_id(platform) if platform else None
+        if plat:
+            sql += " AND p.platform = ?"
+            params.append(plat)
+        if year:
+            if month:
+                sql += " AND p.timestamp >= ? AND p.timestamp < ?"
+                params.extend([f"{year:04d}-{month:02d}-01", f"{year:04d}-{month+1:02d}-01" if month < 12 else f"{year+1:04d}-01-01"])
+            else:
+                sql += " AND p.timestamp >= ? AND p.timestamp < ?"
+                params.extend([f"{year:04d}-01-01", f"{year+1:04d}-01-01"])
+        elif month:
+            sql += " AND CAST(SUBSTR(p.timestamp, 6, 2) AS INTEGER) = ?"
+            params.append(month)
+
+        if region:
+            sql += " AND p.region LIKE ?"
+            params.append(f"%{region}%")
+
+        sql += " ORDER BY p.timestamp ASC LIMIT ?"
+        params.append(int(limit))
+
+        rows = conn.execute(sql, params).fetchall()
+
+        plat_rows = conn.execute("SELECT DISTINCT platform FROM profiles WHERE lat IS NOT NULL AND lon IS NOT NULL ORDER BY platform ASC").fetchall()
+        platforms = [r[0] for r in plat_rows if r[0]]
+
+        points = []
+        for r in rows:
+            points.append({
+                "id": r["id"],
+                "platform": r["platform"],
+                "lat": round(r["lat"], 4),
+                "lon": round(r["lon"], 4),
+                "timestamp": r["timestamp"],
+                "surface_temp": round(r["surface_temp"], 2) if r["surface_temp"] is not None else None,
+                "surface_sal": round(r["surface_sal"], 2) if r["surface_sal"] is not None else None,
+                "max_depth": round(r["max_depth"], 1) if r["max_depth"] is not None else None,
+                "region": r["region"],
+            })
+
+        return {
+            "points": points,
+            "count": len(points),
+            "platforms": platforms
+        }
+    finally:
+        conn.close()
+
+
 @app.get("/api/floats")
 def api_list_floats(request: Request, year: Optional[int] = None, month: Optional[int] = None, month_end: Optional[int] = None, region: Optional[str] = None):
     """List ARGO floats with coverage metadata."""
@@ -759,6 +832,109 @@ def api_float_dive_profile(platform: str, request: Request):
         }
     finally:
         conn.close()
+
+
+@app.get("/api/floats/{platform}/ts-diagram")
+def api_float_ts_diagram(platform: str, request: Request):
+    """Temperature-Salinity (T-S) diagram with potential density isopycnals and water masses."""
+    import sqlite3
+    from retrieval.dive_profile import build_dive_profile, potential_density_unesco
+
+    plat = validate_platform_id(platform)
+    if not plat:
+        raise HTTPException(status_code=400, detail="Invalid float platform ID (must be a 7-digit WMO ID)")
+
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    try:
+        prof = conn.execute("""
+            SELECT p.id, p.platform, p.lat, p.lon, p.timestamp
+            FROM profiles p
+            WHERE p.platform = ?
+              AND EXISTS (SELECT 1 FROM measurements m
+                          WHERE m.profile_id = p.id AND m.pressure IS NOT NULL
+                            AND m.temperature IS NOT NULL AND m.salinity IS NOT NULL)
+            ORDER BY p.timestamp DESC
+            LIMIT 1
+        """, (plat,)).fetchone()
+        if not prof:
+            raise HTTPException(status_code=404, detail=f"Float {plat} has no complete T-S profiles")
+
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(measurements)").fetchall()}
+        qc_cols = ", temp_qc, sal_qc" if "temp_qc" in cols else ""
+        rows = conn.execute(f"""
+            SELECT pressure, temperature, salinity{qc_cols}
+            FROM measurements
+            WHERE profile_id = ? AND pressure IS NOT NULL
+              AND temperature IS NOT NULL AND salinity IS NOT NULL
+            ORDER BY pressure ASC
+        """, (prof["id"],)).fetchall()
+        dive = build_dive_profile(rows, prof["lat"])
+
+        # Compute background isopycnal curves for T-S grid (salinity 30..36.5, sigma 20..27.5)
+        isopycnals = []
+        target_sigmas = [20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 27.5]
+        for sig_target in target_sigmas:
+            curve_pts = []
+            for s_val in [30.0, 31.0, 32.0, 33.0, 34.0, 34.5, 35.0, 35.5, 36.0, 36.5]:
+                t_low, t_high = -2.0, 33.0
+                for _ in range(20):
+                    t_mid = (t_low + t_high) / 2.0
+                    sig_mid = potential_density_unesco(t_mid, s_val)
+                    if sig_mid > sig_target:
+                        t_low = t_mid
+                    else:
+                        t_high = t_mid
+                if 0.0 <= t_mid <= 32.0:
+                    curve_pts.append({"salinity": s_val, "temperature": round(t_mid, 2)})
+            if len(curve_pts) >= 2:
+                isopycnals.append({
+                    "sigma_theta": sig_target,
+                    "points": curve_pts
+                })
+
+        return {
+            "platform": plat,
+            "profile_id": prof["id"],
+            "timestamp": prof["timestamp"],
+            "lat": round(prof["lat"], 3) if prof["lat"] is not None else None,
+            "lon": round(prof["lon"], 3) if prof["lon"] is not None else None,
+            "levels": dive["levels"],
+            "mixed_layer_depth_temp": dive.get("mixed_layer_depth"),
+            "mixed_layer_depth_density": dive.get("mixed_layer_depth_density"),
+            "barrier_layer_thickness": dive.get("barrier_layer_thickness"),
+            "isopycnals": isopycnals,
+        }
+    finally:
+        conn.close()
+
+
+@app.get("/api/regions")
+def api_list_regions(request: Request):
+    """List supported and active ocean basins for multi-region expansion."""
+    import sqlite3
+    from config import SUPPORTED_BASINS
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        rows = conn.execute("SELECT region, COUNT(*) as cnt FROM profiles GROUP BY region").fetchall()
+        db_counts = {r[0]: r[1] for r in rows if r[0]}
+    finally:
+        conn.close()
+
+    basins_out = []
+    for bid, binfo in SUPPORTED_BASINS.items():
+        name = binfo["name"]
+        cnt = db_counts.get(name, 0)
+        basins_out.append({
+            "id": bid,
+            "name": name,
+            "bbox": binfo["bbox"],
+            "center": binfo["center"],
+            "status": "active" if cnt > 0 else "available",
+            "profiles_loaded": cnt,
+            "ingest_command": f"python backend/ingestion/fetch_and_load.py --basin {bid}"
+        })
+    return {"basins": basins_out}
 
 
 @app.get("/api/coverage")
@@ -1439,6 +1615,48 @@ def api_export_csv(body: ExportRequest, request: Request):
         iter([csv_text]),
         media_type="text/csv",
         headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
+
+
+@app.post("/api/export/pdf")
+def api_export_pdf(body: ExportRequest, request: Request):
+    """Generate and download a publication-ready PDF Scientific Oceanographic Report."""
+    conv_id = body.conversation_id
+    user = _get_current_user(request)
+    if not conv_id:
+        raise HTTPException(status_code=400, detail="conversation_id is required")
+    if user:
+        if not conversation_owned(conv_id, user["id"]):
+            raise HTTPException(status_code=404, detail="Conversation not found")
+    elif conv_id not in _anon_memory:
+        raise HTTPException(status_code=404, detail=_ANON_EXPORT_GONE)
+
+    stored = _get_export_result(user, conv_id)
+    if stored is None and user:
+        try:
+            stored = resolve_result(get_latest_export(conv_id, user["id"]), retrieve)
+        except Exception:
+            logger.exception("Could not rebuild export from saved chat")
+            stored = None
+
+    if not stored:
+        # Fallback to general database coverage summary
+        stored = coverage_summary()
+        stored["task"] = "coverage"
+
+    from pdf_report import generate_scientific_pdf_report
+    pdf_bytes, filename = generate_scientific_pdf_report(
+        stored,
+        metadata={
+            "conversation_id": conv_id,
+            "user": (user or {}).get("email", "Guest Researcher")
+        }
+    )
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
 
 

@@ -14,6 +14,10 @@
   <!-- Plotly.js for interactive charts -->
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 
+  <!-- Leaflet.js for Interactive Geospatial Mapping -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -98,6 +102,7 @@
       <!-- View Switcher Tabs in Sidebar -->
       <div class="tab-switch-group">
         <button id="tab-chat-btn" class="view-tab active">💬 Chat</button>
+        <button id="tab-map-btn" class="view-tab">🗺️ Ocean Map</button>
         <button id="tab-discover-btn" class="view-tab">🧭 Discover</button>
         <button id="tab-simulator-btn" class="view-tab">🤿 Sonar &amp; Dive</button>
       </div>
@@ -238,6 +243,16 @@
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
             <polyline points="7 10 12 15 17 10"/>
             <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </button>
+        <button id="export-pdf-btn" class="topbar-icon-btn" title="Download Scientific PDF Report" aria-label="Export PDF Report">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
           </svg>
         </button>
       </div>
@@ -408,25 +423,33 @@
             </div>
 
             <!-- Oceanographic Physics Features Cards -->
-            <div class="sim-physics-row">
+            <div class="sim-physics-row" style="grid-template-columns: repeat(4, 1fr);">
               <div class="sim-phys-card">
-                <span class="phys-title">🌊 Mixed Layer Depth</span>
+                <span class="phys-title">🌊 MLD (Temp)</span>
                 <span class="phys-val" id="sim-phys-mld">--</span>
+              </div>
+              <div class="sim-phys-card">
+                <span class="phys-title">🛡️ Barrier Layer (BLT)</span>
+                <span class="phys-val" id="sim-phys-blt">--</span>
               </div>
               <div class="sim-phys-card">
                 <span class="phys-title">📉 Thermocline Core</span>
                 <span class="phys-val" id="sim-phys-thermocline">--</span>
               </div>
               <div class="sim-phys-card sofar-card">
-                <span class="phys-title">📻 Deep Sound Channel (SOFAR)</span>
+                <span class="phys-title">📻 SOFAR Axis</span>
                 <span class="phys-val" id="sim-phys-sofar">--</span>
               </div>
             </div>
 
             <!-- Profile Plotly Graph -->
             <div class="sim-chart-box">
-              <div class="sim-chart-header">
-                <span>Vertical In-Situ Curves (Temperature, Salinity &amp; Sound Speed)</span>
+              <div class="sim-chart-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span id="sim-chart-title">Vertical In-Situ Curves (Temperature, Salinity &amp; Sound Speed)</span>
+                <div class="chart-toggle-group">
+                  <button type="button" id="btn-chart-vertical" class="sim-toggle-btn active">Vertical Profiles</button>
+                  <button type="button" id="btn-chart-ts" class="sim-toggle-btn">T-S Diagram (Isopycnals)</button>
+                </div>
               </div>
               <div id="sim-plotly-chart" class="chart-plotly" style="height: 340px;"></div>
             </div>
@@ -434,6 +457,61 @@
         </div>
       </div>
     </div><!-- .simulator-feed -->
+
+    <!-- ── View 4: Interactive Geospatial Ocean Map ────────────────────────── -->
+    <div class="map-feed" id="map-feed" style="display:none;">
+      <div class="map-view-container">
+        <!-- Map Controls Toolbar -->
+        <div class="map-toolbar">
+          <div class="map-tool-group">
+            <label for="map-float-filter">Float:</label>
+            <select id="map-float-filter" class="map-select">
+              <option value="">All Active Floats</option>
+            </select>
+          </div>
+          <div class="map-tool-group">
+            <label for="map-year-filter">Year:</label>
+            <select id="map-year-filter" class="map-select">
+              <option value="">All Years</option>
+              <option value="2023">2023</option>
+              <option value="2024">2024</option>
+            </select>
+          </div>
+          <div class="map-tool-group">
+            <label for="map-basemap-select">Base Layer:</label>
+            <select id="map-basemap-select" class="map-select">
+              <option value="ocean">🌊 ESRI Ocean</option>
+              <option value="dark">🌑 Dark Matter</option>
+              <option value="satellite">🛰️ Satellite</option>
+              <option value="osm">🗺️ Standard OSM</option>
+            </select>
+          </div>
+          <div class="map-tool-group toggles">
+            <button id="map-toggle-lines" class="map-btn active" title="Toggle Trajectory Paths">〰️ Drift Paths</button>
+            <button id="map-reset-btn" class="map-btn secondary" title="Reset Map View">🎯 Reset View</button>
+          </div>
+          <div class="map-stats-badge" id="map-stats-badge">
+            <span class="pulse-dot"></span> <span id="map-stats-text">Loading ocean observations...</span>
+          </div>
+        </div>
+
+        <!-- The Leaflet Map Canvas -->
+        <div class="map-canvas-wrap">
+          <div id="ocean-leaflet-map"></div>
+
+          <!-- Float Info Overlay Card (Shown when a float is clicked/selected) -->
+          <div id="map-float-card" class="map-float-card" style="display: none;">
+            <div class="map-card-header">
+              <h4 id="map-card-platform">Float #2902758</h4>
+              <button id="map-card-close" class="map-card-close-btn">&times;</button>
+            </div>
+            <div class="map-card-body" id="map-card-body">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- .map-feed -->
 
     <!-- Status bar (health / error notices) -->
     <div id="status-bar" class="status-bar hidden" role="status"></div>

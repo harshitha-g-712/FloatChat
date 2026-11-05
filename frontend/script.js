@@ -28,6 +28,7 @@ const ENDPOINTS = {
   conversations: `${API_BASE}/api/conversations`,
   searchConv:    `${API_BASE}/api/conversations/search`,
   floats:        `${API_BASE}/api/floats`,
+  mapPoints:     `${API_BASE}/api/map/points`,
   coverage:      `${API_BASE}/api/coverage`,
   shared:        `${API_BASE}/api/shared`,
   diveProfile:   (platform) => `${API_BASE}/api/floats/${encodeURIComponent(platform)}/dive-profile`,
@@ -117,6 +118,20 @@ const simPhysMld         = document.getElementById("sim-phys-mld");
 const simPhysThermocline = document.getElementById("sim-phys-thermocline");
 const simPhysSofar       = document.getElementById("sim-phys-sofar");
 const simPlotlyChart     = document.getElementById("sim-plotly-chart");
+
+// Map Elements
+const tabMapBtn        = document.getElementById("tab-map-btn");
+const mapFeed          = document.getElementById("map-feed");
+const mapFloatFilter   = document.getElementById("map-float-filter");
+const mapYearFilter    = document.getElementById("map-year-filter");
+const mapBasemapSelect = document.getElementById("map-basemap-select");
+const mapToggleLines   = document.getElementById("map-toggle-lines");
+const mapResetBtn      = document.getElementById("map-reset-btn");
+const mapStatsText     = document.getElementById("map-stats-text");
+const mapFloatCard     = document.getElementById("map-float-card");
+const mapCardPlatform  = document.getElementById("map-card-platform");
+const mapCardBody      = document.getElementById("map-card-body");
+const mapCardClose     = document.getElementById("map-card-close");
 
 // FastAPI returns `detail` as a string, or as a list of validation errors (422).
 function apiErrorText(data, fallback) {
@@ -321,6 +336,7 @@ registerForm?.addEventListener("submit", async (e) => {
 
 // ── Tab Switching ─────────────────────────────────────────────────────────────
 tabChatBtn?.addEventListener("click", () => switchTab("chat"));
+tabMapBtn?.addEventListener("click", () => switchTab("map"));
 tabDiscoverBtn?.addEventListener("click", () => switchTab("discover"));
 tabSimulatorBtn?.addEventListener("click", () => switchTab("simulator"));
 diveSimTopBtn?.addEventListener("click", () => switchTab("simulator"));
@@ -328,17 +344,28 @@ diveSimTopBtn?.addEventListener("click", () => switchTab("simulator"));
 function switchTab(tab) {
   activeTab = tab;
   tabChatBtn?.classList.toggle("active", tab === "chat");
+  tabMapBtn?.classList.toggle("active", tab === "map");
   tabDiscoverBtn?.classList.toggle("active", tab === "discover");
   tabSimulatorBtn?.classList.toggle("active", tab === "simulator");
 
   if (tab === "chat") {
     if (chatFeed) chatFeed.style.display = "";
+    if (mapFeed) mapFeed.style.display = "none";
     if (discoverFeed) discoverFeed.style.display = "none";
     if (simulatorFeed) simulatorFeed.style.display = "none";
     if (askForm) askForm.style.display = "";
     if (currentViewTitle) currentViewTitle.textContent = "ARGO Ocean Data Chat";
+  } else if (tab === "map") {
+    if (chatFeed) chatFeed.style.display = "none";
+    if (mapFeed) mapFeed.style.display = "flex";
+    if (discoverFeed) discoverFeed.style.display = "none";
+    if (simulatorFeed) simulatorFeed.style.display = "none";
+    if (askForm) askForm.style.display = "none";
+    if (currentViewTitle) currentViewTitle.textContent = "Interactive Geospatial Ocean Map";
+    initOceanMap();
   } else if (tab === "discover") {
     if (chatFeed) chatFeed.style.display = "none";
+    if (mapFeed) mapFeed.style.display = "none";
     if (discoverFeed) discoverFeed.style.display = "block";
     if (simulatorFeed) simulatorFeed.style.display = "none";
     if (askForm) askForm.style.display = "none";
@@ -346,6 +373,7 @@ function switchTab(tab) {
     loadDiscoveryData();
   } else if (tab === "simulator") {
     if (chatFeed) chatFeed.style.display = "none";
+    if (mapFeed) mapFeed.style.display = "none";
     if (discoverFeed) discoverFeed.style.display = "none";
     if (simulatorFeed) simulatorFeed.style.display = "block";
     if (askForm) askForm.style.display = "none";
@@ -1269,6 +1297,40 @@ async function triggerCsvExport() {
 }
 exportBtn?.addEventListener("click", triggerCsvExport);
 
+// ── Export Scientific PDF Report ─────────────────────────────────────────────
+async function triggerPdfExport() {
+  try {
+    showStatus("Generating Scientific Oceanographic PDF Report...");
+    const resp = await fetch(`${API_BASE}/api/export/pdf`, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ conversation_id: conversationId }),
+    });
+    if (resp.status === 401 || resp.status === 403) { showAuth(); return; }
+    if (!resp.ok) {
+      let detail = "PDF Export failed.";
+      try { const d = await resp.json(); if (typeof d.detail === "string") detail = d.detail; } catch (_) {}
+      showStatus(detail, true);
+      return;
+    }
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `floatchat_scientific_report_${Date.now()}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showStatus("Scientific PDF Report downloaded successfully.");
+    setTimeout(clearStatus, 3000);
+  } catch (_) {
+    showStatus("Network error downloading PDF report.", true);
+  }
+}
+const exportPdfBtn = document.getElementById("export-pdf-btn");
+exportPdfBtn?.addEventListener("click", triggerPdfExport);
+
 // Download a rendered chart as a PNG (2x resolution). Works for restored/history charts too.
 async function downloadChartImage(chartEl, btn) {
   if (!chartEl || !window.Plotly || !chartEl.data || typeof Plotly.downloadImage !== "function") {
@@ -1406,28 +1468,102 @@ async function showSharedChat(token) {
   }
 }
 
-// ── Voice Search ──────────────────────────────────────────────────────────────
+// ── Voice Search (Speech Recognition with Marine Acoustic Normalizer) ─────────
+function normalizeMarineSpeechTranscript(raw) {
+  if (!raw) return "";
+  let t = raw;
+
+  const replacements = [
+    [/\bthermo\s*cline[s]?\b/gi, "thermocline"],
+    [/\bhalo\s*cline[s]?\b/gi, "halocline"],
+    [/\bpycno\s*cline[s]?\b/gi, "pycnocline"],
+    [/\bmixed\s*layer\s*depth\b/gi, "mixed layer depth"],
+    [/\bm\s*l\s*d\b/gi, "MLD"],
+    [/\bs\s*o\s*f\s*a\s*r\b/gi, "SOFAR"],
+    [/\bso\s*far\s*axis\b/gi, "SOFAR axis"],
+    [/\bargo\s*float[s]?\b/gi, "ARGO float"],
+    [/\bcargo\s*float[s]?\b/gi, "ARGO float"],
+    [/\bp\s*s\s*u\b/gi, "PSU"],
+    [/\bd\s*bars?\b/gi, "dbar"],
+    [/\bdeep\s*bars?\b/gi, "dbar"],
+    [/\bdeci\s*bars?\b/gi, "dbar"],
+    [/\bbay\s*of\s*bangle\b/gi, "Bay of Bengal"],
+    [/\bbay\s*of\s*bengal\b/gi, "Bay of Bengal"],
+    [/\barabian\s*sea\b/gi, "Arabian Sea"],
+    [/\bisopycnal[s]?\b/gi, "isopycnal"],
+    [/\bsigma\s*theta\b/gi, "sigma-theta"],
+  ];
+
+  for (const [pattern, repl] of replacements) {
+    t = t.replace(pattern, repl);
+  }
+
+  const digitWords = {
+    zero: "0", one: "1", two: "2", three: "3", four: "4",
+    five: "5", six: "6", seven: "7", eight: "8", nine: "9"
+  };
+  t = t.replace(/\b(?:zero|one|two|three|four|five|six|seven|eight|nine)(?:\s+(?:zero|one|two|three|four|five|six|seven|eight|nine)){6}\b/gi, (match) => {
+    return match.toLowerCase().split(/\s+/).map(w => digitWords[w] || w).join("");
+  });
+
+  return t.trim();
+}
+
 const micBtn = document.getElementById("mic-btn");
 if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
   const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognizer = new SpeechRec();
-  recognizer.continuous = false; recognizer.interimResults = false; recognizer.lang = "en-US";
+  recognizer.continuous = false;
+  recognizer.interimResults = true;
+  recognizer.lang = "en-US";
 
-  recognizer.onstart = () => { micBtn.classList.add("recording"); showStatus("Listening… speak your question"); };
-  recognizer.onresult = (e) => {
-    wasAskedViaMic = true;
-    const transcript = e.results[0][0].transcript;
-    questionInput.value = transcript;
-    askForm.dispatchEvent(new Event("submit"));
+  recognizer.onstart = () => {
+    micBtn.classList.add("recording");
+    showStatus("🎙️ Listening... Speak your ocean question (e.g. 'What is the average temperature in January 2023?')");
   };
-  recognizer.onerror = () => showStatus("Voice recognition failed", true);
-  recognizer.onend = () => { micBtn.classList.remove("recording"); clearStatus(); };
+
+  recognizer.onresult = (e) => {
+    let interim = "";
+    let finalTranscript = "";
+    for (let i = e.resultIndex; i < e.results.length; ++i) {
+      if (e.results[i].isFinal) {
+        finalTranscript += e.results[i][0].transcript;
+      } else {
+        interim += e.results[i][0].transcript;
+      }
+    }
+    const currentText = finalTranscript || interim;
+    const normalized = normalizeMarineSpeechTranscript(currentText);
+    if (questionInput) questionInput.value = normalized;
+
+    if (finalTranscript) {
+      wasAskedViaMic = true;
+      askForm?.dispatchEvent(new Event("submit"));
+    }
+  };
+
+  recognizer.onerror = (e) => {
+    console.warn("Speech recognition error:", e);
+    showStatus(e.error === "not-allowed" ? "Microphone access denied. Please allow microphone permission in your browser." : "Voice recognition failed. Please try again.", true);
+  };
+
+  recognizer.onend = () => {
+    micBtn.classList.remove("recording");
+    clearStatus();
+  };
+
   micBtn?.addEventListener("click", () => {
-    if (micBtn.classList.contains("recording")) recognizer.stop();
-    else recognizer.start();
+    if (micBtn.classList.contains("recording")) {
+      recognizer.stop();
+    } else {
+      recognizer.start();
+    }
   });
 } else if (micBtn) {
-  micBtn.style.display = "none";
+  micBtn.addEventListener("click", () => {
+    showStatus("Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.", true);
+    setTimeout(clearStatus, 4000);
+  });
 }
 
 // ── Audio Response Toggle (Topbar) ───────────────────────────────────────────
@@ -1606,11 +1742,17 @@ async function loadDiveProfile(platform) {
     }
     const data = await resp.json();
     simProfileData = data;
+    currentSimData = data;
     clearStatus();
 
     // Update Ocean Physics metrics cards
     if (simPhysMld) {
       simPhysMld.textContent = data.mixed_layer_depth != null ? `${data.mixed_layer_depth} dbar` : "Not detected";
+    }
+    const simPhysBlt = document.getElementById("sim-phys-blt");
+    if (simPhysBlt) {
+      simPhysBlt.textContent = data.barrier_layer_thickness != null ? `${data.barrier_layer_thickness} dbar` : "0.0 dbar";
+      simPhysBlt.title = "Barrier Layer Thickness = MLD(Temp) - MLD(Density). Barrier layers inhibit vertical heat exchange.";
     }
     if (simPhysThermocline) {
       simPhysThermocline.textContent = data.thermocline_depth != null ? `${data.thermocline_depth} dbar` : "Not detected";
@@ -1626,7 +1768,11 @@ async function loadDiveProfile(platform) {
     if (simPhysThermocline) simPhysThermocline.title = "Depth of the strongest temperature gradient in the upper 500 dbar";
     if (simPhysSofar) simPhysSofar.title = data.sofar_note || "Sound-speed minimum (Mackenzie 1981)";
 
-    renderSimulatorCurves(data);
+    if (simChartMode === "ts") {
+      renderTsDiagram(data);
+    } else {
+      renderSimulatorCurves(data);
+    }
     updateSimulatorHud(simDepth);
   } catch (err) {
     console.error("Failed to load dive profile:", err);
@@ -1784,6 +1930,136 @@ function renderSimulatorCurves(data) {
 
   renderPlotlyChart(simPlotlyChart, traces, layout);
   simChartRendered = true;
+}
+
+let simChartMode = "vertical";
+let currentSimData = null;
+
+const btnChartVertical = document.getElementById("btn-chart-vertical");
+const btnChartTs = document.getElementById("btn-chart-ts");
+const simChartTitle = document.getElementById("sim-chart-title");
+
+btnChartVertical?.addEventListener("click", () => {
+  simChartMode = "vertical";
+  btnChartVertical.classList.add("active");
+  btnChartTs?.classList.remove("active");
+  if (simChartTitle) simChartTitle.textContent = "Vertical In-Situ Curves (Temperature, Salinity & Sound Speed)";
+  if (currentSimData) renderSimulatorCurves(currentSimData);
+});
+
+btnChartTs?.addEventListener("click", () => {
+  simChartMode = "ts";
+  btnChartTs.classList.add("active");
+  btnChartVertical?.classList.remove("active");
+  if (simChartTitle) simChartTitle.textContent = "T-S Diagram (Temperature vs. Salinity with Potential Density Isopycnals)";
+  if (currentSimData) renderTsDiagram(currentSimData);
+});
+
+function renderTsDiagram(data) {
+  if (!simPlotlyChart || !data || !Array.isArray(data.levels) || data.levels.length === 0) return;
+  const levels = data.levels.filter(l => l.temperature != null && l.salinity != null);
+  if (!levels.length) return;
+
+  const salinities = levels.map(l => l.salinity);
+  const temps = levels.map(l => l.temperature);
+  const pressures = levels.map(l => l.pressure);
+  const hoverTexts = levels.map(l =>
+    `<b>Float #${data.platform || ''}</b><br>` +
+    `Depth: ${l.pressure} dbar<br>` +
+    `Temp: ${l.temperature} °C<br>` +
+    `Salinity: ${l.salinity} PSU<br>` +
+    `σθ: ${l.sigma_theta != null ? l.sigma_theta + ' kg/m³' : 'N/A'}<br>` +
+    `Water Mass: <i>${l.water_mass || 'Unclassified'}</i>`
+  );
+
+  const traces = [];
+
+  // Isopycnal background contour curves (UNESCO potential density sigma_theta)
+  const isopycnals = [
+    { sig: 21.0, pts: [] }, { sig: 22.0, pts: [] }, { sig: 23.0, pts: [] },
+    { sig: 24.0, pts: [] }, { sig: 25.0, pts: [] }, { sig: 26.0, pts: [] },
+    { sig: 27.0, pts: [] }, { sig: 27.5, pts: [] }
+  ];
+
+  isopycnals.forEach(({ sig, pts }) => {
+    for (let s = 31.0; s <= 36.5; s += 0.5) {
+      let tLow = -2.0, tHigh = 32.0, tMid = 15.0;
+      for (let iter = 0; iter < 18; iter++) {
+        tMid = (tLow + tHigh) / 2.0;
+        const rhow = 999.84 + 0.0679 * tMid - 0.00909 * tMid * tMid + 0.000100 * tMid * tMid * tMid;
+        const A = 0.824 - 0.00408 * tMid + 0.000076 * tMid * tMid;
+        const B = -0.00572 + 0.000102 * tMid;
+        const C = 0.000483;
+        const estSig = rhow + A * s + B * Math.pow(s, 1.5) + C * s * s - 1000.0;
+        if (estSig > sig) tLow = tMid;
+        else tHigh = tMid;
+      }
+      if (tMid >= 0 && tMid <= 32) pts.push({ s, t: tMid });
+    }
+    if (pts.length >= 2) {
+      traces.push({
+        x: pts.map(p => p.s),
+        y: pts.map(p => p.t),
+        mode: "lines",
+        line: { color: "rgba(148, 163, 184, 0.28)", width: 1, dash: "dot" },
+        hoverinfo: "text",
+        text: `σθ = ${sig} kg/m³`,
+        showlegend: false
+      });
+    }
+  });
+
+  // Profile T-S trajectory path
+  traces.push({
+    x: salinities,
+    y: temps,
+    mode: "lines",
+    line: { color: "rgba(56, 189, 248, 0.5)", width: 2 },
+    hoverinfo: "none",
+    showlegend: false
+  });
+
+  // Profile data points colored by depth
+  traces.push({
+    x: salinities,
+    y: temps,
+    mode: "markers",
+    marker: {
+      size: 7,
+      color: pressures,
+      colorscale: "Viridis",
+      reversescale: true,
+      colorbar: {
+        title: { text: "Depth (dbar)", font: { color: "#f8fafc", size: 10 } },
+        tickfont: { color: "#94a3b8", size: 9 },
+        thickness: 12,
+        len: 0.85
+      }
+    },
+    text: hoverTexts,
+    hoverinfo: "text",
+    showlegend: false
+  });
+
+  const minS = Math.min(...salinities, 32.0);
+  const maxS = Math.max(...salinities, 35.5);
+
+  const layout = {
+    xaxis: {
+      title: { text: "Salinity (PSU)", font: { color: "#38bdf8", size: 11 } },
+      range: [Math.floor(minS * 2) / 2 - 0.2, Math.ceil(maxS * 2) / 2 + 0.2],
+      gridcolor: "#334155",
+      tickfont: { color: "#f8fafc", size: 9 }
+    },
+    yaxis: {
+      title: { text: "Temperature (°C)", font: { color: "#f43f5e", size: 11 } },
+      gridcolor: "#334155",
+      tickfont: { color: "#f8fafc", size: 9 }
+    },
+    margin: { l: 55, r: 20, t: 25, b: 45 }
+  };
+
+  renderPlotlyChart(simPlotlyChart, traces, layout);
 }
 
 function updateSimulatorHud(depth) {
@@ -2239,6 +2515,291 @@ simDepthSlider?.addEventListener("input", (e) => {
   else simMissionPhase = 5;
   updateSimulatorHud(simDepth);
 });
+
+// ── Interactive Geospatial Ocean Map (Leaflet.js) ─────────────────────────────
+let oceanLeafletMap = null;
+let mapMarkersLayer = null;
+let mapLinesLayer = null;
+let mapBaseLayers = {};
+let mapShowLines = true;
+let mapPointsData = [];
+let mapInitialized = false;
+
+function getTempColor(t) {
+  if (t === null || t === undefined) return "#94a3b8"; // slate
+  if (t < 26.0) return "#38bdf8";                      // bright sky blue
+  if (t < 28.0) return "#34d399";                      // emerald
+  if (t < 29.0) return "#f59e0b";                      // amber
+  return "#f43f5e";                                    // rose / red
+}
+
+async function initOceanMap() {
+  if (typeof L === "undefined") {
+    if (mapStatsText) mapStatsText.textContent = "Leaflet mapping library loading...";
+    return;
+  }
+
+  if (!oceanLeafletMap) {
+    const mapEl = document.getElementById("ocean-leaflet-map");
+    if (!mapEl) return;
+
+    oceanLeafletMap = L.map("ocean-leaflet-map", {
+      center: [13.5, 87.5],
+      zoom: 5,
+      minZoom: 3,
+      maxZoom: 13,
+      attributionControl: false
+    });
+
+    // Basemaps
+    mapBaseLayers.ocean = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 13,
+      attribution: "ESRI Ocean"
+    });
+    mapBaseLayers.dark = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      maxZoom: 19,
+      subdomains: "abcd",
+      attribution: "CartoDB"
+    });
+    mapBaseLayers.satellite = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 18,
+      attribution: "ESRI World Imagery"
+    });
+    mapBaseLayers.osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "OpenStreetMap"
+    });
+
+    mapBaseLayers.ocean.addTo(oceanLeafletMap);
+
+    mapMarkersLayer = L.layerGroup().addTo(oceanLeafletMap);
+    mapLinesLayer = L.layerGroup().addTo(oceanLeafletMap);
+
+    // Add bathymetry legend
+    const legend = L.control({ position: "bottomleft" });
+    legend.onAdd = function() {
+      const div = L.DomUtil.create("div", "map-legend-box");
+      div.style.background = "rgba(15, 23, 42, 0.9)";
+      div.style.padding = "8px 12px";
+      div.style.borderRadius = "6px";
+      div.style.border = "1px solid #334155";
+      div.style.fontSize = "11px";
+      div.style.color = "#f8fafc";
+      div.style.lineHeight = "1.5";
+      div.innerHTML = `
+        <div style="font-weight:600; margin-bottom:4px; color:#38bdf8;">Sea Surface Temp</div>
+        <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#38bdf8;margin-right:6px;"></span> &lt; 26°C</div>
+        <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#34d399;margin-right:6px;"></span> 26°C – 28°C</div>
+        <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;margin-right:6px;"></span> 28°C – 29°C</div>
+        <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f43f5e;margin-right:6px;"></span> &gt; 29°C</div>
+      `;
+      return div;
+    };
+    legend.addTo(oceanLeafletMap);
+
+    // Listeners
+    mapBasemapSelect?.addEventListener("change", (e) => {
+      const selected = e.target.value;
+      Object.values(mapBaseLayers).forEach(layer => oceanLeafletMap.removeLayer(layer));
+      if (mapBaseLayers[selected]) {
+        mapBaseLayers[selected].addTo(oceanLeafletMap);
+      }
+    });
+
+    mapToggleLines?.addEventListener("click", () => {
+      mapShowLines = !mapShowLines;
+      mapToggleLines.classList.toggle("active", mapShowLines);
+      if (mapLinesLayer) {
+        if (mapShowLines) oceanLeafletMap.addLayer(mapLinesLayer);
+        else oceanLeafletMap.removeLayer(mapLinesLayer);
+      }
+    });
+
+    mapResetBtn?.addEventListener("click", () => {
+      if (mapFloatFilter) mapFloatFilter.value = "";
+      if (mapYearFilter) mapYearFilter.value = "";
+      if (mapFloatCard) mapFloatCard.style.display = "none";
+      oceanLeafletMap.setView([13.5, 87.5], 5);
+      loadMapPoints();
+    });
+
+    mapFloatFilter?.addEventListener("change", () => loadMapPoints());
+    mapYearFilter?.addEventListener("change", () => loadMapPoints());
+    mapCardClose?.addEventListener("click", () => {
+      if (mapFloatCard) mapFloatCard.style.display = "none";
+    });
+  }
+
+  setTimeout(() => {
+    if (oceanLeafletMap) {
+      oceanLeafletMap.invalidateSize();
+    }
+  }, 100);
+
+  if (!mapInitialized) {
+    mapInitialized = true;
+    await loadMapPoints();
+  }
+}
+
+async function loadMapPoints() {
+  if (!oceanLeafletMap || !mapMarkersLayer || !mapLinesLayer) return;
+
+  const selectedFloat = mapFloatFilter?.value || "";
+  const selectedYear = mapYearFilter?.value || "";
+
+  if (mapStatsText) mapStatsText.textContent = "Loading observations...";
+
+  let url = `${ENDPOINTS.mapPoints}?limit=2000`;
+  if (selectedFloat) url += `&platform=${encodeURIComponent(selectedFloat)}`;
+  if (selectedYear) url += `&year=${encodeURIComponent(selectedYear)}`;
+
+  try {
+    const res = await fetch(url, { headers: authHeaders() });
+    if (!res.ok) throw new Error("Failed to load map data");
+    const data = await res.json();
+    mapPointsData = data.points || [];
+
+    // Populate platforms filter if empty
+    if (mapFloatFilter && mapFloatFilter.options.length <= 1 && data.platforms) {
+      data.platforms.forEach(plat => {
+        const opt = document.createElement("option");
+        opt.value = plat;
+        opt.textContent = `Float #${plat}`;
+        mapFloatFilter.appendChild(opt);
+      });
+    }
+
+    renderMapData(mapPointsData, selectedFloat);
+  } catch (err) {
+    if (mapStatsText) mapStatsText.textContent = "Error loading map points";
+    console.error("Map data error:", err);
+  }
+}
+
+function renderMapData(points, selectedFloat) {
+  mapMarkersLayer.clearLayers();
+  mapLinesLayer.clearLayers();
+
+  if (!points || !points.length) {
+    if (mapStatsText) mapStatsText.textContent = "No profiles found for filter";
+    return;
+  }
+
+  // Group by platform for trajectories
+  const byPlatform = {};
+  points.forEach(pt => {
+    if (!byPlatform[pt.platform]) byPlatform[pt.platform] = [];
+    byPlatform[pt.platform].push(pt);
+  });
+
+  const distinctFloats = Object.keys(byPlatform).length;
+  if (mapStatsText) {
+    mapStatsText.textContent = `Showing ${points.length.toLocaleString()} Profiles across ${distinctFloats} Floats`;
+  }
+
+  const bounds = L.latLngBounds();
+
+  // Draw trajectory drift lines
+  Object.entries(byPlatform).forEach(([plat, pts]) => {
+    if (pts.length >= 2) {
+      const latlngs = pts.map(p => [p.lat, p.lon]);
+      const isTarget = selectedFloat && selectedFloat === plat;
+      const poly = L.polyline(latlngs, {
+        color: isTarget ? "#38bdf8" : "rgba(56, 189, 248, 0.45)",
+        weight: isTarget ? 3 : 1.5,
+        dashArray: isTarget ? null : "3, 4"
+      });
+      mapLinesLayer.addLayer(poly);
+    }
+  });
+
+  // Draw circle markers
+  points.forEach((pt) => {
+    const latlng = [pt.lat, pt.lon];
+    bounds.extend(latlng);
+
+    const isLastForFloat = byPlatform[pt.platform] && byPlatform[pt.platform][byPlatform[pt.platform].length - 1] === pt;
+    const color = getTempColor(pt.surface_temp);
+
+    const marker = L.circleMarker(latlng, {
+      radius: isLastForFloat ? 7 : 4.5,
+      color: isLastForFloat ? "#f8fafc" : "#0f172a",
+      weight: isLastForFloat ? 2 : 1,
+      fillColor: color,
+      fillOpacity: 0.85
+    });
+
+    marker.bindTooltip(`<strong>Float #${pt.platform}</strong><br/>${pt.timestamp ? pt.timestamp.substring(0, 10) : ''}`, {
+      direction: "top",
+      offset: [0, -5]
+    });
+
+    marker.on("click", () => {
+      showMapFloatCard(pt);
+    });
+
+    mapMarkersLayer.addLayer(marker);
+  });
+
+  if (selectedFloat && bounds.isValid()) {
+    oceanLeafletMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 8 });
+  }
+}
+
+function showMapFloatCard(pt) {
+  if (!mapFloatCard || !mapCardPlatform || !mapCardBody) return;
+
+  mapCardPlatform.textContent = `Float #${pt.platform}`;
+  mapCardBody.innerHTML = `
+    <div class="map-card-row">
+      <span class="map-card-label">Profile ID</span>
+      <span class="map-card-val">${escapeHtml(pt.id)}</span>
+    </div>
+    <div class="map-card-row">
+      <span class="map-card-label">Date & Time</span>
+      <span class="map-card-val">${pt.timestamp ? pt.timestamp.substring(0, 19).replace('T', ' ') : 'N/A'}</span>
+    </div>
+    <div class="map-card-row">
+      <span class="map-card-label">Coordinates</span>
+      <span class="map-card-val">${pt.lat.toFixed(3)}°N, ${pt.lon.toFixed(3)}°E</span>
+    </div>
+    <div class="map-card-row">
+      <span class="map-card-label">Surface Temp</span>
+      <span class="map-card-val" style="color:#38bdf8">${pt.surface_temp !== null ? pt.surface_temp.toFixed(2) + ' °C' : 'N/A'}</span>
+    </div>
+    <div class="map-card-row">
+      <span class="map-card-label">Surface Salinity</span>
+      <span class="map-card-val" style="color:#34d399">${pt.surface_sal !== null ? pt.surface_sal.toFixed(2) + ' PSU' : 'N/A'}</span>
+    </div>
+    <div class="map-card-row">
+      <span class="map-card-label">Max Depth</span>
+      <span class="map-card-val">${pt.max_depth !== null ? pt.max_depth.toFixed(0) + ' dbar' : 'N/A'}</span>
+    </div>
+    <div class="map-card-actions">
+      <button class="map-card-btn primary" id="map-inspect-dive-btn">🤿 Dive Profile</button>
+      <button class="map-card-btn" id="map-ask-chat-btn">💬 Ask in Chat</button>
+    </div>
+  `;
+
+  document.getElementById("map-inspect-dive-btn")?.addEventListener("click", () => {
+    switchTab("simulator");
+    if (simFloatSelect) {
+      simFloatSelect.value = pt.platform;
+      loadSimulatorProfile(pt.platform);
+    }
+  });
+
+  document.getElementById("map-ask-chat-btn")?.addEventListener("click", () => {
+    switchTab("chat");
+    if (questionInput) {
+      questionInput.value = `Show temperature profiles for float ${pt.platform}`;
+      questionInput.focus();
+    }
+  });
+
+  mapFloatCard.style.display = "block";
+}
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
 function escapeHtml(str) {

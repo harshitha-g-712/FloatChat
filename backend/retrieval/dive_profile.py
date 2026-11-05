@@ -65,6 +65,65 @@ def sound_speed_mackenzie(t: float, s: float, depth_m: float) -> float:
     )
 
 
+def potential_density_unesco(t: float, s: float) -> float:
+    """Potential density anomaly sigma_theta (kg/m^3) at surface pressure (UNESCO 1983).
+    Valid for T -2..40 C, S 0..42 PSU.
+    """
+    # Pure water density UNESCO 1981
+    rhow = (999.842594 + 6.793952e-2 * t - 9.095290e-3 * t ** 2 +
+            1.001685e-4 * t ** 3 - 1.120083e-6 * t ** 4 + 6.536332e-9 * t ** 5)
+    # Seawater density at p=0
+    A = 8.24493e-1 - 4.0899e-3 * t + 7.6438e-5 * t ** 2 - 8.2467e-7 * t ** 3 + 5.3875e-9 * t ** 4
+    B = -5.72466e-3 + 1.0227e-4 * t - 1.6546e-6 * t ** 2
+    C = 4.8314e-4
+    rho = rhow + A * s + B * (s ** 1.5) + C * (s ** 2)
+    return round(rho - 1000.0, 3)
+
+
+MLD_DELTA_SIGMA = 0.03  # de Boyer Montegut (2004) density criterion (kg/m^3)
+
+
+def _mixed_layer_depth_density(levels: Sequence[Dict[str, Any]]) -> Optional[float]:
+    """Density-based mixed layer depth (dbar) where sigma_theta increases by 0.03 kg/m^3
+    from the ~10 dbar reference value (de Boyer Montegut et al. 2004).
+    """
+    valid = [(lv["pressure"], lv["sigma_theta"]) for lv in levels if lv.get("sigma_theta") is not None]
+    if len(valid) < 2:
+        return None
+    ref = min((v for v in valid if v[0] <= MLD_REF_MAX_PRESSURE), key=lambda v: abs(v[0] - MLD_REF_PRESSURE), default=None)
+    if ref is None:
+        return None
+    ref_p, ref_sig = ref
+    prev_p, prev_sig = ref_p, ref_sig
+    for p, sig in valid:
+        if p <= ref_p:
+            continue
+        if sig - ref_sig >= MLD_DELTA_SIGMA:
+            if sig - prev_sig > 0 and prev_p < p:
+                frac = (ref_sig + MLD_DELTA_SIGMA - prev_sig) / (sig - prev_sig)
+                return round(prev_p + max(0.0, min(1.0, frac)) * (p - prev_p), 1)
+            return round(p, 1)
+        prev_p, prev_sig = p, sig
+    return None
+
+
+def classify_water_mass(t: Optional[float], s: Optional[float], p: Optional[float] = None) -> str:
+    """Identify water mass according to Northern Indian Ocean / Bay of Bengal oceanography."""
+    if t is None or s is None:
+        return "Unclassified"
+    if t >= 27.0 and s < 33.5:
+        return "Bay of Bengal Surface Water (BBSW)"
+    if t >= 25.0 and s >= 35.0:
+        return "Arabian Sea High Salinity Water (ASHSW)"
+    if 24.0 <= t < 28.0 and 33.5 <= s <= 34.6:
+        return "Equatorial Indian Ocean Surface Water"
+    if 10.0 <= t < 20.0 and 34.5 <= s <= 35.2:
+        return "Indian Central Water (ICW)"
+    if t < 10.0 and p is not None and p >= 800.0:
+        return "Indian Deep / Bottom Water"
+    return "Transitional / Thermocline Water"
+
+
 def _mixed_layer_depth(levels: Sequence[Dict[str, Any]]) -> Optional[float]:
     valid = [(lv["pressure"], lv["temperature"]) for lv in levels if lv["temperature"] is not None]
     if len(valid) < 2:
@@ -170,8 +229,12 @@ def build_dive_profile(rows: Sequence[Any], lat: Optional[float] = None) -> Dict
     surface_temp = None
     for p, t, s, tq, sq in parsed:
         speed = None
+        sig = None
+        water_mass = None
         if t is not None and s is not None:
             speed = round(sound_speed_mackenzie(t, s, depth_from_pressure(p, lat)), 1)
+            sig = potential_density_unesco(t, s)
+            water_mass = classify_water_mass(t, s, p)
         if t is not None and surface_temp is None:
             surface_temp = t
         levels.append({
@@ -180,6 +243,8 @@ def build_dive_profile(rows: Sequence[Any], lat: Optional[float] = None) -> Dict
             "temperature": round(t, 2) if t is not None else None,
             "salinity": round(s, 3) if s is not None else None,
             "sound_speed": speed,
+            "sigma_theta": sig,
+            "water_mass": water_mass,
             "temp_qc": tq,
             "sal_qc": sq,
         })
@@ -187,11 +252,16 @@ def build_dive_profile(rows: Sequence[Any], lat: Optional[float] = None) -> Dict
     max_p = levels[-1]["pressure"] if levels else 0.0
     thermo_depth, thermo_grad = _thermocline(levels)
     sofar = _sofar(levels, max_p)
-    mld = _mixed_layer_depth(levels)
+    mld_t = _mixed_layer_depth(levels)
+    mld_rho = _mixed_layer_depth_density(levels)
+    blt = round(max(0.0, mld_t - mld_rho), 1) if (mld_t is not None and mld_rho is not None) else None
+
     return {
         "levels": levels,
-        "mixed_layer_depth": mld,
-        "mixed_layer_note": None if mld is not None else
+        "mixed_layer_depth": mld_t,
+        "mixed_layer_depth_density": mld_rho,
+        "barrier_layer_thickness": blt,
+        "mixed_layer_note": None if mld_t is not None else
             "Not resolved: no level near 10 dbar, or no 0.2 C temperature drop within the profile.",
         "thermocline_depth": thermo_depth,
         "thermocline_gradient": thermo_grad,          # degrees C per dbar
