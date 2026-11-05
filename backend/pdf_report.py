@@ -129,8 +129,8 @@ def generate_scientific_pdf_report(
     story = []
 
     # ── 1. Document Header & Branding ──────────────────────────────────────────
-    story.append(Paragraph("FLOAT CHAT — ARGO OCEANOGRAPHIC REPORT", title_style))
-    story.append(Paragraph("Automated In-Situ Marine Observation & Quality Control Analysis | Bay of Bengal", subtitle_style))
+    story.append(Paragraph("ARGOLENS — OCEANOGRAPHIC RESEARCH REPORT", title_style))
+    story.append(Paragraph("Deterministic Natural Language Retrieval & Seawater Density Profiling for ARGO Float Networks", subtitle_style))
     story.append(HRFlowable(width="100%", thickness=1.5, color=accent_color, spaceAfter=12))
 
     # ── 2. Metadata Block ──────────────────────────────────────────────────────
