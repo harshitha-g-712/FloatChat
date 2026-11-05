@@ -1,0 +1,140 @@
+[
+  {
+    "id": "rag_eval_01",
+    "query": "What is a thermocline?",
+    "expected_target_doc": "Ocean Layers: Thermocline, Halocline, and Pycnocline",
+    "relevant_docs": [
+      "Ocean Layers: Thermocline, Halocline, and Pycnocline",
+      "Oceanographic Variables in ARGO Data"
+    ],
+    "grounding_key_facts": [
+      "temperature",
+      "decreases rapidly",
+      "depth"
+    ]
+  },
+  {
+    "id": "rag_eval_02",
+    "query": "What is an ARGO float?",
+    "expected_target_doc": "ARGO Float Technology & Operations",
+    "relevant_docs": [
+      "ARGO Float Technology & Operations",
+      "ARGO Ocean Data Basics"
+    ],
+    "grounding_key_facts": [
+      "autonomous",
+      "ctd",
+      "sensor"
+    ]
+  },
+  {
+    "id": "rag_eval_03",
+    "query": "How do monsoons affect the Bay of Bengal?",
+    "expected_target_doc": "Bay of Bengal Monsoon Seasons & Dynamics",
+    "relevant_docs": [
+      "Bay of Bengal Monsoon Seasons & Dynamics",
+      "Bay of Bengal Circulation & Dynamics"
+    ],
+    "grounding_key_facts": [
+      "monsoon",
+      "rainfall",
+      "salinity"
+    ]
+  },
+  {
+    "id": "rag_eval_04",
+    "query": "How does river runoff affect salinity stratification?",
+    "expected_target_doc": "Oceanographic Variables in ARGO Data",
+    "relevant_docs": [
+      "Oceanographic Variables in ARGO Data",
+      "Bay of Bengal Monsoon Seasons & Dynamics",
+      "Ocean Layers: Thermocline, Halocline, and Pycnocline"
+    ],
+    "grounding_key_facts": [
+      "freshwater",
+      "salinity",
+      "surface"
+    ]
+  },
+  {
+    "id": "rag_eval_05",
+    "query": "How do ARGO quality control QC flags work?",
+    "expected_target_doc": "ARGO Data Quality Control",
+    "relevant_docs": [
+      "ARGO Data Quality Control"
+    ],
+    "grounding_key_facts": [
+      "quality control",
+      "real-time",
+      "delayed-mode"
+    ]
+  },
+  {
+    "id": "rag_eval_06",
+    "query": "What is the difference between real-time and delayed mode QC?",
+    "expected_target_doc": "ARGO Data Quality Control",
+    "relevant_docs": [
+      "ARGO Data Quality Control"
+    ],
+    "grounding_key_facts": [
+      "real-time",
+      "automated",
+      "delayed-mode"
+    ]
+  },
+  {
+    "id": "rag_eval_07",
+    "query": "How do I read a depth profile chart?",
+    "expected_target_doc": "How to Read FloatChat Oceanographic Charts",
+    "relevant_docs": [
+      "How to Read FloatChat Oceanographic Charts"
+    ],
+    "grounding_key_facts": [
+      "depth",
+      "pressure",
+      "axis"
+    ]
+  },
+  {
+    "id": "rag_eval_08",
+    "query": "What is the SOFAR channel sound speed minimum?",
+    "expected_target_doc": "Bay of Bengal Circulation & Dynamics",
+    "relevant_docs": [
+      "Bay of Bengal Circulation & Dynamics",
+      "ARGO Float Technology & Operations"
+    ],
+    "grounding_key_facts": [
+      "channel",
+      "salinity",
+      "bay of bengal"
+    ]
+  },
+  {
+    "id": "rag_eval_09",
+    "query": "What is a halocline?",
+    "expected_target_doc": "Ocean Layers: Thermocline, Halocline, and Pycnocline",
+    "relevant_docs": [
+      "Ocean Layers: Thermocline, Halocline, and Pycnocline"
+    ],
+    "grounding_key_facts": [
+      "halocline",
+      "salinity",
+      "gradient"
+    ]
+  },
+  {
+    "id": "rag_eval_10",
+    "query": "What sensors are on a standard core ARGO float?",
+    "expected_target_doc": "ARGO Float Technology & Operations",
+    "relevant_docs": [
+      "ARGO Float Technology & Operations",
+      "Oceanographic Variables in ARGO Data"
+    ],
+    "grounding_key_facts": [
+      "CTD",
+      "conductivity",
+      "temperature",
+      "pressure"
+    ]
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "source": "Argovis REST API (University of Colorado / NOAA GDAC)",
+  "region_envelope": "Bay of Bengal (5-20 N, 80-95 E)",
+  "temporal_coverage": "2023-01-01T03:23:36.000Z to 2024-12-31T14:08:25.000Z",
+  "profile_records": 1441,
+  "profiles_with_measurements": 1373,
+  "active_floats": 37,
+  "total_measurement_rows": 151555,
+  "temperature_observations": 110137,
+  "temperature_missing": 41418,
+  "temperature_missing_pct": 27.33,
+  "salinity_observations": 110079,
+  "salinity_missing": 41476,
+  "salinity_missing_pct": 27.37,
+  "qc_applied": "Argo QC standard (1=Good, 9=Missing)"
+}

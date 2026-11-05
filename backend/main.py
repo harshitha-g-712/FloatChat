@@ -740,8 +740,10 @@ def api_float_dive_profile(platform: str, request: Request):
         if not prof:
             raise HTTPException(status_code=404, detail=f"Float {plat} has no profiles with measurements")
 
-        rows = conn.execute("""
-            SELECT pressure, temperature, salinity
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(measurements)").fetchall()}
+        qc_cols = ", temp_qc, sal_qc" if "temp_qc" in cols else ""
+        rows = conn.execute(f"""
+            SELECT pressure, temperature, salinity{qc_cols}
             FROM measurements
             WHERE profile_id = ? AND pressure IS NOT NULL
             ORDER BY pressure ASC

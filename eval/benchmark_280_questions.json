@@ -1,0 +1,3461 @@
+[
+  {
+    "id": "bm_001",
+    "category": "temperature_avg_max",
+    "question": "What is the average temperature in January 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_002",
+    "category": "temperature_avg_max",
+    "question": "Maximum temperature in January 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_003",
+    "category": "temperature_avg_max",
+    "question": "Average temperature in January 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_004",
+    "category": "temperature_avg_max",
+    "question": "Peak temperature recorded in January 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_005",
+    "category": "temperature_avg_max",
+    "question": "What is the average temperature in February 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_006",
+    "category": "temperature_avg_max",
+    "question": "Maximum temperature in February 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_007",
+    "category": "temperature_avg_max",
+    "question": "Average temperature in February 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_008",
+    "category": "temperature_avg_max",
+    "question": "Peak temperature recorded in February 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_009",
+    "category": "temperature_avg_max",
+    "question": "What is the average temperature in March 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_010",
+    "category": "temperature_avg_max",
+    "question": "Maximum temperature in March 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_011",
+    "category": "temperature_avg_max",
+    "question": "Average temperature in March 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_012",
+    "category": "temperature_avg_max",
+    "question": "Peak temperature recorded in March 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_013",
+    "category": "temperature_avg_max",
+    "question": "What is the average temperature in April 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_014",
+    "category": "temperature_avg_max",
+    "question": "Maximum temperature in April 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_015",
+    "category": "temperature_avg_max",
+    "question": "Average temperature in April 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_016",
+    "category": "temperature_avg_max",
+    "question": "Peak temperature recorded in April 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_017",
+    "category": "temperature_avg_max",
+    "question": "What is the average temperature in May 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_018",
+    "category": "temperature_avg_max",
+    "question": "Maximum temperature in May 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_019",
+    "category": "temperature_avg_max",
+    "question": "Average temperature in May 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_020",
+    "category": "temperature_avg_max",
+    "question": "Peak temperature recorded in May 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_021",
+    "category": "temperature_avg_max",
+    "question": "What is the average temperature in June 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_022",
+    "category": "temperature_avg_max",
+    "question": "Maximum temperature in June 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_023",
+    "category": "temperature_avg_max",
+    "question": "Average temperature in June 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_024",
+    "category": "temperature_avg_max",
+    "question": "Peak temperature recorded in June 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_025",
+    "category": "temperature_avg_max",
+    "question": "What is the average temperature in July 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_026",
+    "category": "temperature_avg_max",
+    "question": "Maximum temperature in July 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_027",
+    "category": "temperature_avg_max",
+    "question": "Average temperature in July 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_028",
+    "category": "temperature_avg_max",
+    "question": "Peak temperature recorded in July 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_029",
+    "category": "temperature_avg_max",
+    "question": "What is the average temperature in August 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_030",
+    "category": "temperature_avg_max",
+    "question": "Maximum temperature in August 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_031",
+    "category": "temperature_avg_max",
+    "question": "Average temperature in August 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_032",
+    "category": "temperature_avg_max",
+    "question": "Peak temperature recorded in August 2024",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_033",
+    "category": "temperature_avg_max",
+    "question": "What is the average temperature in September 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_034",
+    "category": "temperature_avg_max",
+    "question": "Maximum temperature in September 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_035",
+    "category": "temperature_avg_max",
+    "question": "What is the average temperature in October 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_036",
+    "category": "temperature_avg_max",
+    "question": "Maximum temperature in October 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_037",
+    "category": "temperature_avg_max",
+    "question": "What is the average temperature in November 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_038",
+    "category": "temperature_avg_max",
+    "question": "Maximum temperature in November 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_039",
+    "category": "temperature_avg_max",
+    "question": "What is the average temperature in December 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_040",
+    "category": "temperature_avg_max",
+    "question": "Maximum temperature in December 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_041",
+    "category": "salinity_queries",
+    "question": "Average salinity in January 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_042",
+    "category": "salinity_queries",
+    "question": "Maximum salinity in January 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_043",
+    "category": "salinity_queries",
+    "question": "Average salinity in February 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_044",
+    "category": "salinity_queries",
+    "question": "Maximum salinity in February 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_045",
+    "category": "salinity_queries",
+    "question": "Average salinity in March 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_046",
+    "category": "salinity_queries",
+    "question": "Maximum salinity in March 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_047",
+    "category": "salinity_queries",
+    "question": "Average salinity in April 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_048",
+    "category": "salinity_queries",
+    "question": "Maximum salinity in April 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_049",
+    "category": "salinity_queries",
+    "question": "Average salinity in May 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_050",
+    "category": "salinity_queries",
+    "question": "Maximum salinity in May 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_051",
+    "category": "salinity_queries",
+    "question": "Average salinity in June 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_052",
+    "category": "salinity_queries",
+    "question": "Maximum salinity in June 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_053",
+    "category": "salinity_queries",
+    "question": "Average salinity in July 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_054",
+    "category": "salinity_queries",
+    "question": "Maximum salinity in July 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_055",
+    "category": "salinity_queries",
+    "question": "Average salinity in August 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_056",
+    "category": "salinity_queries",
+    "question": "Maximum salinity in August 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_057",
+    "category": "salinity_queries",
+    "question": "Average salinity in September 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_058",
+    "category": "salinity_queries",
+    "question": "Maximum salinity in September 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_059",
+    "category": "salinity_queries",
+    "question": "Average salinity in October 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_060",
+    "category": "salinity_queries",
+    "question": "Maximum salinity in October 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_061",
+    "category": "salinity_queries",
+    "question": "Average salinity in November 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_062",
+    "category": "salinity_queries",
+    "question": "Maximum salinity in November 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_063",
+    "category": "salinity_queries",
+    "question": "Average salinity in December 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_064",
+    "category": "salinity_queries",
+    "question": "Maximum salinity in December 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_065",
+    "category": "salinity_queries",
+    "question": "Compare salinity in January 2023 and May 2023",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_066",
+    "category": "salinity_queries",
+    "question": "Compare salinity in February 2023 and June 2023",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_067",
+    "category": "salinity_queries",
+    "question": "Compare salinity in March 2023 and July 2023",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_068",
+    "category": "salinity_queries",
+    "question": "Compare salinity in April 2023 and August 2023",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_069",
+    "category": "salinity_queries",
+    "question": "Compare salinity in May 2023 and September 2023",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_070",
+    "category": "salinity_queries",
+    "question": "Compare salinity in June 2023 and October 2023",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_071",
+    "category": "salinity_queries",
+    "question": "Compare salinity in July 2023 and November 2023",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_072",
+    "category": "salinity_queries",
+    "question": "Compare salinity in August 2023 and December 2023",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_073",
+    "category": "salinity_queries",
+    "question": "Compare salinity between January 2023 and January 2024",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_074",
+    "category": "salinity_queries",
+    "question": "Compare salinity between February 2023 and February 2024",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_075",
+    "category": "salinity_queries",
+    "question": "Compare salinity between March 2023 and March 2024",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_076",
+    "category": "salinity_queries",
+    "question": "Compare salinity between April 2023 and April 2024",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_077",
+    "category": "salinity_queries",
+    "question": "Compare salinity between May 2023 and May 2024",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_078",
+    "category": "salinity_queries",
+    "question": "Compare salinity between June 2023 and June 2024",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_079",
+    "category": "salinity_queries",
+    "question": "Compare salinity between July 2023 and July 2024",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_080",
+    "category": "salinity_queries",
+    "question": "Compare salinity between August 2023 and August 2024",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_081",
+    "category": "pressure_depth",
+    "question": "What is the average temperature deeper than 10 dbar in January 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_082",
+    "category": "pressure_depth",
+    "question": "Salinity shallower than 10 dbar in March 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_083",
+    "category": "pressure_depth",
+    "question": "What is the average temperature deeper than 20 dbar in January 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_084",
+    "category": "pressure_depth",
+    "question": "Salinity shallower than 20 dbar in March 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_085",
+    "category": "pressure_depth",
+    "question": "What is the average temperature deeper than 50 dbar in January 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_086",
+    "category": "pressure_depth",
+    "question": "Salinity shallower than 50 dbar in March 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_087",
+    "category": "pressure_depth",
+    "question": "What is the average temperature deeper than 100 dbar in January 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_088",
+    "category": "pressure_depth",
+    "question": "Salinity shallower than 100 dbar in March 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_089",
+    "category": "pressure_depth",
+    "question": "What is the average temperature deeper than 200 dbar in January 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_090",
+    "category": "pressure_depth",
+    "question": "Salinity shallower than 200 dbar in March 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_091",
+    "category": "pressure_depth",
+    "question": "What is the average temperature deeper than 500 dbar in January 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_092",
+    "category": "pressure_depth",
+    "question": "Salinity shallower than 500 dbar in March 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_093",
+    "category": "pressure_depth",
+    "question": "What is the average temperature deeper than 800 dbar in January 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_094",
+    "category": "pressure_depth",
+    "question": "Salinity shallower than 800 dbar in March 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_095",
+    "category": "pressure_depth",
+    "question": "What is the average temperature deeper than 1000 dbar in January 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_096",
+    "category": "pressure_depth",
+    "question": "Salinity shallower than 1000 dbar in March 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_097",
+    "category": "pressure_depth",
+    "question": "What is the average temperature deeper than 1500 dbar in January 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_098",
+    "category": "pressure_depth",
+    "question": "Salinity shallower than 1500 dbar in March 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_099",
+    "category": "pressure_depth",
+    "question": "What is the average temperature deeper than 2000 dbar in January 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_100",
+    "category": "pressure_depth",
+    "question": "Salinity shallower than 2000 dbar in March 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_101",
+    "category": "pressure_depth",
+    "question": "Average temperature between 0 and 50 dbar in July 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_102",
+    "category": "pressure_depth",
+    "question": "Average temperature between 50 and 200 dbar in July 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_103",
+    "category": "pressure_depth",
+    "question": "Average temperature between 200 and 500 dbar in July 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_104",
+    "category": "pressure_depth",
+    "question": "Average temperature between 500 and 1000 dbar in July 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_105",
+    "category": "pressure_depth",
+    "question": "Average temperature between 1000 and 2000 dbar in July 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_106",
+    "category": "pressure_depth",
+    "question": "Average temperature between 0 and 100 dbar in July 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_107",
+    "category": "pressure_depth",
+    "question": "Average temperature between 100 and 500 dbar in July 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_108",
+    "category": "pressure_depth",
+    "question": "Salinity between 0 and 50 dbar in May 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_109",
+    "category": "pressure_depth",
+    "question": "Salinity between 50 and 100 dbar in May 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_110",
+    "category": "pressure_depth",
+    "question": "Salinity between 100 and 250 dbar in May 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_111",
+    "category": "pressure_depth",
+    "question": "Salinity between 250 and 500 dbar in May 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_112",
+    "category": "pressure_depth",
+    "question": "Salinity between 500 and 1500 dbar in May 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_113",
+    "category": "pressure_depth",
+    "question": "Salinity between 1000 and 2000 dbar in May 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_114",
+    "category": "pressure_depth",
+    "question": "Salinity between 0 and 2000 dbar in May 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_115",
+    "category": "pressure_depth",
+    "question": "Salinity between 20 and 80 dbar in May 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_116",
+    "category": "float_identification",
+    "question": "Tell me about float 2902758",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "discovery",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_117",
+    "category": "float_identification",
+    "question": "Where did float 2902758 travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "trajectory",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_118",
+    "category": "float_identification",
+    "question": "Tell me about float 2902759",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "discovery",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_119",
+    "category": "float_identification",
+    "question": "Where did float 2902759 travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "trajectory",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_120",
+    "category": "float_identification",
+    "question": "Tell me about float 2902760",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "discovery",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_121",
+    "category": "float_identification",
+    "question": "Where did float 2902760 travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "trajectory",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_122",
+    "category": "float_identification",
+    "question": "Tell me about float 2902761",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "discovery",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_123",
+    "category": "float_identification",
+    "question": "Where did float 2902761 travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "trajectory",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_124",
+    "category": "float_identification",
+    "question": "Tell me about float 2902762",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "discovery",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_125",
+    "category": "float_identification",
+    "question": "Where did float 2902762 travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "trajectory",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_126",
+    "category": "float_identification",
+    "question": "Tell me about float 2902763",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "discovery",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_127",
+    "category": "float_identification",
+    "question": "Where did float 2902763 travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "trajectory",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_128",
+    "category": "float_identification",
+    "question": "Tell me about float 2902764",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "discovery",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_129",
+    "category": "float_identification",
+    "question": "Where did float 2902764 travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "trajectory",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_130",
+    "category": "float_identification",
+    "question": "Tell me about float 2902765",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "discovery",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_131",
+    "category": "float_identification",
+    "question": "Where did float 2902765 travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "trajectory",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_132",
+    "category": "float_identification",
+    "question": "Tell me about float 1901844",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "discovery",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_133",
+    "category": "float_identification",
+    "question": "Where did float 1901844 travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "trajectory",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_134",
+    "category": "float_identification",
+    "question": "Tell me about float 1901845",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "discovery",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_135",
+    "category": "float_identification",
+    "question": "Where did float 1901845 travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "trajectory",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_136",
+    "category": "float_identification",
+    "question": "Tell me about float 1901846",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "discovery",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_137",
+    "category": "float_identification",
+    "question": "Where did float 1901846 travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "trajectory",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_138",
+    "category": "float_identification",
+    "question": "Tell me about float 2902697",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "discovery",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_139",
+    "category": "float_identification",
+    "question": "Where did float 2902697 travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "trajectory",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_140",
+    "category": "float_identification",
+    "question": "Tell me about float 2902698",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "discovery",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_141",
+    "category": "float_identification",
+    "question": "Where did float 2902698 travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "trajectory",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_142",
+    "category": "float_identification",
+    "question": "Tell me about float 2902699",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "discovery",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_143",
+    "category": "float_identification",
+    "question": "Where did float 2902699 travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "trajectory",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_144",
+    "category": "float_identification",
+    "question": "Show dive profile for float 2902758",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "dive_profile",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_145",
+    "category": "float_identification",
+    "question": "Show dive profile for float 2902759",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "dive_profile",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_146",
+    "category": "float_identification",
+    "question": "Show dive profile for float 2902760",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "dive_profile",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_147",
+    "category": "float_identification",
+    "question": "Show dive profile for float 2902761",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "dive_profile",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_148",
+    "category": "float_identification",
+    "question": "Show dive profile for float 2902762",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "dive_profile",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_149",
+    "category": "float_identification",
+    "question": "Show dive profile for float 2902763",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "dive_profile",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_150",
+    "category": "float_identification",
+    "question": "Show dive profile for float 2902764",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "dive_profile",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_151",
+    "category": "geographical_filters",
+    "question": "Average temperature in north Bay of Bengal in January 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_152",
+    "category": "geographical_filters",
+    "question": "Salinity in north region in January 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_153",
+    "category": "geographical_filters",
+    "question": "Average temperature in north Bay of Bengal in April 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_154",
+    "category": "geographical_filters",
+    "question": "Salinity in north region in April 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_155",
+    "category": "geographical_filters",
+    "question": "Average temperature in north Bay of Bengal in July 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_156",
+    "category": "geographical_filters",
+    "question": "Salinity in north region in July 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_157",
+    "category": "geographical_filters",
+    "question": "Average temperature in north Bay of Bengal in October 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_158",
+    "category": "geographical_filters",
+    "question": "Salinity in north region in October 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_159",
+    "category": "geographical_filters",
+    "question": "Average temperature in south Bay of Bengal in January 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_160",
+    "category": "geographical_filters",
+    "question": "Salinity in south region in January 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_161",
+    "category": "geographical_filters",
+    "question": "Average temperature in south Bay of Bengal in April 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_162",
+    "category": "geographical_filters",
+    "question": "Salinity in south region in April 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_163",
+    "category": "geographical_filters",
+    "question": "Average temperature in south Bay of Bengal in July 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_164",
+    "category": "geographical_filters",
+    "question": "Salinity in south region in July 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_165",
+    "category": "geographical_filters",
+    "question": "Average temperature in south Bay of Bengal in October 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_166",
+    "category": "geographical_filters",
+    "question": "Salinity in south region in October 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_167",
+    "category": "geographical_filters",
+    "question": "Average temperature in central Bay of Bengal in January 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_168",
+    "category": "geographical_filters",
+    "question": "Salinity in central region in January 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_169",
+    "category": "geographical_filters",
+    "question": "Average temperature in central Bay of Bengal in April 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_170",
+    "category": "geographical_filters",
+    "question": "Salinity in central region in April 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_171",
+    "category": "geographical_filters",
+    "question": "Average temperature in central Bay of Bengal in July 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_172",
+    "category": "geographical_filters",
+    "question": "Salinity in central region in July 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_173",
+    "category": "geographical_filters",
+    "question": "Average temperature in central Bay of Bengal in October 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_174",
+    "category": "geographical_filters",
+    "question": "Salinity in central region in October 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_175",
+    "category": "geographical_filters",
+    "question": "Average temperature in andaman Bay of Bengal in January 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_176",
+    "category": "geographical_filters",
+    "question": "Salinity in andaman region in January 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_177",
+    "category": "geographical_filters",
+    "question": "Average temperature in andaman Bay of Bengal in April 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_178",
+    "category": "geographical_filters",
+    "question": "Salinity in andaman region in April 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_179",
+    "category": "geographical_filters",
+    "question": "Average temperature in andaman Bay of Bengal in July 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_180",
+    "category": "geographical_filters",
+    "question": "Salinity in andaman region in July 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_181",
+    "category": "geographical_filters",
+    "question": "Average temperature in andaman Bay of Bengal in October 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_182",
+    "category": "geographical_filters",
+    "question": "Salinity in andaman region in October 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_183",
+    "category": "geographical_filters",
+    "question": "Average temperature in sri lanka Bay of Bengal in January 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_184",
+    "category": "geographical_filters",
+    "question": "Salinity in sri lanka region in January 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_185",
+    "category": "geographical_filters",
+    "question": "Average temperature in sri lanka Bay of Bengal in April 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_186",
+    "category": "geographical_filters",
+    "question": "Salinity in sri lanka region in April 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_187",
+    "category": "geographical_filters",
+    "question": "Average temperature in sri lanka Bay of Bengal in July 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_188",
+    "category": "geographical_filters",
+    "question": "Salinity in sri lanka region in July 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_189",
+    "category": "geographical_filters",
+    "question": "Average temperature in sri lanka Bay of Bengal in October 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_190",
+    "category": "geographical_filters",
+    "question": "Salinity in sri lanka region in October 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_191",
+    "category": "geographical_filters",
+    "question": "Temperature near 12.5N 85.0E in January 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_192",
+    "category": "geographical_filters",
+    "question": "Temperature near 15.0N 88.0E in January 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_193",
+    "category": "geographical_filters",
+    "question": "Temperature near 8.0N 83.0E in January 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_194",
+    "category": "geographical_filters",
+    "question": "Temperature near 17.5N 89.5E in January 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_195",
+    "category": "geographical_filters",
+    "question": "Temperature near 10.0N 86.0E in January 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_196",
+    "category": "geographical_filters",
+    "question": "Temperature near 13.0N 92.0E in January 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_197",
+    "category": "geographical_filters",
+    "question": "Temperature near 16.0N 84.0E in January 2023",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_198",
+    "category": "seasonal_monsoon",
+    "question": "What is the average temperature during the southwest monsoon in 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_199",
+    "category": "seasonal_monsoon",
+    "question": "Salinity during southwest monsoon 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_200",
+    "category": "seasonal_monsoon",
+    "question": "Compare southwest monsoon 2023 vs southwest monsoon 2024 temperature",
+    "expected_variable": "temperature",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_201",
+    "category": "seasonal_monsoon",
+    "question": "What is the average temperature during the south-west monsoon in 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_202",
+    "category": "seasonal_monsoon",
+    "question": "Salinity during south-west monsoon 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_203",
+    "category": "seasonal_monsoon",
+    "question": "Compare south-west monsoon 2023 vs south-west monsoon 2024 temperature",
+    "expected_variable": "temperature",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_204",
+    "category": "seasonal_monsoon",
+    "question": "What is the average temperature during the summer monsoon in 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_205",
+    "category": "seasonal_monsoon",
+    "question": "Salinity during summer monsoon 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_206",
+    "category": "seasonal_monsoon",
+    "question": "Compare summer monsoon 2023 vs summer monsoon 2024 temperature",
+    "expected_variable": "temperature",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_207",
+    "category": "seasonal_monsoon",
+    "question": "What is the average temperature during the northeast monsoon in 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_208",
+    "category": "seasonal_monsoon",
+    "question": "Salinity during northeast monsoon 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_209",
+    "category": "seasonal_monsoon",
+    "question": "Compare northeast monsoon 2023 vs northeast monsoon 2024 temperature",
+    "expected_variable": "temperature",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_210",
+    "category": "seasonal_monsoon",
+    "question": "What is the average temperature during the north-east monsoon in 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_211",
+    "category": "seasonal_monsoon",
+    "question": "Salinity during north-east monsoon 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_212",
+    "category": "seasonal_monsoon",
+    "question": "Compare north-east monsoon 2023 vs north-east monsoon 2024 temperature",
+    "expected_variable": "temperature",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_213",
+    "category": "seasonal_monsoon",
+    "question": "What is the average temperature during the winter monsoon in 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_214",
+    "category": "seasonal_monsoon",
+    "question": "Salinity during winter monsoon 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_215",
+    "category": "seasonal_monsoon",
+    "question": "Compare winter monsoon 2023 vs winter monsoon 2024 temperature",
+    "expected_variable": "temperature",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_216",
+    "category": "seasonal_monsoon",
+    "question": "What is the average temperature during the spring intermonsoon in 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_217",
+    "category": "seasonal_monsoon",
+    "question": "Salinity during spring intermonsoon 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_218",
+    "category": "seasonal_monsoon",
+    "question": "Compare spring intermonsoon 2023 vs spring intermonsoon 2024 temperature",
+    "expected_variable": "temperature",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_219",
+    "category": "seasonal_monsoon",
+    "question": "What is the average temperature during the fall intermonsoon in 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_220",
+    "category": "seasonal_monsoon",
+    "question": "Salinity during fall intermonsoon 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_221",
+    "category": "seasonal_monsoon",
+    "question": "Compare fall intermonsoon 2023 vs fall intermonsoon 2024 temperature",
+    "expected_variable": "temperature",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_222",
+    "category": "seasonal_monsoon",
+    "question": "How does the southwest monsoon affect sea temperature in 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": null,
+    "expected_task": "concept",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_223",
+    "category": "seasonal_monsoon",
+    "question": "How does the northeast monsoon change salinity in 2023?",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "concept",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_224",
+    "category": "seasonal_monsoon",
+    "question": "Average salinity across the monsoon in 2023",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_225",
+    "category": "seasonal_monsoon",
+    "question": "Water properties in SW monsoon 2023",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_226",
+    "category": "seasonal_monsoon",
+    "question": "Water properties in NE monsoon 2023",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_227",
+    "category": "seasonal_monsoon",
+    "question": "Water properties in post-monsoon 2023",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_228",
+    "category": "seasonal_monsoon",
+    "question": "How does the southwest monsoon affect sea temperature in 2024?",
+    "expected_variable": "temperature",
+    "expected_stat": null,
+    "expected_task": "concept",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_229",
+    "category": "seasonal_monsoon",
+    "question": "How does the northeast monsoon change salinity in 2024?",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "concept",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_230",
+    "category": "seasonal_monsoon",
+    "question": "Average salinity across the monsoon in 2024",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_231",
+    "category": "seasonal_monsoon",
+    "question": "Water properties in SW monsoon 2024",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_232",
+    "category": "seasonal_monsoon",
+    "question": "Water properties in NE monsoon 2024",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_233",
+    "category": "seasonal_monsoon",
+    "question": "Water properties in post-monsoon 2024",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_234",
+    "category": "seasonal_monsoon",
+    "question": "Compare southwest monsoon and northeast monsoon in 2023",
+    "expected_variable": "temperature",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [],
+    "notes": ""
+  },
+  {
+    "id": "bm_235",
+    "category": "invalid_and_unsupported",
+    "question": "What is the average oxygen in January 2023?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported biogeochemical variable"
+  },
+  {
+    "id": "bm_236",
+    "category": "invalid_and_unsupported",
+    "question": "Maximum oxygen in 2023",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported variable"
+  },
+  {
+    "id": "bm_237",
+    "category": "invalid_and_unsupported",
+    "question": "What is the average dissolved oxygen in January 2023?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported biogeochemical variable"
+  },
+  {
+    "id": "bm_238",
+    "category": "invalid_and_unsupported",
+    "question": "Maximum dissolved oxygen in 2023",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported variable"
+  },
+  {
+    "id": "bm_239",
+    "category": "invalid_and_unsupported",
+    "question": "What is the average pH in January 2023?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported biogeochemical variable"
+  },
+  {
+    "id": "bm_240",
+    "category": "invalid_and_unsupported",
+    "question": "Maximum pH in 2023",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported variable"
+  },
+  {
+    "id": "bm_241",
+    "category": "invalid_and_unsupported",
+    "question": "What is the average nitrate in January 2023?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported biogeochemical variable"
+  },
+  {
+    "id": "bm_242",
+    "category": "invalid_and_unsupported",
+    "question": "Maximum nitrate in 2023",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported variable"
+  },
+  {
+    "id": "bm_243",
+    "category": "invalid_and_unsupported",
+    "question": "What is the average chlorophyll in January 2023?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported biogeochemical variable"
+  },
+  {
+    "id": "bm_244",
+    "category": "invalid_and_unsupported",
+    "question": "Maximum chlorophyll in 2023",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported variable"
+  },
+  {
+    "id": "bm_245",
+    "category": "invalid_and_unsupported",
+    "question": "What is the average turbidity in January 2023?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported biogeochemical variable"
+  },
+  {
+    "id": "bm_246",
+    "category": "invalid_and_unsupported",
+    "question": "Maximum turbidity in 2023",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported variable"
+  },
+  {
+    "id": "bm_247",
+    "category": "invalid_and_unsupported",
+    "question": "What is the average alkalinity in January 2023?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported biogeochemical variable"
+  },
+  {
+    "id": "bm_248",
+    "category": "invalid_and_unsupported",
+    "question": "Maximum alkalinity in 2023",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported variable"
+  },
+  {
+    "id": "bm_249",
+    "category": "invalid_and_unsupported",
+    "question": "What is the average carbon dioxide in January 2023?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported biogeochemical variable"
+  },
+  {
+    "id": "bm_250",
+    "category": "invalid_and_unsupported",
+    "question": "Maximum carbon dioxide in 2023",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported variable"
+  },
+  {
+    "id": "bm_251",
+    "category": "invalid_and_unsupported",
+    "question": "What is the average phosphate in January 2023?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported biogeochemical variable"
+  },
+  {
+    "id": "bm_252",
+    "category": "invalid_and_unsupported",
+    "question": "Maximum phosphate in 2023",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Unsupported variable"
+  },
+  {
+    "id": "bm_253",
+    "category": "invalid_and_unsupported",
+    "question": "Temperature profiles in the Arabian Sea",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Spatial out of bounds"
+  },
+  {
+    "id": "bm_254",
+    "category": "invalid_and_unsupported",
+    "question": "Temperature profiles in the Pacific Ocean",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Spatial out of bounds"
+  },
+  {
+    "id": "bm_255",
+    "category": "invalid_and_unsupported",
+    "question": "Temperature profiles in the Atlantic Ocean",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Spatial out of bounds"
+  },
+  {
+    "id": "bm_256",
+    "category": "invalid_and_unsupported",
+    "question": "Temperature profiles in the Mediterranean Sea",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Spatial out of bounds"
+  },
+  {
+    "id": "bm_257",
+    "category": "invalid_and_unsupported",
+    "question": "Temperature profiles in the Arctic Ocean",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Spatial out of bounds"
+  },
+  {
+    "id": "bm_258",
+    "category": "invalid_and_unsupported",
+    "question": "Temperature profiles in the Red Sea",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Spatial out of bounds"
+  },
+  {
+    "id": "bm_259",
+    "category": "invalid_and_unsupported",
+    "question": "Temperature profiles in the Gulf of Mexico",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Spatial out of bounds"
+  },
+  {
+    "id": "bm_260",
+    "category": "invalid_and_unsupported",
+    "question": "Average temperature in month 13",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Invalid calendar temporal"
+  },
+  {
+    "id": "bm_261",
+    "category": "invalid_and_unsupported",
+    "question": "Average temperature in month 0",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Invalid calendar temporal"
+  },
+  {
+    "id": "bm_262",
+    "category": "invalid_and_unsupported",
+    "question": "Average temperature in January 2045",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Invalid calendar temporal"
+  },
+  {
+    "id": "bm_263",
+    "category": "invalid_and_unsupported",
+    "question": "Average temperature in March 1850",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Invalid calendar temporal"
+  },
+  {
+    "id": "bm_264",
+    "category": "invalid_and_unsupported",
+    "question": "Average temperature in month 99 in 2023",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Invalid calendar temporal"
+  },
+  {
+    "id": "bm_265",
+    "category": "invalid_and_unsupported",
+    "question": "Average temperature in temperature in 2030",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Invalid calendar temporal"
+  },
+  {
+    "id": "bm_266",
+    "category": "invalid_and_unsupported",
+    "question": "What is the capital of France?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "off_topic",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Off-topic general query"
+  },
+  {
+    "id": "bm_267",
+    "category": "invalid_and_unsupported",
+    "question": "Who won the World Cup?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "off_topic",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Off-topic general query"
+  },
+  {
+    "id": "bm_268",
+    "category": "invalid_and_unsupported",
+    "question": "Write a poem about dolphins",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "off_topic",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Off-topic general query"
+  },
+  {
+    "id": "bm_269",
+    "category": "invalid_and_unsupported",
+    "question": "How do I fix my car?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "off_topic",
+    "is_invalid_or_unsupported": true,
+    "history": [],
+    "notes": "Off-topic general query"
+  },
+  {
+    "id": "bm_270",
+    "category": "conversational_followups",
+    "question": "What about June?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "What is the average temperature in January 2023?"
+      },
+      {
+        "role": "assistant",
+        "content": "27.6 C"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_271",
+    "category": "conversational_followups",
+    "question": "And salinity?",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Average temperature in March 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "28.1 C"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_272",
+    "category": "conversational_followups",
+    "question": "How about below 500 dbar?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Average temperature in January 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "27.6 C"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_273",
+    "category": "conversational_followups",
+    "question": "Show me the maximum instead",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Average temperature in May 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "29.2 C"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_274",
+    "category": "conversational_followups",
+    "question": "In 2024?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Average temperature in July 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "28.5 C"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_275",
+    "category": "conversational_followups",
+    "question": "What about the central bay?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Temperature in north Bay of Bengal in April 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "28.9 C"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_276",
+    "category": "conversational_followups",
+    "question": "What was the salinity there?",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Temperature in north Bay of Bengal in April 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "28.9 C"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_277",
+    "category": "conversational_followups",
+    "question": "And for float 2902758?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Average temperature in January 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "27.6 C"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_278",
+    "category": "conversational_followups",
+    "question": "Where did it travel?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Tell me about float 2902758"
+      },
+      {
+        "role": "assistant",
+        "content": "Float details..."
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_279",
+    "category": "conversational_followups",
+    "question": "Show its dive profile",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Where did float 2902758 travel?"
+      },
+      {
+        "role": "assistant",
+        "content": "Trajectory..."
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_280",
+    "category": "conversational_followups",
+    "question": "What about February 2023?",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Average salinity in January 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "33.5 PSU"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_281",
+    "category": "conversational_followups",
+    "question": "Compare that with June",
+    "expected_variable": "temperature",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Average temperature in January 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "27.6 C"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_282",
+    "category": "conversational_followups",
+    "question": "What about shallower than 20 dbar?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Temperature in January 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "27.6 C"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_283",
+    "category": "conversational_followups",
+    "question": "What about August?",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Salinity in July 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "32.8 PSU"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_284",
+    "category": "conversational_followups",
+    "question": "And in the south?",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Salinity in north Bay of Bengal in July 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "31.2 PSU"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_285",
+    "category": "conversational_followups",
+    "question": "In December 2023?",
+    "expected_variable": "temperature",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Maximum temperature in November 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "28.9 C"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_286",
+    "category": "conversational_followups",
+    "question": "And minimum?",
+    "expected_variable": "temperature",
+    "expected_stat": "min",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Maximum temperature in December 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "28.1 C"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_287",
+    "category": "conversational_followups",
+    "question": "What about 2024?",
+    "expected_variable": "salinity",
+    "expected_stat": "max",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Maximum salinity in March 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "35.2 PSU"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_288",
+    "category": "conversational_followups",
+    "question": "Show that as a depth chart",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Average salinity in March 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "33.9 PSU"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_289",
+    "category": "conversational_followups",
+    "question": "Below 1000 dbar?",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Salinity in March 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "33.9 PSU"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_290",
+    "category": "conversational_followups",
+    "question": "What about float 1901844?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Tell me about float 2902758"
+      },
+      {
+        "role": "assistant",
+        "content": "Float 2902758..."
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_291",
+    "category": "conversational_followups",
+    "question": "Where did that one drift?",
+    "expected_variable": null,
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Tell me about float 1901844"
+      },
+      {
+        "role": "assistant",
+        "content": "Float 1901844..."
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_292",
+    "category": "conversational_followups",
+    "question": "And during the northeast monsoon?",
+    "expected_variable": "temperature",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Average temperature during southwest monsoon in 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "28.4 C"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_293",
+    "category": "conversational_followups",
+    "question": "What was the salinity then?",
+    "expected_variable": "salinity",
+    "expected_stat": "avg",
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Average temperature during northeast monsoon in 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "26.8 C"
+      }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "bm_294",
+    "category": "conversational_followups",
+    "question": "Now compare 2023 and 2024",
+    "expected_variable": "salinity",
+    "expected_stat": null,
+    "expected_task": "stat",
+    "is_invalid_or_unsupported": false,
+    "history": [
+      {
+        "role": "user",
+        "content": "Salinity during northeast monsoon in 2023"
+      },
+      {
+        "role": "assistant",
+        "content": "33.8 PSU"
+      }
+    ],
+    "notes": ""
+  }
+]

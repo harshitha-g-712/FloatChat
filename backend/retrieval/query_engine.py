@@ -43,18 +43,42 @@ def _date_bounds(year: Optional[int], month: Optional[int],
     return start, end
 
 
+def _has_qc_columns(conn) -> bool:
+    """Check whether the active measurements table contains QC columns."""
+    try:
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(measurements)").fetchall()}
+        return "temp_qc" in cols
+    except Exception:
+        return False
+
+
 def build_query(intent: dict) -> tuple[str, list]:
     """Build a safe parameterised SQL query from the validated intent.
     Returns (sql, params).  Only whitelisted columns and filters are used.
     """
-    sql = """
+    has_qc = intent.get("_has_qc", True)
+    qc_select = ",\n               m.temp_qc, m.sal_qc" if has_qc else ""
+    sql = f"""
         SELECT p.id, p.platform, p.lat, p.lon, p.timestamp,
-               m.pressure, m.temperature, m.salinity
+               m.pressure, m.temperature, m.salinity{qc_select}
         FROM profiles p
         JOIN measurements m ON p.id = m.profile_id
         WHERE 1=1
     """
     params: list = []
+
+    # Quality Control (QC) filtering
+    # Argo QC flags: 1 = Good, 2 = Probably good, 3 = Probably bad, 4 = Bad, 5 = Adjusted, 8 = Interpolated, 9 = Missing
+    # When qc_mode is 'strict' or 'good_only' (default: good_only), only flags 1, 2, 5, 8 or NULL (unflagged legacy) are accepted.
+    # Bad flags (3, 4, 9) are always excluded from statistics.
+    if has_qc:
+        qc_mode = intent.get("qc_mode", "good_only")
+        var = intent.get("variable") or "temperature"
+        qc_col = "m.temp_qc" if var == "temperature" else "m.sal_qc"
+        if qc_mode in ("good_only", "strict"):
+            sql += f" AND ({qc_col} IS NULL OR {qc_col} IN (1, 2, 5, 8))"
+        elif qc_mode == "all":
+            pass  # include all QC levels without restriction
 
     bounds = _date_bounds(
         intent.get("year"), intent.get("month"),
@@ -145,6 +169,9 @@ def retrieve(intent: dict, db_path: str = None) -> dict:
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     try:
+        if "_has_qc" not in intent:
+            intent = dict(intent, _has_qc=_has_qc_columns(conn))
+
         if intent.get("compare") and (intent.get("compare_months") or intent.get("compare_periods")):
             return _retrieve_compare(conn, intent, variable, stat_type, units)
 

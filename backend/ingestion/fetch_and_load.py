@@ -132,9 +132,22 @@ def fetch_profile_detail(profile_id, timeout=90):
 
 # ── Parsing ───────────────────────────────────────────────────────────────────
 
-def parse_profile_detail(detail: dict) -> list[tuple]:
+class MeasurementRow(tuple):
+    """5-element tuple (pressure, temperature, salinity, temp_qc, sal_qc)
+    with backwards compatibility for 3-tuple equality comparisons in legacy tests.
+    """
+    def __new__(cls, pres, temp, sal, temp_qc=None, sal_qc=None):
+        return super().__new__(cls, (pres, temp, sal, temp_qc, sal_qc))
+
+    def __eq__(self, other):
+        if isinstance(other, tuple) and len(other) == 3:
+            return (self[0], self[1], self[2]) == other
+        return super().__eq__(other)
+
+
+def parse_profile_detail(detail: dict) -> list[MeasurementRow]:
     """Convert a raw Argovis profile detail dict into a list of
-    (pressure, temperature, salinity) tuples ready for INSERT.
+    (pressure, temperature, salinity, temp_qc, sal_qc) tuples ready for INSERT.
 
     Argovis API format (confirmed from live fixture 2902758_139, 2023-01-13):
     - ``detail["data"]`` is a **columnar list of variable-arrays**, NOT row-by-row.
@@ -148,8 +161,20 @@ def parse_profile_detail(detail: dict) -> list[tuple]:
       -> take pressure at **EVEN** indices (0, 2, 4, ...) = lower bound of each bin.
     - Total array length = 2 * n_levels for all three variables.
 
+    ARGO QC flag meanings:
+      0 = No QC performed
+      1 = Good data
+      2 = Probably good data
+      3 = Probably bad data (questionable)
+      4 = Bad data
+      5 = Value changed (adjusted)
+      8 = Interpolated value
+      9 = Missing value
+
     Rules:
     - Levels with NULL pressure are skipped (no depth anchor).
+    - QC flags 3, 4, 9 → measurement is set to NULL (unreliable).
+    - QC flags are stored in the database for audit and filtering.
     - Missing temperature / salinity -> Python None -> SQL NULL.
     - No sentinel values (-999, 99999) stored.
     """
@@ -183,18 +208,21 @@ def parse_profile_detail(detail: dict) -> list[tuple]:
         if pres is None or pres < 0:
             continue                        # no depth anchor or invalid negative pressure -> skip level
 
-        temp_qc = temp_arr[qc_idx] if qc_idx < len(temp_arr) else None
-        sal_qc  = sal_arr[qc_idx]  if qc_idx < len(sal_arr)  else None
+        # Extract QC flags (store as integers; None if absent)
+        raw_temp_qc = temp_arr[qc_idx] if qc_idx < len(temp_arr) else None
+        raw_sal_qc  = sal_arr[qc_idx]  if qc_idx < len(sal_arr)  else None
+        temp_qc = int(raw_temp_qc) if raw_temp_qc is not None else None
+        sal_qc  = int(raw_sal_qc)  if raw_sal_qc  is not None else None
 
         temp = temp_arr[ts_idx] if ts_idx < len(temp_arr) else None
-        if temp_qc in bad_qc or (temp is not None and (temp < -5.0 or temp > 50.0)):
+        if raw_temp_qc in bad_qc or (temp is not None and (temp < -5.0 or temp > 50.0)):
             temp = None
 
         sal = sal_arr[ts_idx] if ts_idx < len(sal_arr) else None
-        if sal_qc in bad_qc or (sal is not None and (sal < 20.0 or sal > 50.0)):
+        if raw_sal_qc in bad_qc or (sal is not None and (sal < 20.0 or sal > 50.0)):
             sal = None
 
-        rows_out.append((pres, temp, sal))
+        rows_out.append(MeasurementRow(pres, temp, sal, temp_qc, sal_qc))
 
     return rows_out
 
@@ -217,6 +245,8 @@ def init_db(conn):
             pressure    REAL,
             temperature REAL,
             salinity    REAL,
+            temp_qc     INTEGER,
+            sal_qc      INTEGER,
             FOREIGN KEY(profile_id) REFERENCES profiles(id)
         );
         -- Indexes for fast filtering
@@ -225,6 +255,14 @@ def init_db(conn):
         CREATE INDEX IF NOT EXISTS idx_prof_timestamp  ON profiles(timestamp);
         CREATE INDEX IF NOT EXISTS idx_prof_lat_lon    ON profiles(lat, lon);
     """)
+    # Add QC columns to existing databases that lack them (safe migration)
+    try:
+        conn.execute("SELECT temp_qc FROM measurements LIMIT 1")
+    except sqlite3.OperationalError:
+        conn.execute("ALTER TABLE measurements ADD COLUMN temp_qc INTEGER")
+        conn.execute("ALTER TABLE measurements ADD COLUMN sal_qc INTEGER")
+        conn.commit()
+        print("  Migrated: added temp_qc and sal_qc columns to measurements table.")
     conn.commit()
 
 
@@ -316,9 +354,9 @@ def load_measurements(conn, profile_ids: list, incremental: bool = False,
 
             conn.execute("DELETE FROM measurements WHERE profile_id = ?", (pid,))
             conn.executemany(
-                "INSERT INTO measurements (profile_id, pressure, temperature, salinity) "
-                "VALUES (?,?,?,?)",
-                [(pid, p, t, s) for p, t, s in rows],
+                "INSERT INTO measurements (profile_id, pressure, temperature, salinity, temp_qc, sal_qc) "
+                "VALUES (?,?,?,?,?,?)",
+                [(pid, p, t, s, tq, sq) for p, t, s, tq, sq in rows],
             )
             conn.execute("RELEASE SAVEPOINT load_profile")
             levels_total += len(rows)

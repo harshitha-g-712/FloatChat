@@ -134,21 +134,41 @@ def _sofar(levels: Sequence[Dict[str, Any]], max_pressure: float) -> Dict[str, A
 
 
 def build_dive_profile(rows: Sequence[Any], lat: Optional[float] = None) -> Dict[str, Any]:
-    """Turn (pressure, temperature, salinity) rows into levels plus derived oceanography.
+    """Turn (pressure, temperature, salinity, [temp_qc, sal_qc]) rows into levels plus derived oceanography.
 
     ``rows`` may be sqlite3.Row objects or tuples; they are sorted by pressure here.
+    If temp_qc and sal_qc flags are available, flags 3 (probably bad), 4 (bad), and 9 (missing)
+    are treated as NULL to uphold Argo QC scientific standards.
     """
+    bad_qc = {3, 4, 9, "3", "4", "9"}
     parsed = []
     for r in rows:
-        p = _finite(r[0])
+        # Support dict/sqlite3.Row or tuple access
+        if hasattr(r, "keys"):
+            p = _finite(r["pressure"])
+            t = _finite(r["temperature"])
+            s = _finite(r["salinity"])
+            tq = r["temp_qc"] if "temp_qc" in r.keys() else None
+            sq = r["sal_qc"] if "sal_qc" in r.keys() else None
+        else:
+            p = _finite(r[0])
+            t = _finite(r[1]) if len(r) > 1 else None
+            s = _finite(r[2]) if len(r) > 2 else None
+            tq = r[3] if len(r) > 3 else None
+            sq = r[4] if len(r) > 4 else None
+
         if p is None or p < 0:
             continue
-        parsed.append((p, _finite(r[1]), _finite(r[2])))
+        if tq in bad_qc:
+            t = None
+        if sq in bad_qc:
+            s = None
+        parsed.append((p, t, s, tq, sq))
     parsed.sort(key=lambda x: x[0])
 
     levels: List[Dict[str, Any]] = []
     surface_temp = None
-    for p, t, s in parsed:
+    for p, t, s, tq, sq in parsed:
         speed = None
         if t is not None and s is not None:
             speed = round(sound_speed_mackenzie(t, s, depth_from_pressure(p, lat)), 1)
@@ -160,6 +180,8 @@ def build_dive_profile(rows: Sequence[Any], lat: Optional[float] = None) -> Dict
             "temperature": round(t, 2) if t is not None else None,
             "salinity": round(s, 3) if s is not None else None,
             "sound_speed": speed,
+            "temp_qc": tq,
+            "sal_qc": sq,
         })
 
     max_p = levels[-1]["pressure"] if levels else 0.0

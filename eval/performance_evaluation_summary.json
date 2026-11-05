@@ -1,0 +1,60 @@
+{
+  "intent_accuracy": {
+    "score_pct": 87.76,
+    "ci_95_pct": "87.8% \u00b1 3.8%",
+    "queries_evaluated": 294
+  },
+  "sql_execution_accuracy": {
+    "score_pct": 100.0,
+    "successful_executions": 294
+  },
+  "numerical_accuracy": {
+    "score_pct": 100.0,
+    "cases_evaluated": 2,
+    "tolerance_criterion": "\u00b10.05 units"
+  },
+  "abstention_accuracy": {
+    "score_pct": 91.43,
+    "unsupported_cases_evaluated": 35
+  },
+  "retrieval_precision": {
+    "precision_at_1": 100.0,
+    "recall_at_3": 90.0,
+    "mrr": 1.0,
+    "answer_grounding": 93.33333333333333
+  },
+  "response_time": {
+    "mean_seconds": 0.088,
+    "ci_95_seconds": "0.088s \u00b1 0.014s",
+    "p50_seconds": 0.068,
+    "p95_seconds": 0.252,
+    "p99_seconds": 0.586
+  },
+  "qc_impact": {
+    "temperature_unfiltered_mean_c": 58.6,
+    "temperature_filtered_mean_c": 28.13,
+    "temperature_error_divergence_pct": 108.3,
+    "salinity_unfiltered_mean_psu": 26.75,
+    "salinity_filtered_mean_psu": 34.0,
+    "salinity_error_divergence_pct": 21.3,
+    "conclusion": "Without QC filtering, uncalibrated sensor drift and spikes introduce up to 108.3% error in ocean temperature calculations."
+  },
+  "ablation_study": {
+    "total_queries": 294,
+    "rules_only": {
+      "passed": 214,
+      "accuracy_pct": 72.79,
+      "variable_fidelity_violations": 10
+    },
+    "llm_only": {
+      "passed": 249,
+      "accuracy_pct": 84.69,
+      "variable_fidelity_violations": 17
+    },
+    "validated_hybrid": {
+      "passed": 237,
+      "accuracy_pct": 80.61,
+      "variable_fidelity_violations": 10
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "total_queries": 294,
+  "rules_only": {
+    "passed": 214,
+    "accuracy_pct": 72.79,
+    "variable_fidelity_violations": 10
+  },
+  "llm_only": {
+    "passed": 249,
+    "accuracy_pct": 84.69,
+    "variable_fidelity_violations": 17
+  },
+  "validated_hybrid": {
+    "passed": 237,
+    "accuracy_pct": 80.61,
+    "variable_fidelity_violations": 10
+  }
+}

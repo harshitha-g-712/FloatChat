@@ -1,0 +1,163 @@
+[
+  {
+    "id": "gold_01",
+    "category": "statistical_aggregation",
+    "query": "What is the average temperature in January 2023?",
+    "description": "Standard surface layer temperature query defaulting to upper 50 dbar.",
+    "expected_task": "stat",
+    "expected_variable": "temperature",
+    "expected_units": "°C",
+    "expected_stat_type": "avg",
+    "expected_value_approx": 27.608,
+    "tolerance": 0.05,
+    "expected_observation_count": 386,
+    "required_in_answer": ["27.608", "50 dbar", "January 2023"],
+    "forbidden_in_answer": ["error", "invalid"]
+  },
+  {
+    "id": "gold_02",
+    "category": "statistical_aggregation",
+    "query": "What is the average salinity in January 2023?",
+    "description": "Upper 50 dbar salinity aggregation.",
+    "expected_task": "stat",
+    "expected_variable": "salinity",
+    "expected_units": "PSU",
+    "expected_stat_type": "avg",
+    "expected_value_approx": 33.540,
+    "tolerance": 0.05,
+    "expected_observation_count": 383,
+    "required_in_answer": ["33.54", "PSU", "January 2023"],
+    "forbidden_in_answer": ["temperature", "error"]
+  },
+  {
+    "id": "gold_03",
+    "category": "extreme_values",
+    "query": "What is the maximum salinity in March 2023?",
+    "description": "Maximum salinity observation across the entire water column for March 2023.",
+    "expected_task": "stat",
+    "expected_variable": "salinity",
+    "expected_units": "PSU",
+    "expected_stat_type": "max",
+    "required_in_answer": ["maximum salinity", "PSU", "March 2023"],
+    "forbidden_in_answer": ["temperature", "invalid"]
+  },
+  {
+    "id": "gold_04",
+    "category": "physical_depth_filter",
+    "query": "What is the average temperature below 500 dbar in January 2023?",
+    "description": "Deep ocean layer temperature query (pressure >= 500 dbar).",
+    "expected_task": "stat",
+    "expected_variable": "temperature",
+    "expected_stat_type": "avg",
+    "required_in_answer": ["500 dbar", "temperature"],
+    "forbidden_in_answer": ["unsupported"]
+  },
+  {
+    "id": "gold_05",
+    "category": "entity_counting",
+    "query": "How many floats are there?",
+    "description": "Total distinct active floats with measurement records in the dataset.",
+    "expected_task": "stat",
+    "required_in_answer": ["floats with measurement records"],
+    "forbidden_in_answer": ["observations"]
+  },
+  {
+    "id": "gold_06",
+    "category": "variable_fidelity",
+    "query": "Average dissolved oxygen in January 2023",
+    "description": "Scientific fidelity check: Unsupported variables must be rejected, NEVER substituted with temperature.",
+    "expected_task": "stat",
+    "is_ambiguous": true,
+    "required_in_answer": ["does not contain oxygen measurements", "Available variables are temperature, salinity, and pressure"],
+    "forbidden_in_answer": ["27.608", "average temperature"]
+  },
+  {
+    "id": "gold_07",
+    "category": "variable_fidelity",
+    "query": "Average pH in June 2023",
+    "description": "Scientific fidelity check for pH: Explicit notification of unsupported variable.",
+    "expected_task": "stat",
+    "is_ambiguous": true,
+    "required_in_answer": ["does not contain ph measurements"],
+    "forbidden_in_answer": ["27.608"]
+  },
+  {
+    "id": "gold_08",
+    "category": "spatial_out_of_bounds",
+    "query": "Show temperature profiles in the Arabian Sea",
+    "description": "Spatial guard: Explicit rejection of ocean basins outside the Bay of Bengal data envelope.",
+    "expected_task": "stat",
+    "is_ambiguous": true,
+    "required_in_answer": ["only covers the Bay of Bengal", "Arabian Sea"],
+    "forbidden_in_answer": ["Here are the profiles"]
+  },
+  {
+    "id": "gold_09",
+    "category": "temporal_out_of_bounds",
+    "query": "Average temperature in month 13",
+    "description": "Calendar month guard: Month numbers outside 1-12 must be explicitly reported as invalid.",
+    "expected_task": "stat",
+    "is_ambiguous": true,
+    "required_in_answer": ["invalid", "month from 1"],
+    "forbidden_in_answer": ["The average temperature was"]
+  },
+  {
+    "id": "gold_10",
+    "category": "conceptual_rag",
+    "query": "What is a thermocline?",
+    "description": "RAG concept retrieval: Must return oceanographic definition and cited sources.",
+    "expected_task": "concept",
+    "expected_question_kind": "knowledge",
+    "required_in_answer": ["thermocline", "temperature"],
+    "required_sources_prefix": ["[S"],
+    "forbidden_in_answer": ["Error", "None"]
+  },
+  {
+    "id": "gold_11",
+    "category": "conceptual_rag",
+    "query": "Why is the Bay of Bengal fresher at the surface?",
+    "description": "Domain knowledge RAG: Ganga-Brahmaputra river runoff and salinity stratification.",
+    "expected_task": "concept",
+    "expected_question_kind": "knowledge",
+    "required_in_answer": ["river", "salinity"],
+    "required_sources_prefix": ["[S"],
+    "forbidden_in_answer": ["Error"]
+  },
+  {
+    "id": "gold_12",
+    "category": "comparative_analysis",
+    "query": "Compare temperature in January 2023 and June 2023",
+    "description": "Multi-period comparison across monsoon cycles.",
+    "expected_task": "stat",
+    "required_in_answer": ["Jan 2023", "Jun 2023"],
+    "forbidden_in_answer": ["invalid"]
+  },
+  {
+    "id": "gold_13",
+    "category": "float_trajectory_discovery",
+    "query": "Where did float 2902758 travel?",
+    "description": "Platform trajectory search and geolocated waypoints.",
+    "expected_task": "trajectory",
+    "required_in_answer": ["2902758", "Trajectory"],
+    "forbidden_in_answer": ["could not find"]
+  },
+  {
+    "id": "gold_14",
+    "category": "profile_similarity",
+    "query": "Profiles similar to 2902758_139",
+    "description": "T/S Euclidean profile distance matching.",
+    "expected_task": "similar_profiles",
+    "required_in_answer": ["similarity", "2902758_139"],
+    "forbidden_in_answer": ["Error"]
+  },
+  {
+    "id": "gold_15",
+    "category": "quality_control",
+    "query": "How do ARGO quality control QC flags work?",
+    "description": "Quality control flag scientific criteria knowledge retrieval.",
+    "expected_task": "concept",
+    "required_in_answer": ["quality control"],
+    "required_sources_prefix": ["[S"],
+    "forbidden_in_answer": ["Error"]
+  }
+]

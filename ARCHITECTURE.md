@@ -19,18 +19,20 @@
 - Dataset coverage is data-driven: `DATASET_START/END` in `config.py` are read from the first/last profile in the database (reference load: **Bay of Bengal, 1 Jan 2023 – 31 Dec 2024, 37 floats with measurements (38 floats in profiles)**) and user-facing text uses `coverage_label()`. Out-of-region questions are refused and out-of-range dates disclose the real coverage. Seasonal responses must state partial/out-of-range coverage.
 - Data cleaning: Database cleanup removed 111 negative-pressure rows (< 0 dbar) and nulled 2 bad surface salinity readings below 20 PSU.
 
-## RAG
+## RAG Architecture & Verification
 
-FloatChat supports **dual-mode Retrieval-Augmented Generation**:
+FloatChat supports **dual-mode Retrieval-Augmented Generation (RAG)** with runtime inspection and automatic fallback:
 
-| Mode | When active | How it works |
-|------|-------------|-------------|
-| **Embedding** (default) | `GEMINI_API_KEY` is set and `RAG_MODE=embedding` | Documents are embedded with Gemini `text-embedding-004`. Queries are embedded at runtime and matched via cosine similarity. Top results are fed to the LLM for a grounded, cited answer. |
-| **TF-IDF** (fallback) | No API key, or `RAG_MODE=tfidf` | Offline scikit-learn TF-IDF vectorizer over the Markdown knowledge base. No network calls. Template-based answer with source labels (`[S1]`, etc.). |
+| Mode | Active Condition | Retrieval Mechanism | Generation / Grounding |
+|---|---|---|---|
+| **Embedding Mode** | `GEMINI_API_KEY` present and `RAG_MODE=embedding` | Gemini `text-embedding-004` (cosine distance over `backend/rag/embedding_index.json`) | Gemini LLM synthesizes answer text grounded in top matching sections |
+| **TF-IDF Mode** | Default when API key is omitted, offline, or `RAG_MODE=tfidf` | Scikit-learn TF-IDF vectorizer over `backend/rag/knowledge/` markdown corpus | Deterministic grounded summary templates with formal source labels (`[S1]`, `[S2]`) |
 
-- **Embedding index file:** `backend/rag/embedding_index.json` — rebuild with `python -m rag.build --embeddings`.
-- **Knowledge base:** Markdown files in `backend/rag/knowledge/` (ARGO float technology, Bay of Bengal circulation, data quality/QC, and more).
-- Retrieval is always filtered to `type=concept` for conceptual answers. Source labels are preserved in both modes.
+### Verification & Introspection
+- **Health API:** `GET /api/health` returns `"rag_mode": "embedding"` or `"tfidf"`, along with descriptive metadata in `technologies.rag`.
+- **Chat Response Payload:** Every conceptual knowledge answer includes the `rag_mode` string (`"embedding"` or `"tfidf"`), `sources` list, and `technologies_used` (including `"RAG"`).
+- **Frontend UI:** The **Server Status** (💡) modal in the sidebar displays whether RAG is currently running in **Embedding-based (Gemini)** or **TF-IDF (Offline)** mode.
+- **Index Management:** Run `python scripts/rebuild_rag.py` (or `rebuild_rag.bat`) to update knowledge indexes. Add `--embeddings` when an active Gemini key is configured.
 
 ## Technology Badges (Frontend)
 
