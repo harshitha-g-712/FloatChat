@@ -77,6 +77,7 @@ const healthClose      = document.getElementById("health-modal-close");
 const newChatBtn       = document.getElementById("new-chat-btn");
 const sidebarToggle    = document.getElementById("sidebar-toggle");
 const sidebar          = document.getElementById("sidebar");
+const sidebarResizer   = document.getElementById("sidebar-resizer");
 const userMenuBtn      = document.getElementById("user-menu-btn");
 const userInitial      = document.getElementById("user-initial");
 const userDropdown     = document.getElementById("user-dropdown");
@@ -806,6 +807,101 @@ document.addEventListener("click", (e) => {
     sidebar.classList.remove("open");
   }
 });
+
+// ── Draggable Sidebar Navigation Resizer ──────────────────────────────────────
+function initSidebarResizer() {
+  if (!sidebarResizer || !sidebar) return;
+
+  const DEFAULT_WIDTH = 260;
+  const MIN_WIDTH = 190;
+  const MAX_WIDTH = Math.min(560, Math.floor(window.innerWidth * 0.5));
+
+  // Load saved preference
+  const savedWidth = parseInt(localStorage.getItem("floatchat_sidebar_w"), 10);
+  if (!isNaN(savedWidth) && savedWidth >= MIN_WIDTH && savedWidth <= 600) {
+    applySidebarWidth(savedWidth, false);
+  }
+
+  function applySidebarWidth(w, triggerResize = true) {
+    const clamped = Math.max(MIN_WIDTH, Math.min(w, Math.min(580, Math.floor(window.innerWidth * 0.55))));
+    document.documentElement.style.setProperty("--sidebar-w", `${clamped}px`);
+    sidebar.style.width = `${clamped}px`;
+    sidebar.style.minWidth = `${clamped}px`;
+    if (triggerResize) {
+      if (typeof oceanLeafletMap !== "undefined" && oceanLeafletMap) {
+        oceanLeafletMap.invalidateSize();
+      }
+      if (typeof Plotly !== "undefined" && Plotly.Plots) {
+        document.querySelectorAll(".plotly-graph-div").forEach((el) => {
+          try { Plotly.Plots.resize(el); } catch (_) {}
+        });
+      }
+    }
+  }
+
+  let isDragging = false;
+  let startX = 0;
+  let startW = DEFAULT_WIDTH;
+
+  function onDragStart(e) {
+    if (e.type === "mousedown" && e.button !== 0) return;
+    isDragging = true;
+    startX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX;
+    startW = sidebar.getBoundingClientRect().width;
+
+    sidebarResizer.classList.add("resizing");
+    document.body.classList.add("sidebar-resizing");
+
+    window.addEventListener("mousemove", onDragMove, { passive: false });
+    window.addEventListener("mouseup", onDragEnd);
+    window.addEventListener("touchmove", onDragMove, { passive: false });
+    window.addEventListener("touchend", onDragEnd);
+    if (e.cancelable) e.preventDefault();
+  }
+
+  function onDragMove(e) {
+    if (!isDragging) return;
+    const currentX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX;
+    const delta = currentX - startX;
+    const newWidth = Math.max(MIN_WIDTH, Math.min(startW + delta, Math.min(580, Math.floor(window.innerWidth * 0.55))));
+    applySidebarWidth(newWidth, true);
+    if (e.cancelable) e.preventDefault();
+  }
+
+  function onDragEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    sidebarResizer.classList.remove("resizing");
+    document.body.classList.remove("sidebar-resizing");
+
+    window.removeEventListener("mousemove", onDragMove);
+    window.removeEventListener("mouseup", onDragEnd);
+    window.removeEventListener("touchmove", onDragMove);
+    window.removeEventListener("touchend", onDragEnd);
+
+    const finalWidth = sidebar.getBoundingClientRect().width;
+    try {
+      localStorage.setItem("floatchat_sidebar_w", Math.round(finalWidth));
+    } catch (_) {}
+
+    setTimeout(() => {
+      if (typeof oceanLeafletMap !== "undefined" && oceanLeafletMap) {
+        oceanLeafletMap.invalidateSize();
+      }
+    }, 50);
+  }
+
+  sidebarResizer.addEventListener("mousedown", onDragStart);
+  sidebarResizer.addEventListener("touchstart", onDragStart, { passive: false });
+
+  sidebarResizer.addEventListener("dblclick", () => {
+    applySidebarWidth(DEFAULT_WIDTH, true);
+    try {
+      localStorage.removeItem("floatchat_sidebar_w");
+    } catch (_) {}
+  });
+}
+initSidebarResizer();
 
 function startNewChat() {
   stopSpeaking();
