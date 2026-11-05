@@ -114,11 +114,7 @@ def build_query(intent: dict) -> tuple[str, list]:
     named_region = intent.get("named_region")
     if named_region is not None:
         region = str(named_region).lower()
-        if "arabian" in region:
-            sql += " AND (p.region LIKE '%Arabian%' OR (p.lat BETWEEN 5.0 AND 25.0 AND p.lon BETWEEN 55.0 AND 77.0))"
-        elif "equatorial" in region:
-            sql += " AND (p.region LIKE '%Equatorial%' OR (p.lat BETWEEN -8.0 AND 5.0 AND p.lon BETWEEN 60.0 AND 95.0))"
-        elif "north" in region:
+        if "north" in region:
             sql += " AND p.lat >= ?"; params.append(15.0)
         elif "south" in region:
             sql += " AND p.lat <= ?"; params.append(10.0)

@@ -909,32 +909,6 @@ def api_float_ts_diagram(platform: str, request: Request):
         conn.close()
 
 
-@app.get("/api/regions")
-def api_list_regions(request: Request):
-    """List supported and active ocean basins for multi-region expansion."""
-    import sqlite3
-    from config import SUPPORTED_BASINS
-    conn = sqlite3.connect(DB_PATH)
-    try:
-        rows = conn.execute("SELECT region, COUNT(*) as cnt FROM profiles GROUP BY region").fetchall()
-        db_counts = {r[0]: r[1] for r in rows if r[0]}
-    finally:
-        conn.close()
-
-    basins_out = []
-    for bid, binfo in SUPPORTED_BASINS.items():
-        name = binfo["name"]
-        cnt = db_counts.get(name, 0)
-        basins_out.append({
-            "id": bid,
-            "name": name,
-            "bbox": binfo["bbox"],
-            "center": binfo["center"],
-            "status": "active" if cnt > 0 else "available",
-            "profiles_loaded": cnt,
-            "ingest_command": f"python backend/ingestion/fetch_and_load.py --basin {bid}"
-        })
-    return {"basins": basins_out}
 
 
 @app.get("/api/coverage")

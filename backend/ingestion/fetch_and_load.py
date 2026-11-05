@@ -438,9 +438,6 @@ def parse_args():
         description="Fetch real ARGO data into floatchat.db",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    p.add_argument("--basin", choices=["bay_of_bengal", "arabian_sea", "equatorial_indian_ocean"],
-                   default="bay_of_bengal",
-                   help="Ocean basin region to ingest")
     p.add_argument("--limit",       type=int,   default=None,
                    help="Max number of profiles to fetch measurements for (default: all)")
     p.add_argument("--date-start",  default=DATE_START,
@@ -470,25 +467,18 @@ if __name__ == "__main__":
     if args.reset:
         reset_data(conn)
 
-    basin_info = {
-        "bay_of_bengal": ("Bay of Bengal", [[80, 5], [95, 20]]),
-        "arabian_sea": ("Arabian Sea", [[55, 5], [77, 25]]),
-        "equatorial_indian_ocean": ("Equatorial Indian Ocean", [[60, -8], [95, 5]])
-    }
-    region_name, box = basin_info.get(args.basin, ("Bay of Bengal", REGION_BOX))
-
     profiles = fetch_profile_list(
-        box,
+        REGION_BOX,
         _normalise(args.date_start),
         _normalise(args.date_end),
     )
 
     if not profiles:
-        print(f"No profiles found for {region_name}. Try widening the date range.")
+        print("No profiles found. Try widening the date range.")
         conn.close()
         sys.exit(0)
 
-    load_profiles(conn, profiles, region_label=region_name)
+    load_profiles(conn, profiles)
     load_measurements(
         conn,
         [p["id"] for p in profiles],

@@ -70,32 +70,6 @@ ALLOWED_REGIONS = {
     "Andaman Sea",
     "Sri Lanka",
 }
-
-EXPANSION_REGIONS = {
-    "Arabian Sea",
-    "Equatorial Indian Ocean",
-}
-
-SUPPORTED_BASINS = {
-    "bay_of_bengal": {
-        "name": "Bay of Bengal",
-        "bbox": [[80, 5], [95, 22]],
-        "center": [14.0, 88.0],
-        "default": True
-    },
-    "arabian_sea": {
-        "name": "Arabian Sea",
-        "bbox": [[55, 5], [77, 25]],
-        "center": [15.0, 65.0],
-        "default": False
-    },
-    "equatorial_indian_ocean": {
-        "name": "Equatorial Indian Ocean",
-        "bbox": [[60, -8], [95, 5]],
-        "center": [-2.0, 78.0],
-        "default": False
-    }
-}
 # High-level classification of a user question (LLM parser output).
 ALLOWED_QUESTION_KINDS = {"data", "knowledge", "off_topic"}
 ALLOWED_TASKS = {
