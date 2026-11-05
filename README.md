@@ -1,6 +1,8 @@
-# FloatChat — ARGO Ocean Data Assistant
+# ArgoLens — Physics-Informed ARGO Ocean In-Situ Analytics & Conversational Framework
 
-FloatChat is a FastAPI + JavaScript application for querying the bundled ARGO float observations from the Bay of Bengal. It supports deterministic statistical queries, float discovery and trajectories, charts, account-based conversations, and offline conceptual knowledge retrieval.
+> **IEEE Research Title**: *"ArgoLens: A Physics-Informed Conversational Interface and Geospatial Analytics Framework for Autonomous Ocean Profiling Floats"*
+
+ArgoLens (formerly FloatChat) is a FastAPI + JavaScript scientific platform for querying, analyzing, and visualizing in-situ autonomous ARGO profiling float observations across the Bay of Bengal ($80^\circ\text{E}–95^\circ\text{E}, 5^\circ\text{N}–20^\circ\text{N}$). It integrates deterministic statistical query engines, UNESCO 1983 seawater thermodynamics, WMO Quality Control (QC 1–9) enforcement, interactive geospatial trajectory mapping, and zero-hallucination conceptual retrieval.
 
 ## Technologies
 

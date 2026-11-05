@@ -280,7 +280,7 @@ def generate_scientific_pdf_report(
     # ── 6. Certification Footer ────────────────────────────────────────────────
     story.append(Spacer(1, 16))
     footer_text = (
-        "<i>Report generated deterministically by FloatChat Scientific Engine v2.0. "
+        "<i>Report generated deterministically by ArgoLens Scientific Engine v2.0. "
         "Data licensed under the international Argo Program. For reproducible peer evaluation, "
         "reference the benchmark suite: <code>tests/test_performance_evaluation.py</code>.</i>"
     )
@@ -288,6 +288,6 @@ def generate_scientific_pdf_report(
 
     doc.build(story)
     pdf_bytes = buf.getvalue()
-    filename = f"floatchat_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    filename = f"argolens_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
     return pdf_bytes, filename
 

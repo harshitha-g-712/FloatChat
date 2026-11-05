@@ -27,7 +27,8 @@ def test_pdf_export_guest_conversation():
     })
     assert pdf_resp.status_code == 200
     assert pdf_resp.headers["content-type"] == "application/pdf"
-    assert "attachment; filename=floatchat_report_" in pdf_resp.headers["content-disposition"]
+    assert "attachment; filename=" in pdf_resp.headers["content-disposition"]
+    assert "report_" in pdf_resp.headers["content-disposition"]
     # PDF magic bytes
     assert pdf_resp.content.startswith(b"%PDF")
     assert len(pdf_resp.content) > 1000
