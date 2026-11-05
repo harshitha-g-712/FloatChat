@@ -2551,24 +2551,37 @@ async function initOceanMap() {
       attributionControl: false
     });
 
-    // Basemaps
-    mapBaseLayers.ocean = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}", {
-      maxZoom: 13,
-      attribution: "ESRI Ocean"
-    });
-    mapBaseLayers.dark = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      maxZoom: 19,
-      subdomains: "abcd",
-      attribution: "CartoDB"
-    });
+    // Basemaps (High-reliability ESRI Oceanographic & Geospatial layers - no API key watermarks or 403 blocks)
+    mapBaseLayers.ocean = L.layerGroup([
+      L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}", {
+        maxZoom: 13,
+        attribution: "ESRI Ocean / GEBCO"
+      }),
+      L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}", {
+        maxZoom: 13
+      })
+    ]);
+
+    mapBaseLayers.dark = L.layerGroup([
+      L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+        maxZoom: 16,
+        attribution: "ESRI Dark Canvas"
+      }),
+      L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}", {
+        maxZoom: 16
+      })
+    ]);
+
     mapBaseLayers.satellite = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
       maxZoom: 18,
       attribution: "ESRI World Imagery"
     });
-    mapBaseLayers.osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: "OpenStreetMap"
+
+    mapBaseLayers.topo = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 18,
+      attribution: "ESRI World Topo"
     });
+    mapBaseLayers.osm = mapBaseLayers.topo;
 
     mapBaseLayers.ocean.addTo(oceanLeafletMap);
 

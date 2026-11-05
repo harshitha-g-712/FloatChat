@@ -141,10 +141,10 @@ async def api_rate_limit_middleware(request: Request, call_next):
 # "report-only" (default: log violations in the browser console, block nothing), "enforce" or "off".
 _CSP = (
     "default-src 'self'; "
-    "script-src 'self' https://cdn.plot.ly; "
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+    "script-src 'self' https://cdn.plot.ly https://unpkg.com; "
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; "
     "font-src 'self' https://fonts.gstatic.com data:; "
-    "img-src 'self' data: blob:; "
+    "img-src 'self' data: blob: https://server.arcgisonline.com https://*.arcgisonline.com https://unpkg.com; "
     "connect-src 'self'; "
     "object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
 )
