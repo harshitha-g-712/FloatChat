@@ -1,0 +1,23 @@
+{
+  "iterations": 250,
+  "intent_parsing_ms": {
+    "mean": 0.27,
+    "median": 0.24,
+    "p95": 0.41
+  },
+  "sql_retrieval_ms": {
+    "mean": 110.33,
+    "median": 71.45,
+    "p95": 271.57
+  },
+  "thermodynamics_ms": {
+    "mean": 0.63,
+    "median": 0.55,
+    "p95": 0.97
+  },
+  "total_internal_ms": {
+    "mean": 111.23,
+    "median": 72.39,
+    "p95": 272.43
+  }
+}

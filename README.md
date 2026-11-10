@@ -1,11 +1,11 @@
 # ArgoLens — Natural Language Retrieval & Seawater Density Profiling for ARGO Float Networks
 
-> **IEEE Research Title**: *"ArgoLens: Deterministic Natural Language Retrieval and Seawater Density Profiling for ARGO Marine Observation Networks"*  
+> **IEEE Research Title**: *"ArgoLens: Natural Language Retrieval and Seawater Density Profiling for ARGO Marine Observation Networks"*  
 > **Data Scope**: 1,441 Profiles, 38 Robotic Profiling Floats (37 with measurements), 151,555 Measurements (Jan 2023 – Dec 2024)  
 > **Observed Geographic Range**: 5.00°N–19.11°N, 80.07°E–91.93°E (Bay of Bengal basin)  
 > **Ingestion Target Envelope**: 5.00°N–20.00°N, 80.00°E–95.00°E
 
-ArgoLens is a physics-informed conversational retrieval and geospatial analytics framework designed for autonomous ARGO profiling float observations. It integrates structured semantic parsing, automated World Meteorological Organization (WMO) Quality Control (QC) flag filtering, UNESCO 1983 seawater thermodynamics, interactive trajectory mapping, and curated domain knowledge retrieval.
+ArgoLens is a physics-informed conversational retrieval and geospatial analytics framework designed for autonomous ARGO profiling float observations. The framework pairs a rule-first intent parser (with an optional validated LLM parser fallback) with deterministic SQL execution over indexed observations, automated World Meteorological Organization (WMO) Quality Control (QC) flag filtering, UNESCO 1983 seawater thermodynamics, interactive trajectory mapping, and curated domain knowledge retrieval.
 
 ---
 
@@ -68,7 +68,7 @@ Summary metrics recorded in `eval/performance_evaluation_summary.json` across th
 |---|---|---|
 | **SQL Execution Accuracy** | **100.0%** | 294 of 294 valid SQL queries executed successfully |
 | **Intent Accuracy** | **87.76%** | $87.8\% \pm 3.8\%$ (95% CI across 294 queries) |
-| **Numerical Accuracy** | **100.0%** | Tested on gold benchmark cases ($\pm 0.05$ units tolerance) |
+| **Numerical Accuracy** | **100.0%** | Tested on 2 reference cases ($\pm 0.05$ units tolerance) |
 | **Abstention Accuracy** | **91.43%** | 32 of 35 out-of-domain or unsupported queries refused |
 | **Retrieval Precision@1** | **100.0%** | Top-1 knowledge document precision |
 | **Retrieval MRR** | **1.00** | Mean Reciprocal Rank on evaluation queries |
@@ -80,12 +80,29 @@ Summary metrics recorded in `eval/performance_evaluation_summary.json` across th
 - **LLM Only**: 249 / 294 passed (84.69% accuracy, 17 variable-fidelity violations)
 - **Validated Hybrid**: 237 / 294 passed (80.61% accuracy, 10 variable-fidelity violations)
 
+### Internal Stage Latency (from `eval/stage_latency.json`)
+Measured via `scripts/measure_stage_latency.py` across 250 test iterations:
+- **Intent Parsing**: 0.27 ms mean (0.24 ms median, 0.41 ms P95)
+- **SQL Retrieval**: 110.33 ms mean (71.45 ms median, 271.57 ms P95)
+- **Thermodynamic Calculation**: 0.63 ms mean (0.55 ms median, 0.97 ms P95)
+- **Total Internal**: 111.23 ms mean (72.39 ms median, 272.43 ms P95)
+
+---
+
+## ⚠️ Known Limitations & Scope Boundaries
+
+1. **Observed QC Flags in Bundled Dataset**: While the filter supports all standard WMO flags (1, 2, 5, 8 accepted; 3, 4, 9 dropped), in this specific Bay of Bengal ingested database only QC flags **1** (good) and **9** (missing) occur in practice.
+2. **Temperature Variable in $\sigma_\theta$**: Potential density ($\sigma_\theta$) is computed using *in-situ* recorded temperature ($T$) rather than adiabatically adjusted potential temperature ($\theta$).
+3. **Equation of State Reference**: Seawater potential density calculations use the UNESCO 1983 Equation of State (EOS-80) and have not been benchmarked against the newer thermodynamic equation TEOS-10 / Gibbs SeaWater (GSW) library.
+4. **Coordinate Boundary Guard**: The domain guard strictly blocks out-of-domain *named regions* (e.g., "Arabian Sea", "Pacific Ocean"); raw numerical coordinate bounding queries without explicit region names are not intercepted by the text-based region guard.
+5. **Parser Accuracy & Remaining Errors**: As reported in the ablation study, the validated hybrid parser achieves an 80.61% pass rate on the 294-question benchmark, leaving 57 unparsed queries or variable-fidelity violations.
+
 ---
 
 ## 🏗️ System Architecture
 
 ```text
-c:/ChatProject/FloatChatNew/
+FloatChatNew/
 ├── backend/
 │   ├── main.py                  # FastAPI routes, security headers, endpoints
 │   ├── config.py                # Bounding coordinates, WMO QC constants, paths
@@ -110,7 +127,11 @@ c:/ChatProject/FloatChatNew/
 │   └── script.js                # App logic, Leaflet map, Plotly charts, voice normalizer
 ├── eval/
 │   ├── benchmark_280_questions.json    # 294-query evaluation set
-│   └── performance_evaluation_summary.json # Recorded benchmark metrics
+│   ├── performance_evaluation_summary.json # Recorded benchmark metrics
+│   └── stage_latency.json              # Per-stage latency benchmark results
+├── scripts/
+│   ├── evaluate.py              # Benchmark evaluation script
+│   └── measure_stage_latency.py # Stage latency measurement script
 └── tests/                       # Automated pytest test suites
 ```
 
@@ -176,13 +197,18 @@ To run the evaluation script:
 python scripts/evaluate.py
 ```
 
+To re-run the stage latency measurement:
+```powershell
+python scripts/measure_stage_latency.py
+```
+
 ---
 
 ## 📜 Research Citation
 
 ```bibtex
 @misc{argolens2026,
-  title={ArgoLens: Deterministic Natural Language Retrieval and Seawater Density Profiling for ARGO Marine Observation Networks},
+  title={ArgoLens: Natural Language Retrieval and Seawater Density Profiling for ARGO Marine Observation Networks},
   author={Harshitha, G. and Co-Authors},
   year={2026},
   howpublished={Preprint / Working Paper},
