@@ -1,69 +1,84 @@
-# ArgoLens — Deterministic Natural Language Retrieval & Seawater Density Profiling for ARGO Float Networks
+# ArgoLens — Natural Language Retrieval & Seawater Density Profiling for ARGO Float Networks
 
 > **IEEE Research Title**: *"ArgoLens: Deterministic Natural Language Retrieval and Seawater Density Profiling for ARGO Marine Observation Networks"*  
-> **Domain Scope**: Bay of Bengal, Northern Indian Ocean ($80^\circ\text{E}–95^\circ\text{E}, \; 5^\circ\text{N}–20^\circ\text{N}$)  
-> **Data Scope**: 1,441 Profiles, 38 Robotic Profiling Floats, 151,555 In-Situ Measurements (Jan 2023 – Dec 2024)
+> **Data Scope**: 1,441 Profiles, 38 Robotic Profiling Floats (37 with measurements), 151,555 Measurements (Jan 2023 – Dec 2024)  
+> **Observed Geographic Range**: 5.00°N–19.11°N, 80.07°E–91.93°E (Bay of Bengal basin)  
+> **Ingestion Target Envelope**: 5.00°N–20.00°N, 80.00°E–95.00°E
 
-ArgoLens is a physics-informed, deterministic conversational framework and geospatial analytics platform for autonomous ARGO profiling float observations. Unlike standard conversational AI interfaces that suffer from numerical hallucinations, lack of quality control, and geographic boundary drift, ArgoLens guarantees deterministic calculations, strict World Meteorological Organization (WMO) QC flag filtering, and thermodynamic seawater density calculations according to the UNESCO 1983 Equation of State (EOS-80).
+ArgoLens is a physics-informed conversational retrieval and geospatial analytics framework designed for autonomous ARGO profiling float observations. It integrates structured semantic parsing, automated World Meteorological Organization (WMO) Quality Control (QC) flag filtering, UNESCO 1983 seawater thermodynamics, interactive trajectory mapping, and curated domain knowledge retrieval.
 
 ---
 
-## 🌊 Core Scientific & Technical Features
+## 🌊 Core Features
 
-1. **Deterministic Rule-First Intent Parser (Zero-Hallucination)**:
-   - Maps natural-language user queries directly to parameterized SQL with zero probabilistic hallucination.
-   - Strictly enforces Bay of Bengal geographic bounding ($80^\circ\text{E}–95^\circ\text{E}, 5^\circ\text{N}–20^\circ\text{N}$), deterministically refusing out-of-domain queries (e.g., Arabian Sea, Pacific).
+1. **Rule-First Intent Parser & Structured Query Execution**:
+   - Maps user natural-language queries to structured parameterized SQL filters over indexed SQLite tables.
+   - Named geographic guard refusing out-of-domain named regions (e.g., Arabian Sea, Pacific).
    - Conservative typo-tolerance for oceanographic variables, temporal periods, and multi-year comparisons.
+   - Validated hybrid architecture balancing deterministic rule matching with LLM parsing.
 
-2. **Automated WMO Quality Control (QC 1–9) Enforcement**:
-   - Evaluates sensor flags on every measurement row (`temp_qc`, `sal_qc`).
-   - Automatically restricts calculations to trusted data (QC 1 = Good, 2 = Probably Good, 5 = Adjusted, 8 = Interpolated), strictly nulling out or dropping corrupt values (QC 3 = Questionable, 4 = Bad, 9 = Missing).
-   - Eliminates up to 108.3% calculation divergence caused by raw uncalibrated sensor drift.
+2. **WMO Quality Control (QC 1–9) Filtering**:
+   - Evaluates sensor quality flags on every measurement row (`temp_qc`, `sal_qc`).
+   - Restricts computational aggregation to accepted observations (QC 1 = Good, 2 = Probably Good, 5 = Adjusted, 8 = Interpolated), discarding or nulling bad/missing readings (QC 3 = Questionable, 4 = Bad, 9 = Missing).
+   - Sensor range validation enforces $P \ge 0$, $20 \le S \le 50$, and $-5 \le T \le 50$.
 
 3. **Thermodynamic Seawater Density Profiling (UNESCO EOS-80)**:
    - Computes surface potential density anomaly $\sigma_\theta$ ($\text{kg/m}^3$) via the UNESCO 1983 polynomial.
-   - Calculates density-based Mixed Layer Depth ($\text{MLD}_\rho$) using the international $\Delta\sigma_\theta = 0.03\text{ kg/m}^3$ threshold (de Boyer Montégut et al., 2004).
+   - Calculates density-based Mixed Layer Depth ($\text{MLD}_\rho$) using the $\Delta\sigma_\theta = 0.03\text{ kg/m}^3$ threshold (de Boyer Montégut et al., 2004).
+   - Calculates isothermal Mixed Layer Depth ($\text{MLD}_T$) using the $\Delta T = 0.2^\circ\text{C}$ criterion.
    - Computes **Barrier Layer Thickness** ($\text{BLT} = \max(0, \text{MLD}_T - \text{MLD}_\rho)$) to quantify upper-ocean salinity stratification.
-   - Automated Water Mass Classification (Bay of Bengal Water, Indian Equatorial Water, Deep Ocean Water).
+   - Classifies water masses into regional categories matching Northern Indian Ocean hydrography:
+     - *Bay of Bengal Surface Water (BBSW)* ($T \ge 27^\circ\text{C}, S < 33.5$)
+     - *Equatorial Indian Ocean Surface Water* ($24 \le T < 28^\circ\text{C}, 33.5 \le S \le 34.6$)
+     - *Arabian Sea High Salinity Water (ASHSW)* ($T \ge 25^\circ\text{C}, S \ge 35.0$)
+     - *Indian Central Water (ICW)* ($10 \le T < 20^\circ\text{C}, 34.5 \le S \le 35.2$)
+     - *Indian Deep / Bottom Water* ($T < 10^\circ\text{C}, P \ge 800\text{ dbar}$)
+     - *Transitional / Thermocline Water*
 
 4. **Interactive Geospatial Ocean Map (Leaflet.js)**:
-   - High-resolution ESRI Ocean and Dark Canvas bathymetry basemaps without commercial watermark restrictions or tile blocking.
-   - Autonomous float drift trajectory lines with sea surface temperature heat-points ($<26^\circ\text{C}$ to $>29^\circ\text{C}$).
-   - Direct popup shortcuts to inspect individual dive profiles and T-S curves.
+   - ESRI Ocean and ESRI Dark Canvas basemaps with reference overlays.
+   - Renders float drift trajectories with markers color-coded by temperature categories ($<26^\circ\text{C}$, $26–28^\circ\text{C}$, $28–29^\circ\text{C}$, $>29^\circ\text{C}$).
+   - Direct popup links to inspect individual profile dive plots and T-S diagrams.
 
 5. **T-S Seawater Density Diagram & Acoustic Profiling**:
-   - Interactive Plotly.js Temperature-Salinity diagram with contoured potential density isopycnals ($\sigma_\theta = 21–27\text{ kg/m}^3$).
-   - Computes sound speed profiles using the Mackenzie (1981) formulation and identifies SOFAR acoustic channel axes.
+   - Interactive Plotly.js Temperature-Salinity diagram with contoured potential density isopycnals ($\sigma_\theta = 20.0\text{ to }27.5\text{ kg/m}^3$).
+   - Computes sound speed profiles using Mackenzie (1981) and identifies SOFAR acoustic channel axes.
 
-6. **Automated Scientific PDF Report Generation (ReportLab)**:
-   - One-click generation of peer-review ready oceanographic reports (`POST /api/export/pdf`).
-   - Features generation metadata, query bounding parameters, statistical summaries, and WMO QC distribution tables.
+6. **Automated Scientific PDF Report Export (ReportLab)**:
+   - Generates formatted summary reports (`POST /api/export/pdf`) containing query parameters, observation statistics, WMO QC flag distributions, and verification timestamps.
 
-7. **Marine Acoustic Speech / Voice Normalizer**:
-   - Frontend voice transcription filter correcting acoustic ambiguities (`thermocline`, `halocline`, `pycnocline`, `MLD`, `SOFAR`, `dbar`, `PSU`, and spoken digit float IDs).
+7. **Marine Acoustic Speech Normalizer**:
+   - Normalizes phonetic voice inputs for marine acoustic terminology (`thermocline`, `halocline`, `pycnocline`, `MLD`, `SOFAR`, `dbar`, `PSU`, and spoken digit float IDs).
 
 8. **Draggable Resizable Navigation Sidebar**:
-   - Fluid split-pane divider handle with glowing hover states, touch/mouse support, and bounds clamping.
-   - Remembers user width preference via `localStorage` and triggers instant auto-reflow for maps and Plotly charts.
+   - Splitter divider with hover highlights, touch/mouse drag handlers, and `localStorage` width persistence.
+   - Triggers dynamic reflow for Leaflet maps and Plotly charts upon resizing.
 
 9. **Dual-Mode Knowledge Retrieval (RAG)**:
-   - **Offline Mode (TF-IDF)**: Scikit-learn vectorized cosine similarity over peer-reviewed oceanographic documents with citation tags (`[S1]`, `[S2]`) and zero API quota costs.
-   - **Online Mode (Embedding + LLM)**: Grounded text generation using Gemini `text-embedding-004` when API credentials are provided.
+   - **Offline Active Mode (TF-IDF)**: Vectorized cosine similarity over a curated oceanographic markdown knowledge corpus (`backend/rag/knowledge/`) with citation provenance (`[S1]`, `[S2]`) and zero network latency.
+   - **Online Augmented Mode (Embedding + LLM)**: Semantic search using Gemini `text-embedding-004` and answer generation when `GEMINI_API_KEY` is provided.
 
 ---
 
-## 📊 Scientific Benchmark & Performance
+## 📊 Evaluation Results (from `eval/`)
 
-Evaluated against the **294-query gold-standard scientific evaluation suite** (`eval/benchmark_280_questions.json`):
+Summary metrics recorded in `eval/performance_evaluation_summary.json` across the 294-query benchmark (`eval/benchmark_280_questions.json`):
 
-| Metric | Unconstrained Cloud LLM | Standard NL2SQL | **ArgoLens (Proposed)** |
-|---|---|---|---|
-| **Numerical Calculation Accuracy** | 62.4% | 84.1% | **100.0%** |
-| **Spatial Boundary Precision (BoB)**| 54.0% | 81.3% | **100.0%** |
-| **Out-of-Bounds Rejection Rate**   | 31.2% | 68.0% | **100.0%** |
-| **WMO QC Compliance Rate**         | 0.0% *(Ignored)* | 42.5% | **100.0%** |
-| **Factual Hallucination Rate**     | 37.6% | 15.9% | **0.0%** |
-| **Average Internal Latency**       | 2,450 ms | 120 ms | **8.91 ms** *(275× faster)* |
+| Evaluation Metric | Measured Value | Scope / Conditions |
+|---|---|---|
+| **SQL Execution Accuracy** | **100.0%** | 294 of 294 valid SQL queries executed successfully |
+| **Intent Accuracy** | **87.76%** | $87.8\% \pm 3.8\%$ (95% CI across 294 queries) |
+| **Numerical Accuracy** | **100.0%** | Tested on gold benchmark cases ($\pm 0.05$ units tolerance) |
+| **Abstention Accuracy** | **91.43%** | 32 of 35 out-of-domain or unsupported queries refused |
+| **Retrieval Precision@1** | **100.0%** | Top-1 knowledge document precision |
+| **Retrieval MRR** | **1.00** | Mean Reciprocal Rank on evaluation queries |
+| **RAG Answer Grounding** | **93.33%** | Supported statements in generated answers |
+| **Response Latency (Mean)** | **88 ms** | $0.088\text{ s} \pm 0.014\text{ s}$ (P50: 68 ms, P95: 252 ms, P99: 586 ms) |
+
+### Parser Ablation (294 Queries)
+- **Rules Only**: 214 / 294 passed (72.79% accuracy, 10 variable-fidelity violations)
+- **LLM Only**: 249 / 294 passed (84.69% accuracy, 17 variable-fidelity violations)
+- **Validated Hybrid**: 237 / 294 passed (80.61% accuracy, 10 variable-fidelity violations)
 
 ---
 
@@ -72,7 +87,7 @@ Evaluated against the **294-query gold-standard scientific evaluation suite** (`
 ```text
 c:/ChatProject/FloatChatNew/
 ├── backend/
-│   ├── main.py                  # FastAPI application, security headers, endpoints
+│   ├── main.py                  # FastAPI routes, security headers, endpoints
 │   ├── config.py                # Bounding coordinates, WMO QC constants, paths
 │   ├── pdf_report.py            # ReportLab automated scientific PDF generator
 │   ├── rule_intent.py           # Deterministic semantic parser & follow-up handler
@@ -88,15 +103,15 @@ c:/ChatProject/FloatChatNew/
 │   │   └── nl_parser.py         # LLM-assisted parser with deterministic fallback
 │   └── rag/
 │       ├── build.py             # RAG indexer (TF-IDF & vector embeddings)
-│       └── knowledge/           # Peer-reviewed oceanographic knowledge base
+│       └── knowledge/           # Curated oceanographic knowledge base
 ├── frontend/
 │   ├── index.html               # Main single-page application & resizer splitter
 │   ├── style.css                # Dark/Light themes, responsive CSS, resizer handles
 │   └── script.js                # App logic, Leaflet map, Plotly charts, voice normalizer
 ├── eval/
-│   ├── benchmark_280_questions.json    # 294-query gold standard evaluation set
-│   └── performance_evaluation_summary.json # Quantitative benchmark metrics
-└── tests/                       # 374 automated pytest unit and integration tests
+│   ├── benchmark_280_questions.json    # 294-query evaluation set
+│   └── performance_evaluation_summary.json # Recorded benchmark metrics
+└── tests/                       # Automated pytest test suites
 ```
 
 ---
@@ -108,7 +123,6 @@ c:/ChatProject/FloatChatNew/
 - Modern web browser (Chrome, Edge, Firefox).
 
 ### 1. Installation & Environment Setup
-Clone the repository and install dependencies:
 
 ```powershell
 # Windows PowerShell
@@ -133,7 +147,7 @@ Copy-Item .env.example .env
 Key configuration parameters:
 - `DB_PATH`: Path to SQLite observation database (default: `backend/floatchat.db`).
 - `AUTH_DB_PATH`: Path to private user/conversation database (default: `backend/floatchat_auth.db`).
-- `GEMINI_API_KEY`: *(Optional)* Enables live LLM parsing and vector embeddings. If omitted, ArgoLens operates fully offline using deterministic rules and TF-IDF retrieval.
+- `GEMINI_API_KEY`: *(Optional)* Enables live LLM parsing and vector embeddings. If omitted, ArgoLens operates offline using deterministic rules and TF-IDF retrieval.
 
 ### 3. Launch Server
 Start the FastAPI server:
@@ -147,33 +161,31 @@ Open your browser to:
 
 ## 🧪 Running the Test Suite
 
-ArgoLens includes 374 automated test cases covering routing, QC filtering, UNESCO thermodynamics, PDF generation, and spatial boundary guards:
+Run pytest from the repository root:
 
 ```powershell
 python -m pytest -q
 ```
 Expected output:
 ```text
-374 passed, 39 subtests passed in ~50s
+374 passed, 39 subtests passed in ~80-90s
 ```
 
-To run the scientific benchmark evaluation:
+To run the evaluation script:
 ```powershell
 python scripts/evaluate.py
 ```
 
 ---
 
-## 📜 Scientific Citation & Reference
-
-If you use **ArgoLens** in your research, cite it as:
+## 📜 Research Citation
 
 ```bibtex
-@article{argolens2026,
+@misc{argolens2026,
   title={ArgoLens: Deterministic Natural Language Retrieval and Seawater Density Profiling for ARGO Marine Observation Networks},
   author={Harshitha, G. and Co-Authors},
-  journal={IEEE Access},
   year={2026},
+  howpublished={Preprint / Working Paper},
   note={Focus: Bay of Bengal In-Situ Profiling, UNESCO EOS-80 Seawater Thermodynamics, and WMO QC Filtering}
 }
 ```
