@@ -1,7 +1,8 @@
 # ArgoLens — Natural Language Retrieval & Seawater Density Profiling for ARGO Float Networks
 
 > **IEEE Research Title**: *"ArgoLens: Natural Language Retrieval and Seawater Density Profiling for ARGO Marine Observation Networks"*  
-> **Data Scope**: 1,441 Profiles, 38 Robotic Profiling Floats (37 with measurements), 151,555 Measurements (Jan 2023 – Dec 2024)  
+> **Data Scope**: 1,441 Profiles, 38 Robotic Profiling Floats (37 floats with measurements), 151,555 Measurements (Jan 2023 – Dec 2024)  
+> **Data Cleaning**: Database cleanup removed 111 negative-pressure rows (< 0 dbar) and nulled 2 bad salinity rows (< 20 PSU)  
 > **Observed Geographic Range**: 5.00°N–19.11°N, 80.07°E–91.93°E (Bay of Bengal basin)  
 > **Ingestion Target Envelope**: 5.00°N–20.00°N, 80.00°E–95.00°E
 
