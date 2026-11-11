@@ -696,6 +696,7 @@ function openProfileModal() {
   if (profileConfirmPw) profileConfirmPw.value = "";
   if (profilePwError) profilePwError.hidden = true;
   if (profilePwSuccess) profilePwSuccess.hidden = true;
+  if (profileSaveUsername) { profileSaveUsername.textContent = "Save"; profileSaveUsername.disabled = false; }
 
   if (userDropdown) userDropdown.hidden = true;
   if (profileModal) profileModal.hidden = false;
@@ -711,7 +712,7 @@ profileSaveUsername?.addEventListener("click", async () => {
   const newName = profileEditUsername.value.trim();
   if (!newName || newName === currentUser?.username) return;
   profileSaveUsername.disabled = true;
-  profileSaveUsername.textContent = "…";
+  profileSaveUsername.textContent = "Saving...";
   try {
     const resp = await fetch(ENDPOINTS.updateUsername, {
       method: "PUT",
@@ -730,12 +731,12 @@ profileSaveUsername?.addEventListener("click", async () => {
     if (dropdownUsername) dropdownUsername.textContent = data.username;
     if (profileAvatarLarge) profileAvatarLarge.textContent = initial;
     if (profileDisplayName) profileDisplayName.textContent = data.username;
-    profileSaveUsername.textContent = "✓";
+    profileSaveUsername.textContent = "Saved ✓";
   } catch (err) {
     alert("Could not update username: Network error");
   } finally {
     profileSaveUsername.disabled = false;
-    setTimeout(() => { if (profileSaveUsername) profileSaveUsername.textContent = "✓"; }, 1500);
+    setTimeout(() => { if (profileSaveUsername) profileSaveUsername.textContent = "Save"; }, 1800);
   }
 });
 

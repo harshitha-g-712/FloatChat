@@ -41,19 +41,8 @@
         <span class="auth-hero-icon">🌊</span>
         <h2>Explore the Ocean</h2>
         <p>Query ARGO float data in natural language. Visualize temperature, salinity, and density profiles across the Bay of Bengal.</p>
-        <div class="auth-hero-stats">
-          <div class="auth-hero-stat">
-            <span class="auth-hero-stat-val">1,441</span>
-            <span class="auth-hero-stat-lbl">Profiles</span>
-          </div>
-          <div class="auth-hero-stat">
-            <span class="auth-hero-stat-val">38</span>
-            <span class="auth-hero-stat-lbl">Floats</span>
-          </div>
-          <div class="auth-hero-stat">
-            <span class="auth-hero-stat-val">151K</span>
-            <span class="auth-hero-stat-lbl">Measurements</span>
-          </div>
+        <div class="auth-hero-badge">
+          <span>🌊 Bay of Bengal Oceanographic Array</span>
         </div>
       </div>
     </div>
@@ -720,81 +709,143 @@
 <!-- ── Profile Modal ──────────────────────────────────────────────────────── -->
 <div class="modal-overlay" id="profile-modal" hidden>
   <div class="modal-card profile-modal-card" role="dialog" aria-modal="true" aria-label="User Profile">
-    <button class="modal-close" id="profile-modal-close" aria-label="Close">✕</button>
-    <div class="profile-header">
-      <div class="profile-avatar-large" id="profile-avatar-large">U</div>
-      <div class="profile-header-info">
-        <h2 id="profile-display-name">User</h2>
-        <p class="profile-email" id="profile-display-email">user@email.com</p>
-        <span class="profile-badge">🌊 Ocean Explorer</span>
-      </div>
+    <!-- Top banner background -->
+    <div class="profile-banner">
+      <button class="modal-close profile-modal-close" id="profile-modal-close" aria-label="Close">✕</button>
     </div>
 
-    <div class="profile-stats-row">
-      <div class="profile-stat-card">
-        <span class="profile-stat-icon">💬</span>
-        <span class="profile-stat-val" id="profile-total-chats">0</span>
-        <span class="profile-stat-lbl">Conversations</span>
-      </div>
-      <div class="profile-stat-card">
-        <span class="profile-stat-icon">📅</span>
-        <span class="profile-stat-val" id="profile-member-since">-</span>
-        <span class="profile-stat-lbl">Member since</span>
-      </div>
-      <div class="profile-stat-card">
-        <span class="profile-stat-icon">🔐</span>
-        <span class="profile-stat-val" id="profile-session-status">Active</span>
-        <span class="profile-stat-lbl">Session</span>
-      </div>
-    </div>
-
-    <div class="profile-section">
-      <h3>Account Settings</h3>
-      <div class="profile-field-row">
-        <label>Username</label>
-        <div class="profile-field-value">
-          <input type="text" id="profile-edit-username" class="profile-input" />
-          <button type="button" id="profile-save-username" class="profile-save-btn" title="Save username">✓</button>
+    <div class="profile-modal-inner">
+      <div class="profile-header">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar-large" id="profile-avatar-large">U</div>
+          <span class="profile-online-badge" title="Active Session"></span>
         </div>
-      </div>
-      <div class="profile-field-row">
-        <label>Email</label>
-        <span class="profile-field-static" id="profile-static-email">user@email.com</span>
-      </div>
-    </div>
-
-    <div class="profile-section">
-      <h3>Change Password</h3>
-      <div class="profile-pw-form" id="profile-pw-form">
-        <div class="auth-field">
-          <label for="profile-current-pw">Current Password</label>
-          <div class="auth-input-wrap">
-            <input type="password" id="profile-current-pw" placeholder="Enter current password" autocomplete="current-password" />
-            <button type="button" class="auth-toggle-pw" data-target="profile-current-pw" aria-label="Toggle password visibility">👁️</button>
+        <div class="profile-header-info">
+          <div class="profile-name-row">
+            <h2 id="profile-display-name">User</h2>
+            <span class="profile-role-tag">✓ Verified Researcher</span>
+          </div>
+          <p class="profile-email">
+            <span class="profile-email-icon">✉</span>
+            <span id="profile-display-email">user@email.com</span>
+          </p>
+          <div class="profile-badges-row">
+            <span class="profile-badge">🌊 Ocean Explorer</span>
+            <span class="profile-badge-sub">Bay of Bengal Array</span>
           </div>
         </div>
-        <div class="auth-field">
-          <label for="profile-new-pw">New Password</label>
-          <div class="auth-input-wrap">
-            <input type="password" id="profile-new-pw" placeholder="Enter new password (min 10 chars)" minlength="10" maxlength="128" autocomplete="new-password" />
-            <button type="button" class="auth-toggle-pw" data-target="profile-new-pw" aria-label="Toggle password visibility">👁️</button>
-          </div>
-        </div>
-        <div class="auth-field">
-          <label for="profile-confirm-pw">Confirm New Password</label>
-          <div class="auth-input-wrap">
-            <input type="password" id="profile-confirm-pw" placeholder="Confirm new password" minlength="10" maxlength="128" autocomplete="new-password" />
-          </div>
-        </div>
-        <div id="profile-pw-error" class="auth-error" hidden></div>
-        <div id="profile-pw-success" class="auth-success" hidden></div>
-        <button type="button" id="profile-change-pw-btn" class="profile-action-btn">🔑 Update Password</button>
       </div>
-    </div>
 
-    <div class="profile-section profile-danger-zone">
-      <h3>Danger Zone</h3>
-      <button type="button" id="profile-logout-all-btn" class="profile-action-btn profile-btn-danger">🚫 Sign Out All Sessions</button>
+      <!-- Quick stats row -->
+      <div class="profile-stats-row">
+        <div class="profile-stat-card">
+          <div class="profile-stat-icon-wrap icon-purple">💬</div>
+          <div class="profile-stat-details">
+            <span class="profile-stat-val" id="profile-total-chats">0</span>
+            <span class="profile-stat-lbl">Saved Chats</span>
+          </div>
+        </div>
+        <div class="profile-stat-card">
+          <div class="profile-stat-icon-wrap icon-blue">📅</div>
+          <div class="profile-stat-details">
+            <span class="profile-stat-val" id="profile-member-since">-</span>
+            <span class="profile-stat-lbl">Member Since</span>
+          </div>
+        </div>
+        <div class="profile-stat-card">
+          <div class="profile-stat-icon-wrap icon-green">⚡</div>
+          <div class="profile-stat-details">
+            <span class="profile-stat-val" id="profile-session-status">Active</span>
+            <span class="profile-stat-lbl">Session Token</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 1: Account Settings -->
+      <div class="profile-section">
+        <div class="profile-section-header">
+          <span class="section-icon">👤</span>
+          <h3>Account Settings</h3>
+        </div>
+        
+        <div class="profile-form-grid">
+          <div class="profile-form-group">
+            <label for="profile-edit-username">Display Username</label>
+            <div class="profile-input-btn-wrap">
+              <input type="text" id="profile-edit-username" class="profile-input" placeholder="Your username" />
+              <button type="button" id="profile-save-username" class="profile-save-btn">Save</button>
+            </div>
+            <span class="profile-hint">Visible across saved chats and exports</span>
+          </div>
+
+          <div class="profile-form-group">
+            <label>Registered Email</label>
+            <div class="profile-static-box">
+              <span class="static-email-text" id="profile-static-email">user@email.com</span>
+              <span class="static-lock-badge">🔒 Primary</span>
+            </div>
+            <span class="profile-hint">Verified authentication address</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Change Password -->
+      <div class="profile-section">
+        <div class="profile-section-header">
+          <span class="section-icon">🔐</span>
+          <h3>Security &amp; Password</h3>
+        </div>
+
+        <div class="profile-pw-form" id="profile-pw-form">
+          <div class="profile-pw-grid">
+            <div class="auth-field">
+              <label for="profile-current-pw">Current Password</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">🔒</span>
+                <input type="password" id="profile-current-pw" placeholder="Enter current password" autocomplete="current-password" />
+                <button type="button" class="auth-toggle-pw" data-target="profile-current-pw" aria-label="Toggle password visibility">👁️</button>
+              </div>
+            </div>
+
+            <div class="auth-field">
+              <label for="profile-new-pw">New Password</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">🔑</span>
+                <input type="password" id="profile-new-pw" placeholder="Minimum 10 characters" minlength="10" maxlength="128" autocomplete="new-password" />
+                <button type="button" class="auth-toggle-pw" data-target="profile-new-pw" aria-label="Toggle password visibility">👁️</button>
+              </div>
+            </div>
+
+            <div class="auth-field">
+              <label for="profile-confirm-pw">Confirm New Password</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">🔑</span>
+                <input type="password" id="profile-confirm-pw" placeholder="Re-enter new password" minlength="10" maxlength="128" autocomplete="new-password" />
+              </div>
+            </div>
+          </div>
+
+          <div id="profile-pw-error" class="auth-error" hidden></div>
+          <div id="profile-pw-success" class="auth-success" hidden></div>
+
+          <button type="button" id="profile-change-pw-btn" class="profile-action-btn primary-action">
+            🔑 Update Password
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 3: Danger Zone -->
+      <div class="profile-section profile-danger-zone">
+        <div class="profile-danger-content">
+          <div>
+            <h4>Sign Out Everywhere</h4>
+            <p>Revoke all active tokens and sessions on other devices.</p>
+          </div>
+          <button type="button" id="profile-logout-all-btn" class="profile-btn-danger">
+            🚫 Sign Out All Sessions
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
