@@ -153,6 +153,7 @@ const pwStrengthFill       = document.getElementById("password-strength-fill");
 const pwStrengthText       = document.getElementById("password-strength-text");
 const pwMatchHint          = document.getElementById("pw-match-hint");
 const searchInput      = document.getElementById("search-input");
+const searchClearBtn   = document.getElementById("search-clear-btn");
 const convList         = document.getElementById("conversation-list");
 
 // Discover Elements
@@ -294,6 +295,7 @@ function resetUiState() {
   if (messagesEl) messagesEl.innerHTML = "";
   if (convList) convList.replaceChildren();
   if (searchInput) searchInput.value = "";
+  if (searchClearBtn) searchClearBtn.hidden = true;
   if (questionInput) { questionInput.value = ""; questionInput.style.height = "auto"; }
   if (welcomeCard) { welcomeCard.style.display = ""; welcomeCard.style.opacity = "1"; }
   lastMessageData = null;
@@ -315,6 +317,8 @@ function showAuth() {
 
 function showApp() {
   clearStatus();
+  if (searchInput) searchInput.value = "";
+  if (searchClearBtn) searchClearBtn.hidden = true;
   authScreen.hidden = true;
   appShell.hidden = false;
   const initial = (currentUser?.username || "U")[0].toUpperCase();
@@ -1091,6 +1095,14 @@ function setConvListMessage(text) {
 
 async function loadConversations(query = "") {
   if (!convList || !authToken) return;
+  // Guard against browser password managers autofilling user's email into search box:
+  if (query && (query.includes("@") || (currentUser?.email && query.toLowerCase().trim() === currentUser.email.toLowerCase().trim()))) {
+    if (searchInput) {
+      searchInput.value = "";
+      if (searchClearBtn) searchClearBtn.hidden = true;
+    }
+    query = "";
+  }
   const seq = ++listSeq;
   // Keep the existing items visible while a refresh is in progress.
   try {
@@ -1119,6 +1131,20 @@ async function loadConversations(query = "") {
   }
 }
 
+function formatRelativeTime(isoStr) {
+  if (!isoStr) return "";
+  try {
+    const diff = Math.max(0, (Date.now() - new Date(isoStr).getTime()) / 1000);
+    if (diff < 60) return "Just now";
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+    return new Date(isoStr).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  } catch (_) {
+    return "";
+  }
+}
+
 function renderConversationList(conversations) {
   if (!convList) return;
   convList.replaceChildren();
@@ -1139,9 +1165,20 @@ function renderConversationList(conversations) {
     const open = document.createElement("button");
     open.type = "button";
     open.className = "conv-item-title";
-    open.textContent = label;
     open.title = label;
     if (c.id === conversationId) open.setAttribute("aria-current", "true");
+
+    const textSpan = document.createElement("span");
+    textSpan.className = "conv-item-text";
+    textSpan.textContent = label;
+
+    const metaSpan = document.createElement("span");
+    metaSpan.className = "conv-item-meta";
+    const timeStr = formatRelativeTime(c.updated_at || c.created_at);
+    const countStr = c.message_count ? `${c.message_count} msg${c.message_count === 1 ? '' : 's'}` : "";
+    metaSpan.textContent = [timeStr, countStr].filter(Boolean).join(" • ");
+
+    open.append(textSpan, metaSpan);
     open.addEventListener("click", () => loadConversation(c.id));
 
     const del = document.createElement("button");
@@ -1193,7 +1230,7 @@ function applyConversationFilter() {
   if (!convList) return;
   const items = convList.querySelectorAll(".conv-item");
   items.forEach((item, index) => {
-    const title = item.querySelector(".conv-item-title")?.textContent || "";
+    const title = item.querySelector(".conv-item-text")?.textContent || item.querySelector(".conv-item-title")?.textContent || "";
     let match = true;
     if (convActiveFilter === "recent") {
       match = index < 15;
@@ -1277,10 +1314,19 @@ async function loadConversation(convId, opts = {}) {
 }
 
 let searchTimer = null;
+searchClearBtn?.addEventListener("click", () => {
+  if (searchInput) searchInput.value = "";
+  if (searchClearBtn) searchClearBtn.hidden = true;
+  convLimit = CONV_PAGE;
+  loadConversations("");
+});
+
 searchInput?.addEventListener("input", () => {
+  const val = searchInput.value.trim();
+  if (searchClearBtn) searchClearBtn.hidden = !val;
   clearTimeout(searchTimer);
   convLimit = CONV_PAGE;
-  searchTimer = setTimeout(() => loadConversations(searchInput.value.trim()), 300);
+  searchTimer = setTimeout(() => loadConversations(val), 300);
 });
 
 function scrollToBottom() {
@@ -1421,12 +1467,14 @@ function startNewChat() {
   localStorage.setItem("floatchat-conv-id", conversationId);
   messagesEl.innerHTML = "";
   questionInput.value = "";
+  if (searchInput) searchInput.value = "";
+  if (searchClearBtn) searchClearBtn.hidden = true;
   welcomeCard.style.display = "";
   welcomeCard.style.opacity = "1";
   clearStatus();
   sidebar.classList.remove("open");
   switchTab("chat");
-  loadConversations(searchInput?.value.trim() || "");
+  loadConversations("");
 }
 newChatBtn?.addEventListener("click", startNewChat);
 

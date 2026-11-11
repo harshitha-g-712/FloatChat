@@ -234,7 +234,16 @@
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <input type="text" id="search-input" class="search-input" placeholder="Search conversations..." />
+        <input type="search" id="search-input" class="search-input"
+               placeholder="Search conversations..."
+               name="search_conversations_filter"
+               autocomplete="off"
+               autocorrect="off"
+               autocapitalize="off"
+               spellcheck="false"
+               data-lpignore="true"
+               data-1p-ignore="true" />
+        <button type="button" id="search-clear-btn" class="search-clear-btn" title="Clear search" aria-label="Clear search" hidden>×</button>
       </div>
 
       <!-- Conversation history -->
@@ -709,12 +718,11 @@
 <!-- ── Profile Modal ──────────────────────────────────────────────────────── -->
 <div class="modal-overlay" id="profile-modal" hidden>
   <div class="modal-card profile-modal-card" role="dialog" aria-modal="true" aria-label="User Profile">
-    <!-- Top banner background -->
-    <div class="profile-banner">
-      <button class="modal-close profile-modal-close" id="profile-modal-close" aria-label="Close">✕</button>
-    </div>
-
-    <div class="profile-modal-inner">
+    <!-- Fixed Profile Header with Banner -->
+    <div class="profile-modal-top">
+      <div class="profile-banner">
+        <button class="modal-close profile-modal-close" id="profile-modal-close" aria-label="Close">✕</button>
+      </div>
       <div class="profile-header">
         <div class="profile-avatar-wrap">
           <div class="profile-avatar-large" id="profile-avatar-large">U</div>
@@ -735,6 +743,9 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="profile-modal-inner">
 
       <!-- Quick stats row -->
       <div class="profile-stats-row">
@@ -798,7 +809,7 @@
 
         <div class="profile-pw-form" id="profile-pw-form">
           <div class="profile-pw-grid">
-            <div class="auth-field">
+            <div class="auth-field profile-pw-full">
               <label for="profile-current-pw">Current Password</label>
               <div class="auth-input-wrap">
                 <span class="auth-input-icon">🔒</span>
