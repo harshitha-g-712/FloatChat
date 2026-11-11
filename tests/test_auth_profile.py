@@ -83,3 +83,28 @@ async def test_auth_profile_flow(setup_test_auth_db):
         # After logout-all, old token is invalid
         me_invalid = await client.get("/api/me", headers=headers)
         assert me_invalid.status_code == 401
+
+        # 8. Forgot Password Flow
+        forgot_resp = await client.post("/api/forgot-password", json={"email": "tester@ocean.org"})
+        assert forgot_resp.status_code == 200
+        forgot_data = forgot_resp.json()
+        assert forgot_data["ok"] is True
+        assert "reset_code" in forgot_data
+        code = forgot_data["reset_code"]
+
+        # 9. Reset Password with Code
+        reset_resp = await client.post("/api/reset-password", json={
+            "email": "tester@ocean.org",
+            "reset_code": code,
+            "new_password": "ResetPassword2026!#"
+        })
+        assert reset_resp.status_code == 200
+        assert reset_resp.json()["ok"] is True
+
+        # 10. Login with Reset Password
+        login_post_reset = await client.post("/api/login", json={
+            "email": "tester@ocean.org",
+            "password": "ResetPassword2026!#"
+        })
+        assert login_post_reset.status_code == 200
+        assert login_post_reset.json()["ok"] is True

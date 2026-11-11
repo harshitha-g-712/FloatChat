@@ -66,7 +66,9 @@ from auth import (
     delete_conversation, search_conversations, get_latest_export, conversation_owned,
     create_or_refresh_share, revoke_share, get_share_status, get_shared_chat,
     get_user_profile, update_user_username, change_user_password, revoke_all_user_sessions,
-    RegisterModel, LoginModel, ResetModel, UpdateUsernameModel, ChangePasswordModel
+    request_password_reset, verify_and_reset_password,
+    RegisterModel, LoginModel, ResetModel, UpdateUsernameModel, ChangePasswordModel,
+    RequestResetModel, ConfirmResetModel
 )
 
 # ── Logging Setup (Rotating log in logs/) ──────────────────────────────────────
@@ -663,6 +665,22 @@ def api_login(req: LoginModel, request: Request):
     return result
 
 
+@app.post("/api/forgot-password")
+def api_forgot_password(req: RequestResetModel, request: Request):
+    res = request_password_reset(req.email)
+    if "error" in res:
+        raise HTTPException(status_code=400, detail=res["error"])
+    return res
+
+
+@app.post("/api/reset-password")
+def api_reset_password(req: ConfirmResetModel, request: Request):
+    res = verify_and_reset_password(req.email, req.reset_code, req.new_password)
+    if "error" in res:
+        raise HTTPException(status_code=400, detail=res["error"])
+    return res
+
+
 @app.post("/api/logout")
 def api_logout(request: Request):
     auth = request.headers.get("Authorization", "")
@@ -677,7 +695,12 @@ def api_me(request: Request):
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     profile = get_user_profile(user["id"])
-    return {"user": profile or user}
+    combined = profile or user
+    if "session_expires_at" in user:
+        combined["session_expires_at"] = user["session_expires_at"]
+    if "session_remaining_seconds" in user:
+        combined["session_remaining_seconds"] = user["session_remaining_seconds"]
+    return {"user": combined}
 
 
 @app.put("/api/profile/username")

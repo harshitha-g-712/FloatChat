@@ -35,6 +35,8 @@ const ENDPOINTS = {
   updateUsername: `${API_BASE}/api/profile/username`,
   changePassword: `${API_BASE}/api/profile/password`,
   logoutAll:      `${API_BASE}/api/profile/logout-all`,
+  forgotPassword: `${API_BASE}/api/forgot-password`,
+  resetPassword:  `${API_BASE}/api/reset-password`,
 };
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -59,6 +61,39 @@ const loginError       = document.getElementById("login-error");
 const registerError    = document.getElementById("register-error");
 const showRegisterLink = document.getElementById("show-register");
 const showLoginLink    = document.getElementById("show-login");
+const showForgotLink   = document.getElementById("show-forgot");
+const forgotForm       = document.getElementById("forgot-form");
+const forgotStep1      = document.getElementById("forgot-step-1");
+const forgotStep2      = document.getElementById("forgot-step-2");
+const forgotEmailInput = document.getElementById("forgot-email");
+const forgotSendBtn    = document.getElementById("forgot-send-btn");
+const forgotNotice     = document.getElementById("forgot-notice");
+const forgotError      = document.getElementById("forgot-error");
+const forgotCodeInput  = document.getElementById("forgot-code");
+const forgotNewPwInput = document.getElementById("forgot-new-password");
+const forgotResetBtn   = document.getElementById("forgot-reset-btn");
+const resetNotice      = document.getElementById("reset-notice");
+const resetError       = document.getElementById("reset-error");
+const forgotBackToLogin = document.getElementById("forgot-back-to-login");
+
+// Session Expiry & Warning
+const sessionWarningBanner = document.getElementById("session-warning-banner");
+const sessionWarningText   = document.getElementById("session-warning-text");
+const sessionRefreshBtn    = document.getElementById("session-refresh-btn");
+const sessionDismissBtn    = document.getElementById("session-dismiss-btn");
+
+// Voice Visualizer
+const voiceVisualizer      = document.getElementById("voice-visualizer");
+const voiceStatusText      = document.getElementById("voice-status-text");
+const voiceCancelBtn       = document.getElementById("voice-cancel-btn");
+
+// Conversation Filtering
+const convFilterRow        = document.getElementById("conv-filter-row");
+let convActiveFilter       = "all";
+
+// Float Report & Plotly Export
+const floatReportBtn       = document.getElementById("float-report-btn");
+const floatExportChartBtn  = document.getElementById("float-export-chart-btn");
 
 const tabChatBtn       = document.getElementById("tab-chat-btn");
 const tabDiscoverBtn   = document.getElementById("tab-discover-btn");
@@ -287,12 +322,52 @@ function showApp() {
   if (dropdownAvatar) dropdownAvatar.textContent = initial;
   if (dropdownUsername) dropdownUsername.textContent = currentUser?.username || "User";
   if (dropdownEmail) dropdownEmail.textContent = currentUser?.email || "";
+  checkSessionExpiry();
   loadConversations();
   loadDiscoveryData();
   healthPing();
   // After a page refresh, show the conversation the next question will be added to.
   loadConversation(conversationId, { silent: true });
 }
+
+function checkSessionExpiry() {
+  if (!sessionWarningBanner || !sessionWarningText) return;
+  if (!currentUser || currentUser.session_remaining_seconds == null) {
+    sessionWarningBanner.hidden = true;
+    return;
+  }
+  const rem = currentUser.session_remaining_seconds;
+  // If less than 24 hours (86400 seconds) remaining
+  if (rem > 0 && rem < 86400) {
+    const hours = Math.max(1, Math.round(rem / 3600));
+    sessionWarningText.textContent = `Your session will expire in approximately ${hours} hour${hours > 1 ? 's' : ''}.`;
+    sessionWarningBanner.hidden = false;
+  } else {
+    sessionWarningBanner.hidden = true;
+  }
+}
+
+sessionDismissBtn?.addEventListener("click", () => {
+  if (sessionWarningBanner) sessionWarningBanner.hidden = true;
+});
+
+sessionRefreshBtn?.addEventListener("click", async () => {
+  if (sessionRefreshBtn) { sessionRefreshBtn.disabled = true; sessionRefreshBtn.textContent = "Extending..."; }
+  try {
+    const resp = await fetch(ENDPOINTS.me, { headers: authHeaders() });
+    if (resp.ok) {
+      const data = await resp.json();
+      currentUser = data.user;
+      if (sessionWarningBanner) sessionWarningBanner.hidden = true;
+      showStatus("Session extended successfully ✓");
+      setTimeout(clearStatus, 3000);
+    }
+  } catch (_) {
+    showStatus("Could not extend session", true);
+  } finally {
+    if (sessionRefreshBtn) { sessionRefreshBtn.disabled = false; sessionRefreshBtn.textContent = "Extend Session"; }
+  }
+});
 
 // ── Auth Forms & Password Enhancements ─────────────────────────────────────────
 
@@ -374,6 +449,125 @@ showLoginLink?.addEventListener("click", (e) => {
   loginForm.hidden = false;
   loginError.hidden = true;
   registerError.hidden = true;
+});
+
+// ── Forgot Password Handlers ──────────────────────────────────────────────────
+showForgotLink?.addEventListener("click", (e) => {
+  e.preventDefault();
+  loginForm.hidden = true;
+  registerForm.hidden = true;
+  forgotForm.hidden = false;
+  forgotStep1.hidden = false;
+  forgotStep2.hidden = true;
+  if (forgotNotice) forgotNotice.hidden = true;
+  if (forgotError) forgotError.hidden = true;
+  if (forgotEmailInput && document.getElementById("login-email")) {
+    forgotEmailInput.value = document.getElementById("login-email").value;
+  }
+});
+
+forgotBackToLogin?.addEventListener("click", (e) => {
+  e.preventDefault();
+  forgotForm.hidden = true;
+  loginForm.hidden = false;
+});
+
+forgotSendBtn?.addEventListener("click", async () => {
+  if (forgotError) forgotError.hidden = true;
+  if (forgotNotice) forgotNotice.hidden = true;
+  const email = forgotEmailInput ? forgotEmailInput.value.trim() : "";
+  if (!email || !email.includes("@")) {
+    if (forgotError) { forgotError.textContent = "Please enter a valid email address."; forgotError.hidden = false; }
+    return;
+  }
+  const btnText = forgotSendBtn.querySelector(".auth-btn-text");
+  const btnLoader = forgotSendBtn.querySelector(".auth-btn-loader");
+  if (forgotSendBtn) forgotSendBtn.disabled = true;
+  if (btnText) btnText.textContent = "Sending code...";
+  if (btnLoader) btnLoader.hidden = false;
+
+  try {
+    const resp = await fetch(ENDPOINTS.forgotPassword, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      if (forgotError) { forgotError.textContent = apiErrorText(data, "Request failed"); forgotError.hidden = false; }
+      return;
+    }
+    // Switch to step 2
+    forgotStep1.hidden = true;
+    forgotStep2.hidden = false;
+    if (data.reset_code && forgotCodeInput) {
+      forgotCodeInput.value = data.reset_code;
+      const codeHint = document.getElementById("forgot-code-hint");
+      if (codeHint) codeHint.textContent = `Offline reset code: ${data.reset_code} (auto-filled)`;
+    }
+    if (resetNotice) {
+      resetNotice.textContent = data.message || "Verification code issued. Enter your code and new password.";
+      resetNotice.hidden = false;
+    }
+  } catch (err) {
+    if (forgotError) { forgotError.textContent = "Cannot reach server. Please try again."; forgotError.hidden = false; }
+  } finally {
+    if (forgotSendBtn) forgotSendBtn.disabled = false;
+    if (btnText) btnText.textContent = "Get Verification Code";
+    if (btnLoader) btnLoader.hidden = true;
+  }
+});
+
+forgotResetBtn?.addEventListener("click", async () => {
+  if (resetError) resetError.hidden = true;
+  if (resetNotice) resetNotice.hidden = true;
+  const email = forgotEmailInput ? forgotEmailInput.value.trim() : "";
+  const reset_code = forgotCodeInput ? forgotCodeInput.value.trim() : "";
+  const new_password = forgotNewPwInput ? forgotNewPwInput.value : "";
+
+  if (!reset_code) {
+    if (resetError) { resetError.textContent = "Please enter the verification code."; resetError.hidden = false; }
+    return;
+  }
+  if (!new_password || new_password.length < 10) {
+    if (resetError) { resetError.textContent = "New password must be at least 10 characters."; resetError.hidden = false; }
+    return;
+  }
+
+  const btnText = forgotResetBtn.querySelector(".auth-btn-text");
+  const btnLoader = forgotResetBtn.querySelector(".auth-btn-loader");
+  if (forgotResetBtn) forgotResetBtn.disabled = true;
+  if (btnText) btnText.textContent = "Updating password...";
+  if (btnLoader) btnLoader.hidden = false;
+
+  try {
+    const resp = await fetch(ENDPOINTS.resetPassword, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, reset_code, new_password }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      if (resetError) { resetError.textContent = apiErrorText(data, "Reset failed"); resetError.hidden = false; }
+      return;
+    }
+    forgotForm.hidden = true;
+    loginForm.hidden = false;
+    const loginNotice = document.getElementById("login-notice");
+    if (loginNotice) {
+      loginNotice.textContent = "Password updated successfully ✓ Please sign in.";
+      loginNotice.hidden = false;
+    }
+    if (document.getElementById("login-email")) {
+      document.getElementById("login-email").value = email;
+    }
+  } catch (err) {
+    if (resetError) { resetError.textContent = "Cannot reach server. Please try again."; resetError.hidden = false; }
+  } finally {
+    if (forgotResetBtn) forgotResetBtn.disabled = false;
+    if (btnText) btnText.textContent = "Reset Password";
+    if (btnLoader) btnLoader.hidden = true;
+  }
 });
 
 loginForm?.addEventListener("submit", async (e) => {
@@ -854,6 +1048,23 @@ async function openFloatDetail(platform) {
 floatModalClose?.addEventListener("click", () => floatModal.hidden = true);
 floatModal?.addEventListener("click", (e) => { if (e.target === floatModal) floatModal.hidden = true; });
 
+floatReportBtn?.addEventListener("click", () => {
+  window.print();
+});
+
+floatExportChartBtn?.addEventListener("click", () => {
+  const chartEl = document.getElementById("float-trajectory-chart");
+  if (chartEl && window.Plotly) {
+    const titleText = (floatModalTitle?.textContent || "float_trajectory").replace(/[^\w-]/g, "_");
+    Plotly.downloadImage(chartEl, {
+      format: "png",
+      width: 900,
+      height: 500,
+      filename: `argolens_${titleText}`
+    });
+  }
+});
+
 // ── User Dropdown & Menu ──────────────────────────────────────────────────────
 userMenuBtn?.addEventListener("click", (e) => {
   e.stopPropagation();
@@ -961,6 +1172,8 @@ function renderConversationList(conversations) {
     convList.appendChild(row);
   });
 
+  applyConversationFilter();
+
   // A full page means there may be more: offer to fetch the next batch.
   if (conversations.length >= convLimit) {
     const more = document.createElement("button");
@@ -974,6 +1187,30 @@ function renderConversationList(conversations) {
     convList.appendChild(more);
   }
 }
+
+function applyConversationFilter() {
+  if (!convList) return;
+  const items = convList.querySelectorAll(".conv-item");
+  items.forEach((item, index) => {
+    const title = item.querySelector(".conv-item-title")?.textContent || "";
+    let match = true;
+    if (convActiveFilter === "recent") {
+      match = index < 15;
+    } else if (convActiveFilter === "named") {
+      match = title.trim() !== "New Chat";
+    }
+    item.style.display = match ? "" : "none";
+  });
+}
+
+convFilterRow?.addEventListener("click", (e) => {
+  const pill = e.target.closest(".conv-filter-pill");
+  if (!pill) return;
+  convFilterRow.querySelectorAll(".conv-filter-pill").forEach(p => p.classList.remove("active"));
+  pill.classList.add("active");
+  convActiveFilter = pill.getAttribute("data-filter") || "all";
+  applyConversationFilter();
+});
 
 // Opens a saved conversation. Messages are fetched BEFORE the current view is touched,
 // so a failed request leaves the screen as it was instead of blanking it.
@@ -1887,6 +2124,8 @@ if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
 
   recognizer.onstart = () => {
     micBtn.classList.add("recording");
+    if (voiceVisualizer) voiceVisualizer.hidden = false;
+    if (voiceStatusText) voiceStatusText.textContent = "Listening... Speak your ocean question";
     showStatus("🎙️ Listening... Speak your ocean question (e.g. 'What is the average temperature in January 2023?')");
   };
 
@@ -1903,22 +2142,33 @@ if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
     const currentText = finalTranscript || interim;
     const normalized = normalizeMarineSpeechTranscript(currentText);
     if (questionInput) questionInput.value = normalized;
+    if (voiceStatusText) voiceStatusText.textContent = `Heard: "${normalized}"`;
 
     if (finalTranscript) {
       wasAskedViaMic = true;
+      if (voiceVisualizer) voiceVisualizer.hidden = true;
       askForm?.dispatchEvent(new Event("submit"));
     }
   };
 
   recognizer.onerror = (e) => {
     console.warn("Speech recognition error:", e);
+    if (voiceVisualizer) voiceVisualizer.hidden = true;
     showStatus(e.error === "not-allowed" ? "Microphone access denied. Please allow microphone permission in your browser." : "Voice recognition failed. Please try again.", true);
   };
 
   recognizer.onend = () => {
     micBtn.classList.remove("recording");
+    if (voiceVisualizer) voiceVisualizer.hidden = true;
     clearStatus();
   };
+
+  voiceCancelBtn?.addEventListener("click", () => {
+    try { recognizer.abort(); } catch (_) {}
+    micBtn.classList.remove("recording");
+    if (voiceVisualizer) voiceVisualizer.hidden = true;
+    clearStatus();
+  });
 
   micBtn?.addEventListener("click", () => {
     if (micBtn.classList.contains("recording")) {
@@ -1967,13 +2217,31 @@ const themeIconSun = document.getElementById("theme-icon-sun");
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
   localStorage.setItem("floatchat-theme", theme);
-  if (theme === "light") {
-    themeIconMoon.style.display = "none";
-    themeIconSun.style.display = "";
-  } else {
-    themeIconMoon.style.display = "";
-    themeIconSun.style.display = "none";
+  if (themeIconMoon && themeIconSun) {
+    if (theme === "light") {
+      themeIconMoon.style.display = "none";
+      themeIconSun.style.display = "";
+    } else {
+      themeIconMoon.style.display = "";
+      themeIconSun.style.display = "none";
+    }
   }
+  // Dynamically update background and font on all rendered Plotly charts
+  const isLight = theme === "light";
+  const paperBg = isLight ? "#ffffff" : "#1e293b";
+  const plotBg  = isLight ? "#f8fafc" : "#0f172a";
+  const fontCol = isLight ? "#334155" : "#94a3b8";
+  document.querySelectorAll(".chart-plotly").forEach(chartEl => {
+    if (chartEl && chartEl.data && window.Plotly) {
+      try {
+        Plotly.relayout(chartEl, {
+          paper_bgcolor: paperBg,
+          plot_bgcolor: plotBg,
+          "font.color": fontCol
+        });
+      } catch (_) {}
+    }
+  });
 }
 
 themeToggleBtn?.addEventListener("click", () => {

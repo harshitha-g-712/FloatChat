@@ -136,6 +136,41 @@ class ChangePasswordModel(BaseModel):
         return v
 
 
+class RequestResetModel(BaseModel):
+    email: str
+
+    @field_validator("email")
+    @classmethod
+    def clean_email(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", v):
+            raise ValueError("Invalid email format")
+        return v
+
+
+class ConfirmResetModel(BaseModel):
+    email: str
+    reset_code: str = Field(..., min_length=4, max_length=16, description="Reset verification code")
+    new_password: str = Field(..., min_length=10, max_length=128, description="New Password (10–128 characters)")
+
+    @field_validator("email")
+    @classmethod
+    def clean_email(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", v):
+            raise ValueError("Invalid email format")
+        return v
+
+    @field_validator("new_password")
+    @classmethod
+    def validate_new_password(cls, v: str) -> str:
+        if v.strip().lower() in {"password", "password123", "1234567890", "qwerty12345", "admin12345"}:
+            raise ValueError("Choose a less common password")
+        if len(v) > 128:
+            raise ValueError("Password must be at most 128 characters")
+        return v
+
+
 # ── Database Initialization ──────────────────────────────────────────────────
 
 def init_auth_db(db_path: Optional[str] = None):
@@ -181,9 +216,19 @@ def init_auth_db(db_path: Optional[str] = None):
             FOREIGN KEY(conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
             FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
         );
+        CREATE TABLE IF NOT EXISTS password_resets (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id       INTEGER NOT NULL,
+            reset_code    TEXT NOT NULL,
+            expires_at    TEXT NOT NULL,
+            used          INTEGER DEFAULT 0,
+            created_at    TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
         CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
         CREATE INDEX IF NOT EXISTS idx_conv_user ON conversations(user_id);
         CREATE INDEX IF NOT EXISTS idx_msg_conv ON chat_messages(conversation_id);
+        CREATE INDEX IF NOT EXISTS idx_pwd_resets_code ON password_resets(reset_code);
     """)
     # Migrate legacy databases: CREATE TABLE IF NOT EXISTS does not alter columns.
     user_cols = {r[1] for r in conn.execute("PRAGMA table_info(users)")}
@@ -388,14 +433,107 @@ def validate_token(token: str, db_path: Optional[str] = None) -> Optional[Dict[s
     try:
         row = conn.execute(
             """
-            SELECT u.id, u.username, u.email 
+            SELECT u.id, u.username, u.email, t.created_at AS token_created_at
             FROM auth_tokens t 
             JOIN users u ON t.user_id = u.id 
             WHERE t.token_hash = ? AND t.created_at >= ?
             """,
             (t_hash, cutoff),
         ).fetchone()
-        return dict(row) if row else None
+        if not row:
+            return None
+        res = dict(row)
+        try:
+            t_created = datetime.fromisoformat(res["token_created_at"])
+            expires_at = t_created + timedelta(days=TOKEN_EXPIRY_DAYS)
+            remaining_secs = max(0, int((expires_at - datetime.now(timezone.utc)).total_seconds()))
+            res["session_expires_at"] = expires_at.isoformat()
+            res["session_remaining_seconds"] = remaining_secs
+        except Exception:
+            pass
+        return res
+    finally:
+        conn.close()
+
+
+def request_password_reset(email: str, db_path: Optional[str] = None) -> Dict[str, Any]:
+    """Generate a 6-digit secure password reset code valid for 15 minutes."""
+    try:
+        model = RequestResetModel(email=email)
+    except Exception as e:
+        return {"error": str(e)}
+
+    path = db_path or str(AUTH_DB_PATH)
+    conn = _connect(path)
+    try:
+        user = conn.execute("SELECT id FROM users WHERE email = ?", (model.email,)).fetchone()
+        if not user:
+            # Consistent response to prevent account enumeration
+            return {
+                "ok": True,
+                "message": "If an account exists for this email, a reset verification code has been issued."
+            }
+
+        user_id = user[0]
+        # Invalidate earlier unused codes for this user
+        conn.execute("UPDATE password_resets SET used = 1 WHERE user_id = ?", (user_id,))
+        
+        # Generate 6-digit verification code
+        code = f"{secrets.randbelow(900000) + 100000}"
+        expires_at = (datetime.now(timezone.utc) + timedelta(minutes=15)).isoformat()
+        
+        conn.execute(
+            "INSERT INTO password_resets (user_id, reset_code, expires_at) VALUES (?, ?, ?)",
+            (user_id, code, expires_at)
+        )
+        conn.commit()
+        logger.info("Password reset code generated for user %d", user_id)
+        return {
+            "ok": True,
+            "message": "Password reset code generated (valid for 15 minutes).",
+            "reset_code": code  # Directly returned for offline/standalone execution
+        }
+    finally:
+        conn.close()
+
+
+def verify_and_reset_password(email: str, reset_code: str, new_password: str, db_path: Optional[str] = None) -> Dict[str, Any]:
+    """Verify reset code and set new password, revoking prior sessions."""
+    try:
+        model = ConfirmResetModel(email=email, reset_code=reset_code, new_password=new_password)
+    except Exception as e:
+        return {"error": str(e)}
+
+    path = db_path or str(AUTH_DB_PATH)
+    conn = _connect(path)
+    now = datetime.now(timezone.utc).isoformat()
+    try:
+        user = conn.execute("SELECT id FROM users WHERE email = ?", (model.email,)).fetchone()
+        if not user:
+            return {"error": "Invalid email or reset code."}
+        user_id = user[0]
+
+        row = conn.execute(
+            """
+            SELECT id FROM password_resets 
+            WHERE user_id = ? AND reset_code = ? AND used = 0 AND expires_at >= ?
+            ORDER BY id DESC LIMIT 1
+            """,
+            (user_id, model.reset_code.strip(), now)
+        ).fetchone()
+
+        if not row:
+            return {"error": "Invalid or expired reset code. Please request a new one."}
+
+        # Update password
+        new_hash = _hash_new_password(model.new_password)
+        conn.execute("UPDATE users SET password_hash = ?, salt = NULL WHERE id = ?", (new_hash, user_id))
+        conn.execute("UPDATE password_resets SET used = 1 WHERE id = ?", (row[0],))
+        # Revoke old sessions
+        conn.execute("DELETE FROM auth_tokens WHERE user_id = ?", (user_id,))
+        conn.commit()
+        logger.info("Password successfully reset via code for user %d", user_id)
+        return {"ok": True, "message": "Password updated successfully. Please sign in with your new password."}
     finally:
         conn.close()
 

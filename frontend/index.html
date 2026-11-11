@@ -92,6 +92,56 @@
           <span class="auth-btn-loader" hidden></span>
         </button>
         <p class="auth-switch">Don't have an account? <a href="#" id="show-register">Create one</a></p>
+        <p class="auth-switch auth-switch-sm"><a href="#" id="show-forgot">Forgot your password?</a></p>
+      </form>
+
+      <!-- Forgot Password Form -->
+      <form class="auth-form" id="forgot-form" hidden>
+        <h2>Reset Password</h2>
+        <p class="auth-form-desc">Request a 15-minute verification code to recover your account.</p>
+        
+        <div id="forgot-step-1">
+          <div class="auth-field">
+            <label for="forgot-email">Account Email</label>
+            <div class="auth-input-wrap">
+              <span class="auth-input-icon">📧</span>
+              <input type="email" id="forgot-email" placeholder="you@example.com" required autocomplete="email" />
+            </div>
+          </div>
+          <div id="forgot-notice" class="auth-notice" hidden></div>
+          <div id="forgot-error" class="auth-error" hidden></div>
+          <button type="button" class="auth-submit-btn" id="forgot-send-btn">
+            <span class="auth-btn-text">Get Verification Code</span>
+            <span class="auth-btn-loader" hidden></span>
+          </button>
+        </div>
+
+        <div id="forgot-step-2" hidden>
+          <div class="auth-field">
+            <label for="forgot-code">Verification Code</label>
+            <div class="auth-input-wrap">
+              <span class="auth-input-icon">🔑</span>
+              <input type="text" id="forgot-code" placeholder="e.g. 593812" maxlength="16" />
+            </div>
+            <span class="auth-field-hint" id="forgot-code-hint">Check your email for the 6-digit code</span>
+          </div>
+          <div class="auth-field">
+            <label for="forgot-new-password">New Password</label>
+            <div class="auth-input-wrap">
+              <span class="auth-input-icon">🔒</span>
+              <input type="password" id="forgot-new-password" placeholder="New password (min 10 chars)" minlength="10" maxlength="128" autocomplete="new-password" />
+              <button type="button" class="auth-toggle-pw" data-target="forgot-new-password" aria-label="Toggle password visibility">👁️</button>
+            </div>
+          </div>
+          <div id="reset-notice" class="auth-notice" hidden></div>
+          <div id="reset-error" class="auth-error" hidden></div>
+          <button type="button" class="auth-submit-btn" id="forgot-reset-btn">
+            <span class="auth-btn-text">Reset Password</span>
+            <span class="auth-btn-loader" hidden></span>
+          </button>
+        </div>
+
+        <p class="auth-switch"><a href="#" id="forgot-back-to-login">← Back to Sign In</a></p>
       </form>
 
       <!-- Register Form -->
@@ -200,6 +250,11 @@
 
       <!-- Conversation history -->
       <div class="nav-section-label">Recent Conversations</div>
+      <div class="conv-filter-row" id="conv-filter-row">
+        <button type="button" class="conv-filter-pill active" data-filter="all">All</button>
+        <button type="button" class="conv-filter-pill" data-filter="recent">Recent</button>
+        <button type="button" class="conv-filter-pill" data-filter="named">Named</button>
+      </div>
       <div class="conversation-list" id="conversation-list">
         <div class="conv-empty" id="conv-empty">No conversations yet</div>
       </div>
@@ -274,6 +329,18 @@
 
   <!-- ── Main area ────────────────────────────────────────────────────────── -->
   <main class="main-area">
+
+    <!-- Session Expiration Warning Banner -->
+    <div id="session-warning-banner" class="session-warning-banner" hidden>
+      <div class="session-warning-content">
+        <span class="session-warning-icon">⏳</span>
+        <span id="session-warning-text">Your session will expire soon.</span>
+      </div>
+      <div class="session-warning-actions">
+        <button type="button" id="session-refresh-btn" class="session-refresh-btn">Extend Session</button>
+        <button type="button" id="session-dismiss-btn" class="session-dismiss-btn" aria-label="Dismiss">✕</button>
+      </div>
+    </div>
 
     <!-- Top bar -->
     <header class="topbar">
@@ -603,6 +670,19 @@
     <!-- Status bar (health / error notices) -->
     <div id="status-bar" class="status-bar hidden" role="status"></div>
 
+    <!-- Voice Waveform / Listening Visualizer -->
+    <div id="voice-visualizer" class="voice-visualizer" hidden>
+      <div class="voice-wave-container">
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+        <div class="voice-wave-bar"></div>
+      </div>
+      <span class="voice-status-text" id="voice-status-text">Listening... Speak your ocean question</span>
+      <button type="button" id="voice-cancel-btn" class="voice-cancel-btn" title="Cancel voice search">✕ Cancel</button>
+    </div>
+
     <!-- Input form (Visible in Chat view) -->
     <form id="ask-form" class="input-bar" autocomplete="off">
       <div class="input-inner">
@@ -727,6 +807,10 @@
     <div id="float-modal-body">
       <div id="float-modal-stats" class="modal-stats-grid"></div>
       <div id="float-trajectory-chart" class="chart-plotly" style="height: 350px; margin-top: 15px;"></div>
+      <div class="float-modal-actions" style="margin-top: 16px; display: flex; gap: 10px;">
+        <button type="button" id="float-report-btn" class="action-btn secondary" style="flex: 1;">🖨️ Float Summary Report (Print / PDF)</button>
+        <button type="button" id="float-export-chart-btn" class="action-btn" style="flex: 1;">📊 Download Trajectory Chart (PNG)</button>
+      </div>
     </div>
   </div>
 </div>
