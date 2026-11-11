@@ -32,6 +32,9 @@ const ENDPOINTS = {
   coverage:      `${API_BASE}/api/coverage`,
   shared:        `${API_BASE}/api/shared`,
   diveProfile:   (platform) => `${API_BASE}/api/floats/${encodeURIComponent(platform)}/dive-profile`,
+  updateUsername: `${API_BASE}/api/profile/username`,
+  changePassword: `${API_BASE}/api/profile/password`,
+  logoutAll:      `${API_BASE}/api/profile/logout-all`,
 };
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -83,7 +86,37 @@ const userInitial      = document.getElementById("user-initial");
 const userDropdown     = document.getElementById("user-dropdown");
 const dropdownUsername = document.getElementById("dropdown-username");
 const dropdownEmail    = document.getElementById("dropdown-email");
+const dropdownAvatar   = document.getElementById("dropdown-avatar");
 const logoutBtn        = document.getElementById("logout-btn");
+const profileBtn       = document.getElementById("profile-btn");
+
+// Profile Modal Elements
+const profileModal         = document.getElementById("profile-modal");
+const profileModalClose    = document.getElementById("profile-modal-close");
+const profileAvatarLarge   = document.getElementById("profile-avatar-large");
+const profileDisplayName   = document.getElementById("profile-display-name");
+const profileDisplayEmail  = document.getElementById("profile-display-email");
+const profileTotalChats    = document.getElementById("profile-total-chats");
+const profileMemberSince   = document.getElementById("profile-member-since");
+const profileSessionStatus = document.getElementById("profile-session-status");
+const profileEditUsername  = document.getElementById("profile-edit-username");
+const profileSaveUsername  = document.getElementById("profile-save-username");
+const profileStaticEmail   = document.getElementById("profile-static-email");
+const profileCurrentPw     = document.getElementById("profile-current-pw");
+const profileNewPw         = document.getElementById("profile-new-pw");
+const profileConfirmPw     = document.getElementById("profile-confirm-pw");
+const profilePwError       = document.getElementById("profile-pw-error");
+const profilePwSuccess     = document.getElementById("profile-pw-success");
+const profileChangePwBtn   = document.getElementById("profile-change-pw-btn");
+const profileLogoutAllBtn  = document.getElementById("profile-logout-all-btn");
+
+// Register Form Enhancement Elements
+const regPasswordInput     = document.getElementById("register-password");
+const regConfirmPassword   = document.getElementById("register-confirm-password");
+const pwStrengthContainer  = document.getElementById("password-strength");
+const pwStrengthFill       = document.getElementById("password-strength-fill");
+const pwStrengthText       = document.getElementById("password-strength-text");
+const pwMatchHint          = document.getElementById("pw-match-hint");
 const searchInput      = document.getElementById("search-input");
 const convList         = document.getElementById("conversation-list");
 
@@ -249,9 +282,11 @@ function showApp() {
   clearStatus();
   authScreen.hidden = true;
   appShell.hidden = false;
-  userInitial.textContent = (currentUser?.username || "U")[0].toUpperCase();
-  dropdownUsername.textContent = currentUser?.username || "User";
-  dropdownEmail.textContent = currentUser?.email || "";
+  const initial = (currentUser?.username || "U")[0].toUpperCase();
+  if (userInitial) userInitial.textContent = initial;
+  if (dropdownAvatar) dropdownAvatar.textContent = initial;
+  if (dropdownUsername) dropdownUsername.textContent = currentUser?.username || "User";
+  if (dropdownEmail) dropdownEmail.textContent = currentUser?.email || "";
   loadConversations();
   loadDiscoveryData();
   healthPing();
@@ -259,7 +294,73 @@ function showApp() {
   loadConversation(conversationId, { silent: true });
 }
 
-// ── Auth Forms ────────────────────────────────────────────────────────────────
+// ── Auth Forms & Password Enhancements ─────────────────────────────────────────
+
+// Password visibility toggles
+document.querySelectorAll(".auth-toggle-pw").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const targetId = btn.getAttribute("data-target");
+    const input = document.getElementById(targetId);
+    if (!input) return;
+    const isPw = input.type === "password";
+    input.type = isPw ? "text" : "password";
+    btn.textContent = isPw ? "🙈" : "👁️";
+    btn.classList.toggle("active", isPw);
+  });
+});
+
+// Password strength indicator
+function assessPasswordStrength(pw) {
+  if (!pw) return { score: 0, level: "weak", label: "" };
+  let score = 0;
+  if (pw.length >= 10) score += 1;
+  if (pw.length >= 14) score += 1;
+  if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score += 1;
+  if (/\d/.test(pw)) score += 1;
+  if (/[^a-zA-Z0-9]/.test(pw)) score += 1;
+
+  if (score <= 1) return { score: 1, level: "weak", label: "Weak (minimum 10 characters required)" };
+  if (score === 2) return { score: 2, level: "fair", label: "Fair — add numbers & uppercase" };
+  if (score === 3 || score === 4) return { score: 3, level: "good", label: "Good password" };
+  return { score: 4, level: "strong", label: "Strong password ✓" };
+}
+
+regPasswordInput?.addEventListener("input", () => {
+  const pw = regPasswordInput.value;
+  if (!pw) {
+    if (pwStrengthContainer) pwStrengthContainer.hidden = true;
+    return;
+  }
+  if (pwStrengthContainer) pwStrengthContainer.hidden = false;
+  const { level, label } = assessPasswordStrength(pw);
+  if (pwStrengthFill) pwStrengthFill.setAttribute("data-level", level);
+  if (pwStrengthText) {
+    pwStrengthText.setAttribute("data-level", level);
+    pwStrengthText.textContent = label;
+  }
+  checkPwMatch();
+});
+
+function checkPwMatch() {
+  if (!regConfirmPassword || !regPasswordInput || !pwMatchHint) return;
+  const pw1 = regPasswordInput.value;
+  const pw2 = regConfirmPassword.value;
+  if (!pw2) {
+    pwMatchHint.hidden = true;
+    return;
+  }
+  pwMatchHint.hidden = false;
+  if (pw1 === pw2) {
+    pwMatchHint.textContent = "Passwords match ✓";
+    pwMatchHint.className = "auth-field-hint auth-pw-match match";
+  } else {
+    pwMatchHint.textContent = "Passwords do not match";
+    pwMatchHint.className = "auth-field-hint auth-pw-match no-match";
+  }
+}
+
+regConfirmPassword?.addEventListener("input", checkPwMatch);
+
 showRegisterLink?.addEventListener("click", (e) => {
   e.preventDefault();
   loginForm.hidden = true;
@@ -283,7 +384,13 @@ loginForm?.addEventListener("submit", async (e) => {
   const email = document.getElementById("login-email").value;
   const password = document.getElementById("login-password").value;
   const btn = document.getElementById("login-submit-btn");
-  btn.disabled = true; btn.textContent = "Signing in...";
+  const btnText = btn?.querySelector(".auth-btn-text");
+  const btnLoader = btn?.querySelector(".auth-btn-loader");
+
+  if (btn) btn.disabled = true;
+  if (btnText) btnText.textContent = "Signing in...";
+  if (btnLoader) btnLoader.hidden = false;
+
   try {
     const resp = await fetch(ENDPOINTS.login, {
       method: "POST", headers: { "Content-Type": "application/json" },
@@ -300,18 +407,39 @@ loginForm?.addEventListener("submit", async (e) => {
     loginError.textContent = "Cannot reach server. Is backend running?";
     loginError.hidden = false;
   } finally {
-    btn.disabled = false; btn.textContent = "Sign In";
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.textContent = "Sign In";
+    if (btnLoader) btnLoader.hidden = true;
   }
 });
 
 registerForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
   registerError.hidden = true;
-  const username = document.getElementById("register-username").value;
-  const email = document.getElementById("register-email").value;
+  const username = document.getElementById("register-username").value.trim();
+  const email = document.getElementById("register-email").value.trim();
   const password = document.getElementById("register-password").value;
+  const confirmPassword = regConfirmPassword ? regConfirmPassword.value : password;
+
+  if (password !== confirmPassword) {
+    registerError.textContent = "Passwords do not match. Please verify and try again.";
+    registerError.hidden = false;
+    return;
+  }
+  if (password.length < 10) {
+    registerError.textContent = "Password must be at least 10 characters long.";
+    registerError.hidden = false;
+    return;
+  }
+
   const btn = document.getElementById("register-submit-btn");
-  btn.disabled = true; btn.textContent = "Creating account...";
+  const btnText = btn?.querySelector(".auth-btn-text");
+  const btnLoader = btn?.querySelector(".auth-btn-loader");
+
+  if (btn) btn.disabled = true;
+  if (btnText) btnText.textContent = "Creating account...";
+  if (btnLoader) btnLoader.hidden = false;
+
   try {
     const resp = await fetch(ENDPOINTS.register, {
       method: "POST", headers: { "Content-Type": "application/json" },
@@ -322,6 +450,8 @@ registerForm?.addEventListener("submit", async (e) => {
     // The server gives the same answer whether or not the email already had an account, so we
     // cannot sign the user in here: send them to the sign-in form instead.
     registerForm.reset();
+    if (pwStrengthContainer) pwStrengthContainer.hidden = true;
+    if (pwMatchHint) pwMatchHint.hidden = true;
     registerForm.hidden = true;
     loginForm.hidden = false;
     document.getElementById("login-email").value = email.trim().toLowerCase();
@@ -331,8 +461,150 @@ registerForm?.addEventListener("submit", async (e) => {
     registerError.textContent = "Cannot reach server. Is backend running?";
     registerError.hidden = false;
   } finally {
-    btn.disabled = false; btn.textContent = "Create Account";
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.textContent = "Create Account";
+    if (btnLoader) btnLoader.hidden = true;
   }
+});
+
+// ── Profile Management Modal ──────────────────────────────────────────────────
+function openProfileModal() {
+  if (!currentUser) return;
+  const initial = (currentUser.username || "U")[0].toUpperCase();
+  if (profileAvatarLarge) profileAvatarLarge.textContent = initial;
+  if (profileDisplayName) profileDisplayName.textContent = currentUser.username || "User";
+  if (profileDisplayEmail) profileDisplayEmail.textContent = currentUser.email || "";
+  if (profileStaticEmail) profileStaticEmail.textContent = currentUser.email || "";
+  if (profileEditUsername) profileEditUsername.value = currentUser.username || "";
+  
+  if (profileTotalChats) {
+    const chatCount = currentUser.conversation_count != null
+      ? currentUser.conversation_count
+      : (document.querySelectorAll("#conversation-list .conv-item").length || 0);
+    profileTotalChats.textContent = chatCount;
+  }
+  if (profileMemberSince) {
+    if (currentUser.created_at) {
+      try {
+        const dt = new Date(currentUser.created_at);
+        profileMemberSince.textContent = dt.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+      } catch (_) {
+        profileMemberSince.textContent = "Recent";
+      }
+    } else {
+      profileMemberSince.textContent = "Recent";
+    }
+  }
+  if (profileSessionStatus) profileSessionStatus.textContent = "Active";
+
+  if (profileCurrentPw) profileCurrentPw.value = "";
+  if (profileNewPw) profileNewPw.value = "";
+  if (profileConfirmPw) profileConfirmPw.value = "";
+  if (profilePwError) profilePwError.hidden = true;
+  if (profilePwSuccess) profilePwSuccess.hidden = true;
+
+  if (userDropdown) userDropdown.hidden = true;
+  if (profileModal) profileModal.hidden = false;
+}
+
+profileBtn?.addEventListener("click", openProfileModal);
+profileModalClose?.addEventListener("click", () => { if (profileModal) profileModal.hidden = true; });
+profileModal?.addEventListener("click", (e) => { if (e.target === profileModal) profileModal.hidden = true; });
+
+// Save Username
+profileSaveUsername?.addEventListener("click", async () => {
+  if (!profileEditUsername) return;
+  const newName = profileEditUsername.value.trim();
+  if (!newName || newName === currentUser?.username) return;
+  profileSaveUsername.disabled = true;
+  profileSaveUsername.textContent = "…";
+  try {
+    const resp = await fetch(ENDPOINTS.updateUsername, {
+      method: "PUT",
+      headers: authHeaders(),
+      body: JSON.stringify({ username: newName }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      alert(apiErrorText(data, "Failed to update username"));
+      return;
+    }
+    currentUser.username = data.username;
+    const initial = data.username[0].toUpperCase();
+    if (userInitial) userInitial.textContent = initial;
+    if (dropdownAvatar) dropdownAvatar.textContent = initial;
+    if (dropdownUsername) dropdownUsername.textContent = data.username;
+    if (profileAvatarLarge) profileAvatarLarge.textContent = initial;
+    if (profileDisplayName) profileDisplayName.textContent = data.username;
+    profileSaveUsername.textContent = "✓";
+  } catch (err) {
+    alert("Could not update username: Network error");
+  } finally {
+    profileSaveUsername.disabled = false;
+    setTimeout(() => { if (profileSaveUsername) profileSaveUsername.textContent = "✓"; }, 1500);
+  }
+});
+
+// Update Password
+profileChangePwBtn?.addEventListener("click", async () => {
+  if (profilePwError) profilePwError.hidden = true;
+  if (profilePwSuccess) profilePwSuccess.hidden = true;
+  const oldPw = profileCurrentPw ? profileCurrentPw.value : "";
+  const newPw = profileNewPw ? profileNewPw.value : "";
+  const confPw = profileConfirmPw ? profileConfirmPw.value : "";
+
+  if (!oldPw) {
+    if (profilePwError) { profilePwError.textContent = "Please enter your current password."; profilePwError.hidden = false; }
+    return;
+  }
+  if (!newPw || newPw.length < 10) {
+    if (profilePwError) { profilePwError.textContent = "New password must be at least 10 characters."; profilePwError.hidden = false; }
+    return;
+  }
+  if (newPw !== confPw) {
+    if (profilePwError) { profilePwError.textContent = "New passwords do not match."; profilePwError.hidden = false; }
+    return;
+  }
+
+  profileChangePwBtn.disabled = true;
+  profileChangePwBtn.textContent = "Updating...";
+  try {
+    const resp = await fetch(ENDPOINTS.changePassword, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ old_password: oldPw, new_password: newPw }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      if (profilePwError) {
+        profilePwError.textContent = apiErrorText(data, "Failed to change password");
+        profilePwError.hidden = false;
+      }
+      return;
+    }
+    if (profilePwSuccess) {
+      profilePwSuccess.textContent = "Password changed successfully ✓";
+      profilePwSuccess.hidden = false;
+    }
+    if (profileCurrentPw) profileCurrentPw.value = "";
+    if (profileNewPw) profileNewPw.value = "";
+    if (profileConfirmPw) profileConfirmPw.value = "";
+  } catch (err) {
+    if (profilePwError) { profilePwError.textContent = "Network error. Please try again."; profilePwError.hidden = false; }
+  } finally {
+    profileChangePwBtn.disabled = false;
+    profileChangePwBtn.textContent = "🔑 Update Password";
+  }
+});
+
+// Sign Out All Sessions
+profileLogoutAllBtn?.addEventListener("click", async () => {
+  if (!confirm("Are you sure you want to sign out from all devices and sessions?")) return;
+  try {
+    await fetch(ENDPOINTS.logoutAll, { method: "POST", headers: authHeaders() });
+  } catch (_) {}
+  if (profileModal) profileModal.hidden = true;
+  showAuth();
 });
 
 // ── Tab Switching ─────────────────────────────────────────────────────────────

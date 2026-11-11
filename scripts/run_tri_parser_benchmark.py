@@ -52,10 +52,15 @@ def evaluate_parsers():
 
     t0_all = time.time()
 
-    # To avoid long network waits per query during 294 batch tests,
-    # we inject a fast mock LLM call representing an LLM parser response:
+    # Note on benchmark evaluation methodology:
+    # 1. Approach A evaluates the standalone deterministic rule_intent.py parser.
+    # 2. Approach B was a keyword-heuristic mock simulating how an unconstrained LLM
+    #    might handle unmeasured variables and follow-ups, not a live model API call.
+    # 3. Approach C evaluates the full deterministic pipeline (rules + question_classifier.py),
+    #    with the remote LLM call stubbed to fall back offline.
     def fast_llm_call(prompt: str) -> str:
-        # Returns empty to simulate timeout or falls back to prompt interpretation
+        # Stubbed offline fallback: ensures the benchmark evaluates the reproducible,
+        # offline deterministic rules-and-classifier pipeline without external API calls.
         raise LLMParseError("offline benchmark fallback")
 
     for idx, case in enumerate(queries):

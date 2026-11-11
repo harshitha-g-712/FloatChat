@@ -1,6 +1,6 @@
 """
-FloatChat – Unified FastAPI Application
-========================================
+ArgoLens – Unified FastAPI Application
+=======================================
 Integrates rules-first intent parsing, offline RAG, deterministic answer generation,
 data discovery endpoints, visualization layer, Argon2 security, and static frontend delivery.
 """
@@ -65,7 +65,8 @@ from auth import (
     save_message, get_conversations, get_conversation_messages, is_valid_conversation_id,
     delete_conversation, search_conversations, get_latest_export, conversation_owned,
     create_or_refresh_share, revoke_share, get_share_status, get_shared_chat,
-    RegisterModel, LoginModel, ResetModel
+    get_user_profile, update_user_username, change_user_password, revoke_all_user_sessions,
+    RegisterModel, LoginModel, ResetModel, UpdateUsernameModel, ChangePasswordModel
 )
 
 # ── Logging Setup (Rotating log in logs/) ──────────────────────────────────────
@@ -99,8 +100,8 @@ init_gemini()
 _ENABLE_DOCS = os.getenv("ENABLE_DOCS", "false").strip().lower() in ("true", "1", "yes")
 
 app = FastAPI(
-    title="FloatChat API",
-    description="Conversational Interface for ARGO Ocean Data Discovery & Visualization",
+    title="ArgoLens API",
+    description="Conversational Interface for ARGO Ocean Data Discovery & Hydrodynamic Density Profiling",
     version="3.0.0",
     docs_url="/docs" if _ENABLE_DOCS else None,
     redoc_url="/redoc" if _ENABLE_DOCS else None,
@@ -675,7 +676,39 @@ def api_me(request: Request):
     user = _get_current_user(request)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
-    return {"user": user}
+    profile = get_user_profile(user["id"])
+    return {"user": profile or user}
+
+
+@app.put("/api/profile/username")
+def api_update_username(req: UpdateUsernameModel, request: Request):
+    user = _get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    res = update_user_username(user["id"], req.username)
+    if "error" in res:
+        raise HTTPException(status_code=400, detail=res["error"])
+    return res
+
+
+@app.post("/api/profile/password")
+def api_change_password(req: ChangePasswordModel, request: Request):
+    user = _get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    res = change_user_password(user["id"], req.old_password, req.new_password)
+    if "error" in res:
+        raise HTTPException(status_code=400, detail=res["error"])
+    return {"ok": True, "message": "Password updated successfully."}
+
+
+@app.post("/api/profile/logout-all")
+def api_logout_all(request: Request):
+    user = _get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    count = revoke_all_user_sessions(user["id"])
+    return {"ok": True, "message": f"Revoked {count} active session(s)."}
 
 
 # ── Discovery Endpoints ───────────────────────────────────────────────────────
@@ -1679,7 +1712,7 @@ def start_server():
 
     url = f"http://{host}:{port}"
     print("\n=======================================================")
-    print(f"  FloatChat is running at {url}")
+    print(f"  ArgoLens is running at {url}")
     print("  Press Ctrl+C to stop the server.")
     print("=======================================================\n")
 

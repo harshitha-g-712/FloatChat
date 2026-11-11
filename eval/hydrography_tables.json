@@ -1,7 +1,7 @@
 {
   "Spring (MAM)": {
-    "count": 296,
-    "mld_count": 296,
+    "total_profiles": 318,
+    "usable_profiles": 296,
     "sst_median": 30.4,
     "sss_median": 32.9,
     "sigma_median": 20.09,
@@ -10,8 +10,8 @@
     "blt_median": 3.0
   },
   "Summer Monsoon (JJAS)": {
-    "count": 419,
-    "mld_count": 418,
+    "total_profiles": 449,
+    "usable_profiles": 418,
     "sst_median": 29.4,
     "sss_median": 33.3,
     "sigma_median": 20.61,
@@ -20,23 +20,23 @@
     "blt_median": 5.9
   },
   "Post-Monsoon (ON)": {
-    "count": 288,
-    "mld_count": 288,
+    "total_profiles": 307,
+    "usable_profiles": 288,
     "sst_median": 29.6,
     "sss_median": 33.2,
     "sigma_median": 20.51,
     "mld_rho_median": 11.4,
-    "mld_t_median": 22.1,
+    "mld_t_median": 22.3,
     "blt_median": 7.8
   },
   "Winter (DJF)": {
-    "count": 345,
-    "mld_count": 345,
+    "total_profiles": 367,
+    "usable_profiles": 345,
     "sst_median": 28.4,
     "sss_median": 33.0,
     "sigma_median": 20.75,
     "mld_rho_median": 15.3,
-    "mld_t_median": 40.9,
+    "mld_t_median": 41.2,
     "blt_median": 20.1
   }
 }

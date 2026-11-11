@@ -83,10 +83,10 @@ Summary metrics recorded in `eval/performance_evaluation_summary.json` across th
 
 ### Internal Stage Latency (from `eval/stage_latency.json`)
 Measured via `scripts/measure_stage_latency.py` across 250 test iterations:
-- **Intent Parsing**: 0.27 ms mean (0.24 ms median, 0.41 ms P95)
-- **SQL Retrieval**: 110.33 ms mean (71.45 ms median, 271.57 ms P95)
-- **Thermodynamic Calculation**: 0.63 ms mean (0.55 ms median, 0.97 ms P95)
-- **Total Internal**: 111.23 ms mean (72.39 ms median, 272.43 ms P95)
+- **Intent Parsing**: 0.32 ms mean (0.30 ms median, 0.50 ms P95)
+- **SQL Retrieval**: 123.52 ms mean (84.40 ms median, 301.03 ms P95)
+- **Thermodynamic Calculation**: 0.62 ms mean (0.56 ms median, 0.95 ms P95)
+- **Total Internal**: 124.46 ms mean (85.38 ms median, 302.05 ms P95)
 
 ---
 

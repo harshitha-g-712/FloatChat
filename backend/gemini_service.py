@@ -35,8 +35,13 @@ BASE_BACKOFF_SECONDS = 1.0
 
 def is_gemini_available() -> bool:
     """Check if Gemini client is initialized and not currently cooling down from a quota limit."""
-    use_gem = os.environ.get("USE_GEMINI", "false").strip().lower() == "true" or USE_GEMINI
-    if not use_gem:
+    env_val = os.environ.get("USE_GEMINI")
+    if env_val is not None:
+        if env_val.strip().lower() not in ("true", "1", "yes"):
+            return False
+    elif not USE_GEMINI:
+        return False
+    if not os.environ.get("GEMINI_API_KEY", "").strip():
         return False
     if _CLIENT is None:
         return False

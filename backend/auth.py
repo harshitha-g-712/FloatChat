@@ -110,6 +110,32 @@ class ResetModel(BaseModel):
     conversation_id: Optional[str] = None
 
 
+class UpdateUsernameModel(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50, description="New Username")
+
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, v: str) -> str:
+        v = v.strip()
+        if not USERNAME_RE.match(v):
+            raise ValueError("Username can only contain letters, numbers, hyphens, and underscores (no spaces or dots)")
+        return v
+
+
+class ChangePasswordModel(BaseModel):
+    old_password: str
+    new_password: str = Field(..., min_length=10, max_length=128, description="New Password (10–128 characters)")
+
+    @field_validator("new_password")
+    @classmethod
+    def validate_new_password(cls, v: str) -> str:
+        if v.strip().lower() in {"password", "password123", "1234567890", "qwerty12345", "admin12345"}:
+            raise ValueError("Choose a less common password")
+        if len(v) > 128:
+            raise ValueError("Password must be at most 128 characters")
+        return v
+
+
 # ── Database Initialization ──────────────────────────────────────────────────
 
 def init_auth_db(db_path: Optional[str] = None):
@@ -384,6 +410,85 @@ def logout_user(token: str, db_path: Optional[str] = None):
     conn.execute("DELETE FROM auth_tokens WHERE token_hash = ?", (t_hash,))
     conn.commit()
     conn.close()
+
+
+def get_user_profile(user_id: int, db_path: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    """Fetch user profile metadata, account creation date, and total conversation count."""
+    path = db_path or str(AUTH_DB_PATH)
+    conn = _connect(path)
+    conn.row_factory = sqlite3.Row
+    try:
+        row = conn.execute(
+            """
+            SELECT u.id, u.username, u.email, u.created_at,
+                   (SELECT COUNT(*) FROM conversations c WHERE c.user_id = u.id) AS conversation_count
+            FROM users u
+            WHERE u.id = ?
+            """,
+            (user_id,),
+        ).fetchone()
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+
+def update_user_username(user_id: int, new_username: str, db_path: Optional[str] = None) -> Dict[str, Any]:
+    """Update a user's display username after format and uniqueness validation."""
+    try:
+        model = UpdateUsernameModel(username=new_username)
+    except Exception as e:
+        return {"error": str(e)}
+
+    path = db_path or str(AUTH_DB_PATH)
+    conn = _connect(path)
+    try:
+        existing = conn.execute("SELECT id FROM users WHERE username = ? AND id != ?", (model.username, user_id)).fetchone()
+        if existing:
+            return {"error": "This username is already taken."}
+        conn.execute("UPDATE users SET username = ? WHERE id = ?", (model.username, user_id))
+        conn.commit()
+        return {"ok": True, "username": model.username}
+    finally:
+        conn.close()
+
+
+def change_user_password(user_id: int, old_password: str, new_password: str, db_path: Optional[str] = None) -> Dict[str, Any]:
+    """Verify existing password and set a new password hash for user_id."""
+    try:
+        model = ChangePasswordModel(old_password=old_password, new_password=new_password)
+    except Exception as e:
+        return {"error": str(e)}
+
+    path = db_path or str(AUTH_DB_PATH)
+    conn = _connect(path)
+    conn.row_factory = sqlite3.Row
+    try:
+        row = conn.execute("SELECT password_hash, salt FROM users WHERE id = ?", (user_id,)).fetchone()
+        if not row:
+            return {"error": "User not found."}
+
+        valid, _ = _verify_password(model.old_password, row["password_hash"], row["salt"])
+        if not valid:
+            return {"error": "Current password is incorrect."}
+
+        new_hash = _hash_new_password(model.new_password)
+        conn.execute("UPDATE users SET password_hash = ?, salt = NULL WHERE id = ?", (new_hash, user_id))
+        conn.commit()
+        return {"ok": True}
+    finally:
+        conn.close()
+
+
+def revoke_all_user_sessions(user_id: int, db_path: Optional[str] = None) -> int:
+    """Invalidate all active sessions for a user."""
+    path = db_path or str(AUTH_DB_PATH)
+    conn = _connect(path)
+    try:
+        cur = conn.execute("DELETE FROM auth_tokens WHERE user_id = ?", (user_id,))
+        conn.commit()
+        return cur.rowcount
+    finally:
+        conn.close()
 
 
 def save_message(conversation_id: str, user_id: int, role: str, content: str,

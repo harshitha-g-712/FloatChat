@@ -3,6 +3,14 @@ import os
 import tempfile
 import pytest
 
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+os.environ.setdefault("NUMEXPR_NUM_THREADS", "1")
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ["USE_GEMINI"] = "false"
+os.environ["GEMINI_API_KEY"] = ""
+os.environ["USE_LLM_EXPLANATION"] = "false"
+
 _tmp = tempfile.mkdtemp(prefix="floatchat_test_auth_")
 os.environ.setdefault("AUTH_DB_PATH", os.path.join(_tmp, "auth_test.db"))
 

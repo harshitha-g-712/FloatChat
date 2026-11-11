@@ -24,49 +24,126 @@
 
 <!-- ── Auth Screen (Login / Register) ──────────────────────────────────────── -->
 <div class="auth-screen" id="auth-screen">
+  <!-- Animated ocean particles background -->
+  <div class="auth-particles" aria-hidden="true">
+    <div class="auth-particle"></div>
+    <div class="auth-particle"></div>
+    <div class="auth-particle"></div>
+    <div class="auth-particle"></div>
+    <div class="auth-particle"></div>
+    <div class="auth-particle"></div>
+  </div>
+
   <div class="auth-container">
-    <div class="auth-brand">
-      <span class="auth-logo">🌊</span>
-      <h1 class="auth-title">ArgoLens</h1>
-      <p class="auth-subtitle">Deterministic Natural Language Retrieval &amp; Seawater Density Profiling for ARGO Float Networks</p>
+    <!-- Left decorative panel (visible on wider screens) -->
+    <div class="auth-hero">
+      <div class="auth-hero-content">
+        <span class="auth-hero-icon">🌊</span>
+        <h2>Explore the Ocean</h2>
+        <p>Query ARGO float data in natural language. Visualize temperature, salinity, and density profiles across the Bay of Bengal.</p>
+        <div class="auth-hero-stats">
+          <div class="auth-hero-stat">
+            <span class="auth-hero-stat-val">1,441</span>
+            <span class="auth-hero-stat-lbl">Profiles</span>
+          </div>
+          <div class="auth-hero-stat">
+            <span class="auth-hero-stat-val">38</span>
+            <span class="auth-hero-stat-lbl">Floats</span>
+          </div>
+          <div class="auth-hero-stat">
+            <span class="auth-hero-stat-val">151K</span>
+            <span class="auth-hero-stat-lbl">Measurements</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Login Form -->
-    <form class="auth-form" id="login-form">
-      <h2>Welcome back</h2>
-      <div class="auth-field">
-        <label for="login-email">Email</label>
-        <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email" />
+    <!-- Right form panel -->
+    <div class="auth-form-panel">
+      <div class="auth-brand">
+        <span class="auth-logo">🌊</span>
+        <h1 class="auth-title">ArgoLens</h1>
+        <p class="auth-subtitle">Natural Language Ocean Data Retrieval</p>
       </div>
-      <div class="auth-field">
-        <label for="login-password">Password</label>
-        <input type="password" id="login-password" placeholder="Your password" required autocomplete="current-password" />
-      </div>
-      <div id="login-notice" class="auth-notice" role="status" hidden></div>
-      <div id="login-error" class="auth-error" hidden></div>
-      <button type="submit" class="auth-submit-btn" id="login-submit-btn">Sign In</button>
-      <p class="auth-switch">Don't have an account? <a href="#" id="show-register">Create one</a></p>
-    </form>
 
-    <!-- Register Form -->
-    <form class="auth-form" id="register-form" hidden>
-      <h2>Create account</h2>
-      <div class="auth-field">
-        <label for="register-username">Username</label>
-        <input type="text" id="register-username" placeholder="Letters, numbers, - and _" required minlength="3" maxlength="50" pattern="[A-Za-z0-9_\-]+" title="Letters, numbers, hyphens and underscores only (no spaces or dots)" autocomplete="username" />
-      </div>
-      <div class="auth-field">
-        <label for="register-email">Email</label>
-        <input type="email" id="register-email" placeholder="you@example.com" required autocomplete="email" />
-      </div>
-      <div class="auth-field">
-        <label for="register-password">Password</label>
-        <input type="password" id="register-password" placeholder="Create a password (min 10 chars)" required minlength="10" maxlength="128" autocomplete="new-password" />
-      </div>
-      <div id="register-error" class="auth-error" hidden></div>
-      <button type="submit" class="auth-submit-btn" id="register-submit-btn">Create Account</button>
-      <p class="auth-switch">Already have an account? <a href="#" id="show-login">Sign in</a></p>
-    </form>
+      <!-- Login Form -->
+      <form class="auth-form" id="login-form">
+        <h2>Welcome back</h2>
+        <p class="auth-form-desc">Sign in to access your ocean data queries and saved conversations.</p>
+        <div class="auth-field">
+          <label for="login-email">Email</label>
+          <div class="auth-input-wrap">
+            <span class="auth-input-icon">📧</span>
+            <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email" />
+          </div>
+        </div>
+        <div class="auth-field">
+          <label for="login-password">Password</label>
+          <div class="auth-input-wrap">
+            <span class="auth-input-icon">🔒</span>
+            <input type="password" id="login-password" placeholder="Your password" required autocomplete="current-password" />
+            <button type="button" class="auth-toggle-pw" data-target="login-password" aria-label="Toggle password visibility">👁️</button>
+          </div>
+        </div>
+        <div id="login-notice" class="auth-notice" role="status" hidden></div>
+        <div id="login-error" class="auth-error" hidden></div>
+        <button type="submit" class="auth-submit-btn" id="login-submit-btn">
+          <span class="auth-btn-text">Sign In</span>
+          <span class="auth-btn-loader" hidden></span>
+        </button>
+        <p class="auth-switch">Don't have an account? <a href="#" id="show-register">Create one</a></p>
+      </form>
+
+      <!-- Register Form -->
+      <form class="auth-form" id="register-form" hidden>
+        <h2>Create account</h2>
+        <p class="auth-form-desc">Join ArgoLens to explore ARGO float data with natural language.</p>
+        <div class="auth-field">
+          <label for="register-username">Username</label>
+          <div class="auth-input-wrap">
+            <span class="auth-input-icon">👤</span>
+            <input type="text" id="register-username" placeholder="Choose a username" required minlength="3" maxlength="50" pattern="[A-Za-z0-9_\-]+" title="Letters, numbers, hyphens and underscores only (no spaces or dots)" autocomplete="username" />
+          </div>
+          <span class="auth-field-hint">Letters, numbers, hyphens and underscores only</span>
+        </div>
+        <div class="auth-field">
+          <label for="register-email">Email</label>
+          <div class="auth-input-wrap">
+            <span class="auth-input-icon">📧</span>
+            <input type="email" id="register-email" placeholder="you@example.com" required autocomplete="email" />
+          </div>
+        </div>
+        <div class="auth-field">
+          <label for="register-password">Password</label>
+          <div class="auth-input-wrap">
+            <span class="auth-input-icon">🔒</span>
+            <input type="password" id="register-password" placeholder="Create a strong password" required minlength="10" maxlength="128" autocomplete="new-password" />
+            <button type="button" class="auth-toggle-pw" data-target="register-password" aria-label="Toggle password visibility">👁️</button>
+          </div>
+          <div class="password-strength" id="password-strength" hidden>
+            <div class="password-strength-bar">
+              <div class="password-strength-fill" id="password-strength-fill"></div>
+            </div>
+            <span class="password-strength-text" id="password-strength-text"></span>
+          </div>
+          <span class="auth-field-hint">Minimum 10 characters</span>
+        </div>
+        <div class="auth-field">
+          <label for="register-confirm-password">Confirm Password</label>
+          <div class="auth-input-wrap">
+            <span class="auth-input-icon">🔒</span>
+            <input type="password" id="register-confirm-password" placeholder="Confirm your password" required minlength="10" maxlength="128" autocomplete="new-password" />
+          </div>
+          <span class="auth-field-hint auth-pw-match" id="pw-match-hint" hidden></span>
+        </div>
+        <div id="register-error" class="auth-error" hidden></div>
+        <button type="submit" class="auth-submit-btn" id="register-submit-btn">
+          <span class="auth-btn-text">Create Account</span>
+          <span class="auth-btn-loader" hidden></span>
+        </button>
+        <p class="auth-switch">Already have an account? <a href="#" id="show-login">Sign in</a></p>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -88,10 +165,15 @@
     <!-- User dropdown -->
     <div class="user-dropdown" id="user-dropdown" hidden>
       <div class="user-dropdown-info">
-        <strong id="dropdown-username">User</strong>
-        <small id="dropdown-email">user@email.com</small>
+        <div class="user-dropdown-avatar" id="dropdown-avatar">U</div>
+        <div class="user-dropdown-details">
+          <strong id="dropdown-username">User</strong>
+          <small id="dropdown-email">user@email.com</small>
+        </div>
       </div>
-      <button id="logout-btn" class="user-dropdown-btn">🚪 Sign Out</button>
+      <div class="user-dropdown-divider"></div>
+      <button id="profile-btn" class="user-dropdown-btn">👤 My Profile</button>
+      <button id="logout-btn" class="user-dropdown-btn user-dropdown-btn-danger">🚪 Sign Out</button>
     </div>
 
     <nav class="sidebar-nav">
@@ -554,6 +636,88 @@
 
   </main><!-- .main-area -->
 </div><!-- .app-shell -->
+
+<!-- ── Profile Modal ──────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="profile-modal" hidden>
+  <div class="modal-card profile-modal-card" role="dialog" aria-modal="true" aria-label="User Profile">
+    <button class="modal-close" id="profile-modal-close" aria-label="Close">✕</button>
+    <div class="profile-header">
+      <div class="profile-avatar-large" id="profile-avatar-large">U</div>
+      <div class="profile-header-info">
+        <h2 id="profile-display-name">User</h2>
+        <p class="profile-email" id="profile-display-email">user@email.com</p>
+        <span class="profile-badge">🌊 Ocean Explorer</span>
+      </div>
+    </div>
+
+    <div class="profile-stats-row">
+      <div class="profile-stat-card">
+        <span class="profile-stat-icon">💬</span>
+        <span class="profile-stat-val" id="profile-total-chats">0</span>
+        <span class="profile-stat-lbl">Conversations</span>
+      </div>
+      <div class="profile-stat-card">
+        <span class="profile-stat-icon">📅</span>
+        <span class="profile-stat-val" id="profile-member-since">-</span>
+        <span class="profile-stat-lbl">Member since</span>
+      </div>
+      <div class="profile-stat-card">
+        <span class="profile-stat-icon">🔐</span>
+        <span class="profile-stat-val" id="profile-session-status">Active</span>
+        <span class="profile-stat-lbl">Session</span>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <h3>Account Settings</h3>
+      <div class="profile-field-row">
+        <label>Username</label>
+        <div class="profile-field-value">
+          <input type="text" id="profile-edit-username" class="profile-input" />
+          <button type="button" id="profile-save-username" class="profile-save-btn" title="Save username">✓</button>
+        </div>
+      </div>
+      <div class="profile-field-row">
+        <label>Email</label>
+        <span class="profile-field-static" id="profile-static-email">user@email.com</span>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <h3>Change Password</h3>
+      <div class="profile-pw-form" id="profile-pw-form">
+        <div class="auth-field">
+          <label for="profile-current-pw">Current Password</label>
+          <div class="auth-input-wrap">
+            <input type="password" id="profile-current-pw" placeholder="Enter current password" autocomplete="current-password" />
+            <button type="button" class="auth-toggle-pw" data-target="profile-current-pw" aria-label="Toggle password visibility">👁️</button>
+          </div>
+        </div>
+        <div class="auth-field">
+          <label for="profile-new-pw">New Password</label>
+          <div class="auth-input-wrap">
+            <input type="password" id="profile-new-pw" placeholder="Enter new password (min 10 chars)" minlength="10" maxlength="128" autocomplete="new-password" />
+            <button type="button" class="auth-toggle-pw" data-target="profile-new-pw" aria-label="Toggle password visibility">👁️</button>
+          </div>
+        </div>
+        <div class="auth-field">
+          <label for="profile-confirm-pw">Confirm New Password</label>
+          <div class="auth-input-wrap">
+            <input type="password" id="profile-confirm-pw" placeholder="Confirm new password" minlength="10" maxlength="128" autocomplete="new-password" />
+          </div>
+        </div>
+        <div id="profile-pw-error" class="auth-error" hidden></div>
+        <div id="profile-pw-success" class="auth-success" hidden></div>
+        <button type="button" id="profile-change-pw-btn" class="profile-action-btn">🔑 Update Password</button>
+      </div>
+    </div>
+
+    <div class="profile-section profile-danger-zone">
+      <h3>Danger Zone</h3>
+      <button type="button" id="profile-logout-all-btn" class="profile-action-btn profile-btn-danger">🚫 Sign Out All Sessions</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── Float Detail / Trajectory Modal ────────────────────────────────────── -->
 <div class="modal-overlay" id="float-modal" hidden>
