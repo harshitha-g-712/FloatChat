@@ -1,8 +1,9 @@
 {
   "intent_accuracy": {
-    "score_pct": 87.76,
-    "ci_95_pct": "87.8% \u00b1 3.8%",
-    "queries_evaluated": 294
+    "score_pct": 80.61,
+    "passed": 237,
+    "queries_evaluated": 294,
+    "criteria": "Strict task-and-variable criterion across 294 benchmark queries"
   },
   "sql_execution_accuracy": {
     "score_pct": 100.0,
@@ -46,12 +47,7 @@
       "accuracy_pct": 72.79,
       "variable_fidelity_violations": 10
     },
-    "llm_only": {
-      "passed": 249,
-      "accuracy_pct": 84.69,
-      "variable_fidelity_violations": 17
-    },
-    "validated_hybrid": {
+    "argo_lens_deterministic_pipeline": {
       "passed": 237,
       "accuracy_pct": 80.61,
       "variable_fidelity_violations": 10

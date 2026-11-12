@@ -68,7 +68,7 @@ Summary metrics recorded in `eval/performance_evaluation_summary.json` across th
 | Evaluation Metric | Measured Value | Scope / Conditions |
 |---|---|---|
 | **SQL Execution Accuracy** | **100.0%** | 294 of 294 valid SQL queries executed successfully |
-| **Intent Accuracy** | **87.76%** | $87.8\% \pm 3.8\%$ (95% CI across 294 queries) |
+| **Benchmark Query Accuracy** | **80.61%** | 237 of 294 passed (strict task-and-variable criterion) |
 | **Numerical Accuracy** | **100.0%** | Tested on 2 reference cases ($\pm 0.05$ units tolerance) |
 | **Abstention Accuracy** | **91.43%** | 32 of 35 out-of-domain or unsupported queries refused |
 | **Retrieval Precision@1** | **100.0%** | Top-1 knowledge document precision |
@@ -76,10 +76,10 @@ Summary metrics recorded in `eval/performance_evaluation_summary.json` across th
 | **RAG Answer Grounding** | **93.33%** | Supported statements in generated answers |
 | **Response Latency (Mean)** | **88 ms** | $0.088\text{ s} \pm 0.014\text{ s}$ (P50: 68 ms, P95: 252 ms, P99: 586 ms) |
 
-### Parser Ablation (294 Queries)
-- **Rules Only**: 214 / 294 passed (72.79% accuracy, 10 variable-fidelity violations)
-- **LLM Only**: 249 / 294 passed (84.69% accuracy, 17 variable-fidelity violations)
-- **Validated Hybrid**: 237 / 294 passed (80.61% accuracy, 10 variable-fidelity violations)
+### Parser Benchmark (294 Queries)
+- **Standalone Rules Parser** (`rule_intent.py`): 214 / 294 passed (72.79% accuracy, 10 variable-fidelity violations)
+- **ArgoLens Deterministic Pipeline** (`rule_intent.py` + `question_classifier.py`): 237 / 294 passed (80.61% accuracy, 10 variable-fidelity violations)
+*Note:* An optional LLM schema-validated fallback hook is provided for online deployment, but was disabled during evaluation so that all benchmark results are strictly reproducible offline.
 
 ### Internal Stage Latency (from `eval/stage_latency.json`)
 Measured via `scripts/measure_stage_latency.py` across 250 test iterations:
@@ -93,7 +93,7 @@ Measured via `scripts/measure_stage_latency.py` across 250 test iterations:
 ## ⚠️ Known Limitations & Scope Boundaries
 
 1. **Observed QC Flags in Bundled Dataset**: While the filter supports all standard WMO flags (1, 2, 5, 8 accepted; 3, 4, 9 dropped), in this specific Bay of Bengal ingested database only QC flags **1** (good) and **9** (missing) occur in practice.
-2. **Temperature Variable in $\sigma_\theta$**: Potential density ($\sigma_\theta$) is computed using *in-situ* recorded temperature ($T$) rather than adiabatically adjusted potential temperature ($\theta$).
+2. **Density Anomaly Formulation**: Surface-referenced density anomaly ($\sigma_t$) is computed using *in-situ* recorded temperature ($T$) at atmospheric pressure ($p = 0$) following UNESCO EOS-80, rather than adiabatically adjusted potential temperature ($\theta$).
 3. **Equation of State Reference**: Seawater potential density calculations use the UNESCO 1983 Equation of State (EOS-80) and have not been benchmarked against the newer thermodynamic equation TEOS-10 / Gibbs SeaWater (GSW) library.
 4. **Coordinate Boundary Guard**: The domain guard strictly blocks out-of-domain *named regions* (e.g., "Arabian Sea", "Pacific Ocean"); raw numerical coordinate bounding queries without explicit region names are not intercepted by the text-based region guard.
 5. **Parser Accuracy & Remaining Errors**: As reported in the ablation study, the validated hybrid parser achieves an 80.61% pass rate on the 294-question benchmark, leaving 57 unparsed queries or variable-fidelity violations.

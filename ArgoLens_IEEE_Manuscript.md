@@ -111,7 +111,7 @@ Each question first passes a typo-correction step and a region guard that refuse
 For phrasing outside the rule grammar, the system can request a structured parse from an LLM, which is accepted only if every field passes allow-list and numeric validation (years, platform identifiers, pressures); otherwise the rule-based result is used. This hook is optional and was disabled in all experiments reported here.
 
 ### C. Parameterised SQL Retrieval and QC Enforcement
-Retrieval uses bound parameters and allow-listed column names, so user text is never concatenated into SQL. Every hydrographic extraction applies the QC predicate:
+Retrieval uses bound parameters and allow-listed column names, preventing SQL injection and ungrounded execution. Quality control filtering is applied through WMO QC allow-lists $\{1, 2, 5, 8\}$ (accepting good, probably good, adjusted, and interpolated values, as well as `NULL` for unflagged legacy records). In single-variable aggregations, `build_query` restricts only the flag column of the requested variable (`m.temp_qc` for temperature; `m.sal_qc` for salinity and pressure). For full vertical profiles and multi-parameter hydrographic analysis (`build_dive_profile` and `generate_hydrography_tables.py`), both `temp_qc` and `sal_qc` allow-lists are enforced simultaneously:
 
 ```sql
 SELECT m.pressure, m.temperature, m.salinity, p.lat, p.lon, p.timestamp
@@ -124,7 +124,7 @@ WHERE p.platform = :platform
 ORDER BY m.pressure ASC;
 ```
 
-Flags 2, 5, and 8 are supported for future ingestions, although only flags 1 and 9 occur here; flag-9 rows are therefore the ones discarded. For non-profile aggregation queries (for example, average surface salinity in 2023), a surface ceiling of $p \le 50\text{ dbar}$ is applied automatically so that deep observations do not bias epipelagic statistics.
+Flags 2, 5, and 8 are supported in the retrieval architecture for future ingestions, although only flags 1 (good) and 9 (missing) occur in this curated Bay of Bengal partition; flag-9 rows are therefore discarded. For non-profile surface aggregation queries (for example, average surface temperature in 2023), an automatic upper-ocean ceiling of $p \le 50\text{ dbar}$ is enforced in the execution pipeline (`main.py`) so that bathypelagic observations do not distort epipelagic statistics.
 
 ### D. Seawater Thermodynamics
 Density anomaly is computed with the UNESCO 1983 equation of state [19] at atmospheric pressure using in-situ temperature $T$ (°C) and practical salinity $S$ (PSU). The density of pure water and of seawater are
@@ -142,7 +142,7 @@ and the density anomaly is $\sigma = \rho(S, T, 0) - 1000\text{ kg/m}^3$. Depth 
 $$z = \frac{\left(\left(\left(-1.82\times 10^{-15}p + 2.279\times 10^{-10}\right)p - 2.2512\times 10^{-5}\right)p + 9.72659\right)p}{g(\phi, p)}$$
 $$g = 9.780318\left(1 + 5.2788\times 10^{-3}\sin^2\phi + 2.36\times 10^{-5}\sin^4\phi\right) + 1.092\times 10^{-6}p \tag{4}$$
 
-and sound speed is evaluated with Mackenzie’s nine-term equation [21]. Stratification metrics are computed per profile using linear interpolation between observation levels. A profile qualifies only if it has a valid temperature–salinity pair at $p \le 15\text{ dbar}$; the reference level $p_{\text{ref}}$ is the valid level nearest 10 dbar among levels with $p \le 30\text{ dbar}$. The thermal and density mixed layer depths and the barrier layer thickness are then
+and sound speed is evaluated with Mackenzie’s nine-term equation [21]. Stratification metrics are computed per profile using linear interpolation between observation levels. A profile qualifies only if it has a valid temperature–salinity pair at $p \le 15\text{ dbar}$; the reference level $p_{\text{ref}}$ is the valid level nearest 10 dbar among levels with $p \le 30\text{ dbar}$. The thermal and density mixed layer depths and the barrier layer thickness are then evaluated following the criteria of de Boyer Montégut et al. [22]:
 
 $$T(\text{MLD}_T) = T(p_{\text{ref}}) - 0.2^\circ\text{C} \tag{5}$$
 
@@ -265,6 +265,8 @@ Of the 1,441 profiles, 93 lack a valid temperature–salinity level at $p \le 15
 | **BLT (dbar)** | **3.0** | **5.9** | **7.8** | **20.1** |
 | **BLT IQR (dbar)** | **[1.7–8.0]** | **[2.0–13.9]** | **[3.5–15.4]** | **[7.9–35.1]** |
 
+*Note: SST, SSS, and $\sigma$ medians are computed at the shallowest valid level with $p \le 15\text{ dbar}$; the MLD reference depth $p_{\text{ref}}$ is the valid observation nearest $10\text{ dbar}$.*
+
 *Fig. 2. Seasonal barrier layer thickness in the Bay of Bengal, 2023–2024 (box: IQR; line: median; whiskers: 1.5×IQR; outliers hidden). Output saved in `figures/fig_blt_seasonal.png`.*
 
 Sea surface temperature peaks in spring (30.4 °C) and is lowest in winter (28.4 °C). Median BLT is smallest in spring (3.0 dbar) and largest in winter (20.1 dbar, IQR 7.9–35.1), when the isothermal layer deepens to a median 41.2 dbar while the density mixed layer stays shallow at 15.3 dbar (Fig. 2). The analysis describes this pattern but does not test the atmospheric or river-runoff mechanisms behind it.
@@ -346,3 +348,5 @@ Future work includes expanding the parser grammar for follow-up questions and fl
 [20] P. M. Saunders, “Practical conversion of pressure to depth,” *J. Phys. Oceanogr.*, vol. 11, no. 4, pp. 573–574, 1981, doi: 10.1175/1520-0485(1981)011<0573:PCOPTD>2.0.CO;2.
 
 [21] K. V. Mackenzie, “Nine-term equation for sound speed in the oceans,” *J. Acoust. Soc. Amer.*, vol. 70, no. 3, pp. 807–812, 1981, doi: 10.1121/1.386919.
+
+[22] C. de Boyer Montégut, G. Madec, A. S. Fischer, A. Lazar, and D. Iudicone, “Mixed layer depth over the global ocean: An examination of profile data and a profile-based climatology,” *J. Geophys. Res. Oceans*, vol. 109, no. C12, p. C12003, 2004, doi: 10.1029/2004JC002378.

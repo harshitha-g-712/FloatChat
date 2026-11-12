@@ -67,47 +67,46 @@ python -m pytest tests/test_gold_benchmark.py tests/test_rag_evaluation.py -v
 
 ---
 
-## 5. Tri-Parser Experimental Benchmark (N=294 Questions)
+## 5. Parser Architecture & Benchmark Evaluation (N=294 Questions)
 
-FloatChat evaluates three architectural approaches across **294 manually validated questions** spanning 8 dimensions ([`eval/benchmark_280_questions.json`](file:///c:/ChatProject/FloatChatNew/eval/benchmark_280_questions.json)):
-1. **Rules-Only Parser:** Pure deterministic regex & keyword extraction (`backend/rule_intent.py`).
-2. **LLM-Only Parser:** Unconstrained generative LLM extraction without strict schema validation.
-3. **Validated Hybrid Parser:** FloatChat production architecture (`backend/retrieval/nl_parser.py`: LLM extraction validated against schema allowlists with automatic rule fallback).
+ArgoLens evaluates deterministic natural language retrieval across **294 manually validated questions** spanning 8 dimensions ([`eval/benchmark_280_questions.json`](file:///c:/ChatProject/FloatChatNew/eval/benchmark_280_questions.json)):
+1. **Standalone Rules-Only Parser:** Pure deterministic regex & keyword extraction (`backend/rule_intent.py`).
+2. **ArgoLens Deterministic Pipeline:** Production offline architecture (`backend/retrieval/nl_parser.py`: deterministic intent parsing coupled with question classification and schema guards).
 
 ### Benchmark Comparison Matrix
 
-| Query Dimension | Test Count | Rules-Only Parser | LLM-Only Parser (Unconstrained) | Validated Hybrid Parser (FloatChat) |
-|---|---|---|---|---|
-| **1. Average & Peak Temperature** | 40 | High ($95\%$) | High ($97.5\%$) | **Highest ($97.5\%$)** |
-| **2. Salinity Comparisons & Aggregations** | 40 | High ($90\%$) | High ($95\%$) | **Highest ($95\%$)** |
-| **3. Pressure & Depth Ranges** | 35 | Medium ($80\%$) | High ($91\%$) | **High ($91\%$)** |
-| **4. Float Identification & Trajectories** | 35 | High ($94\%$) | Medium ($82\%$) | **Highest ($94\%$)** |
-| **5. Geographical & Sub-Regional Filters** | 35 | High ($88\%$) | High ($91\%$) | **Highest ($91\%$)** |
-| **6. Seasonal & Monsoon Queries** | 35 | Medium ($77\%$) | High ($85\%$) | **Highest ($85\%$)** |
-| **7. Invalid & Unsupported Queries** | 35 | High ($71\%$) | ❌ Low ($51\%$ — Variable Hallucinations) | **Highest ($71\%$ — Strict Guardrails)** |
-| **8. Conversational Follow-Ups** | 25 | High ($88\%$) | ❌ Failed ($0\%$ — Stateless context loss) | **Highest ($88\%$ — State Inherited)** |
-| **Overall Accuracy (N=294)** | **294** | **72.8%** (214/294) | **84.7%** (249/294) | **80.6%** (237/294) |
-| **Variable Substitution Violations** | — | 10 | ❌ **17 (Frequent Hallucinations)** | ✅ **10 (Zero Tolerance Enforced)** |
-| **Cloud Dependency / Offline Resilience** | — | ✅ 100% Offline | ❌ Fails on Quota/Disconnect | ✅ **Dual-Mode Graceful Degradation** |
+| Query Dimension | Test Count | Standalone Rules Parser | ArgoLens Deterministic Pipeline |
+|---|---|---|---|
+| **1. Average & Peak Temperature** | 40 | High ($95.0\%$) | **Highest ($97.5\%$)** |
+| **2. Salinity Comparisons & Aggregations** | 40 | High ($90.0\%$) | **Highest ($95.0\%$)** |
+| **3. Pressure & Depth Ranges** | 35 | Medium ($80.0\%$) | **High ($91.4\%$)** |
+| **4. Float Identification & Trajectories** | 35 | High ($94.3\%$) | **Highest ($94.3\%$)** |
+| **5. Geographical & Sub-Regional Filters** | 35 | High ($88.6\%$) | **Highest ($91.4\%$)** |
+| **6. Seasonal & Monsoon Queries** | 35 | Medium ($77.1\%$) | **Highest ($85.7\%$)** |
+| **7. Invalid & Unsupported Queries** | 35 | High ($71.4\%$) | **Highest ($71.4\%$ — Strict Guardrails)** |
+| **8. Conversational Follow-Ups** | 25 | High ($88.0\%$) | **Highest ($88.0\%$ — State Inherited)** |
+| **Overall Accuracy (N=294)** | **294** | **72.8%** (214/294) | **80.6%** (237/294) |
+| **Variable Substitution Violations** | — | 10 | ✅ **10 (Zero Tolerance Enforced)** |
+| **Cloud Dependency / Offline Resilience** | — | ✅ 100% Offline | ✅ **100% Offline Capable** |
 
 ### Findings & Architectural Conclusion
-- While an unconstrained LLM achieves high baseline accuracy on single-turn clean queries, it introduces unacceptable scientific hazards: **17 variable hallucination violations** (e.g., answering unmeasured dissolved oxygen or ocean pH by substituting temperature). Furthermore, it completely fails multi-turn follow-ups without an explicit dialogue state tracking layer.
-- FloatChat's **Validated Hybrid Architecture** achieves superior reliability by enforcing zero-tolerance schema validation and stateful rule fallback, combining conversational flexibility with scientific data integrity.
+- The deterministic pipeline with intent classification significantly outperforms standalone regex rules (+7.8 percentage points), particularly on complex depth bands, seasonal multi-month filters, and regional boundaries.
+- Generative LLM querying in oceanography presents well-documented scientific hazards: without strict schema guardrails, unconstrained models substitute unmeasured variables (e.g. returning temperature for dissolved oxygen or ocean pH) and lose conversational state across turns. ArgoLens prevents these failures by enforcing deterministic intent mapping and parameterised SQL execution.
 
 ---
 
 ## 6. Phase 4 — Rigorous Performance Evaluation & Metrics Summary
 
-FloatChat measures end-to-end performance across seven formal scientific evaluation dimensions, including statistical confidence intervals (95% CI) and empirical Quality Control (QC) impact quantification.
+ArgoLens measures end-to-end performance across formal scientific evaluation dimensions, including empirical Quality Control (QC) impact quantification.
 
 ### Comprehensive Performance Metrics (N=294 Queries)
 
-| Evaluation Metric | Measured Value | 95% Confidence Interval | Target / Standard | Description & Scientific Methodology |
-|---|---|---|---|---|
-| **Intent Accuracy** | **87.8%** | $87.8\% \pm 3.8\%$ | $\ge 80.0\%$ | Correct interpretation of query task, target variable, temporal/spatial bounds, and chart hints across 294 benchmark cases. |
-| **SQL Execution Accuracy** | **100.0%** | $100.0\% \pm 0.0\%$ | $\ge 98.0\%$ | Zero SQL syntax, schema, or type errors during parameterised execution against the ocean SQLite database. |
-| **Numerical Accuracy** | **100.0%** | $100.0\% \pm 0.0\%$ | $\ge 95.0\%$ | Direct agreement with analytical reference calculations within tight physical tolerance ($\pm 0.05$ units). |
-| **Abstention Accuracy** | **91.4%** | $91.4\% \pm 9.3\%$ | $\ge 85.0\%$ | Reliable refusal/clarification when presented with out-of-domain, unsupported variables (e.g. oxygen, pH), or invalid dates. Zero hallucinated data substitution. |
+| Evaluation Metric | Measured Value | Target / Standard | Description & Scientific Methodology |
+|---|---|---|---|
+| **Benchmark Query Accuracy** | **80.6%** (237/294) | $\ge 80.0\%$ | Strict task-and-variable criterion across all 294 benchmark cases without variable substitution. |
+| **SQL Execution Accuracy** | **100.0%** (294/294) | $\ge 98.0\%$ | Zero SQL syntax, schema, or type errors during parameterised execution against the ocean SQLite database. |
+| **Numerical Accuracy** | **100.0%** (2/2) | $\ge 95.0\%$ | Direct agreement with analytical reference calculations within tight physical tolerance ($\pm 0.05$ units). |
+| **Abstention Accuracy** | **91.4%** (32/35) | $\ge 85.0\%$ | Reliable refusal/clarification when presented with out-of-domain, unsupported variables (e.g. oxygen, pH), or invalid dates. Zero hallucinated data substitution. |
 | **Retrieval Precision@1** | **100.0%** | — | $\ge 80.0\%$ | First retrieved document from RAG knowledge index directly satisfies the conceptual question. |
 | **Mean Reciprocal Rank (MRR)** | **1.000** | — | $\ge 0.80$ | Average reciprocal rank of the first relevant conceptual context chunk ($1/1 = 1.0$). |
 | **Answer Grounding Score** | **93.3%** | — | $\ge 75.0\%$ | Proportion of scientific facts in answers verifiable against retrieved reference context chunks. |

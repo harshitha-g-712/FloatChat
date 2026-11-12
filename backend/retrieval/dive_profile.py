@@ -65,9 +65,10 @@ def sound_speed_mackenzie(t: float, s: float, depth_m: float) -> float:
     )
 
 
-def potential_density_unesco(t: float, s: float) -> float:
-    """Potential density anomaly sigma_theta (kg/m^3) at surface pressure (UNESCO 1983).
-    Valid for T -2..40 C, S 0..42 PSU.
+def surface_density_anomaly_sigma_t(t: float, s: float) -> float:
+    """Surface-referenced density anomaly sigma_t (kg/m^3) at surface atmospheric pressure (UNESCO 1983 EOS-80).
+    Computed as rho(S, T, 0) - 1000 using in-situ temperature without adiabatic compression correction.
+    Valid for T -2..40 C, S 0..42 PSU. Rounded to 3 decimal places.
     """
     # Pure water density UNESCO 1981
     rhow = (999.842594 + 6.793952e-2 * t - 9.095290e-3 * t ** 2 +
@@ -78,6 +79,10 @@ def potential_density_unesco(t: float, s: float) -> float:
     C = 4.8314e-4
     rho = rhow + A * s + B * (s ** 1.5) + C * (s ** 2)
     return round(rho - 1000.0, 3)
+
+
+# Backwards-compatible alias for existing API endpoints and legacy callers
+potential_density_unesco = surface_density_anomaly_sigma_t
 
 
 MLD_DELTA_SIGMA = 0.03  # de Boyer Montegut (2004) density criterion (kg/m^3)
@@ -196,10 +201,11 @@ def build_dive_profile(rows: Sequence[Any], lat: Optional[float] = None) -> Dict
     """Turn (pressure, temperature, salinity, [temp_qc, sal_qc]) rows into levels plus derived oceanography.
 
     ``rows`` may be sqlite3.Row objects or tuples; they are sorted by pressure here.
-    If temp_qc and sal_qc flags are available, flags 3 (probably bad), 4 (bad), and 9 (missing)
-    are treated as NULL to uphold Argo QC scientific standards.
+    Enforces WMO QC standards: only flags 1 (good), 2 (probably good), 5 (adjusted),
+    and 8 (interpolated) or NULL (unflagged) are accepted.
+    Any non-allowed flags (such as 3, 4, 9, 0, 6, 7) are treated as invalid/NULL.
     """
-    bad_qc = {3, 4, 9, "3", "4", "9"}
+    wmo_good_qc = {1, 2, 5, 8, "1", "2", "5", "8"}
     parsed = []
     for r in rows:
         # Support dict/sqlite3.Row or tuple access
@@ -218,9 +224,9 @@ def build_dive_profile(rows: Sequence[Any], lat: Optional[float] = None) -> Dict
 
         if p is None or p < 0:
             continue
-        if tq in bad_qc:
+        if tq is not None and tq not in wmo_good_qc:
             t = None
-        if sq in bad_qc:
+        if sq is not None and sq not in wmo_good_qc:
             s = None
         parsed.append((p, t, s, tq, sq))
     parsed.sort(key=lambda x: x[0])
