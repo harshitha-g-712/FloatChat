@@ -148,7 +148,7 @@ _CSP = (
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; "
     "font-src 'self' https://fonts.gstatic.com data:; "
     "img-src 'self' data: blob: https://server.arcgisonline.com https://*.arcgisonline.com https://unpkg.com; "
-    "connect-src 'self'; "
+    "connect-src 'self' https://cdn.plot.ly; "
     "object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
 )
 
@@ -892,9 +892,9 @@ def api_float_dive_profile(platform: str, request: Request):
 
 @app.get("/api/floats/{platform}/ts-diagram")
 def api_float_ts_diagram(platform: str, request: Request):
-    """Temperature-Salinity (T-S) diagram with potential density isopycnals and water masses."""
+    """Temperature-Salinity (T-S) diagram with surface density anomaly isopycnals and water masses."""
     import sqlite3
-    from retrieval.dive_profile import build_dive_profile, potential_density_unesco
+    from retrieval.dive_profile import build_dive_profile, surface_density_anomaly_sigma_t
 
     plat = validate_platform_id(platform)
     if not plat:
@@ -936,7 +936,7 @@ def api_float_ts_diagram(platform: str, request: Request):
                 t_low, t_high = -2.0, 33.0
                 for _ in range(20):
                     t_mid = (t_low + t_high) / 2.0
-                    sig_mid = potential_density_unesco(t_mid, s_val)
+                    sig_mid = surface_density_anomaly_sigma_t(t_mid, s_val)
                     if sig_mid > sig_target:
                         t_low = t_mid
                     else:

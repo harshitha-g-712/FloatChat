@@ -239,7 +239,7 @@ def build_dive_profile(rows: Sequence[Any], lat: Optional[float] = None) -> Dict
         water_mass = None
         if t is not None and s is not None:
             speed = round(sound_speed_mackenzie(t, s, depth_from_pressure(p, lat)), 1)
-            sig = potential_density_unesco(t, s)
+            sig = surface_density_anomaly_sigma_t(t, s)
             water_mass = classify_water_mass(t, s, p)
         if t is not None and surface_temp is None:
             surface_temp = t

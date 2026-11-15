@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT / "backend"))
 
 from rule_intent import parse_intent
 from retrieval.query_engine import retrieve
-from retrieval.dive_profile import potential_density_unesco, _mixed_layer_depth_density, _mixed_layer_depth
+from retrieval.dive_profile import surface_density_anomaly_sigma_t, _mixed_layer_depth_density, _mixed_layer_depth
 
 TEST_QUERIES = [
     "What is the average temperature in January 2023?",
@@ -61,8 +61,8 @@ def measure():
             t_sample = [28.5 - i * 0.05 for i in range(100)]
             s_sample = [34.0 + i * 0.01 for i in range(100)]
             for t_val, s_val in zip(t_sample, s_sample):
-                potential_density_unesco(t_val, s_val)
-            levels = [{"pressure": float(i * 10), "temperature": t_sample[i], "salinity": s_sample[i], "density": potential_density_unesco(t_sample[i], s_sample[i])} for i in range(100)]
+                surface_density_anomaly_sigma_t(t_val, s_val)
+            levels = [{"pressure": float(i * 10), "temperature": t_sample[i], "salinity": s_sample[i], "density": surface_density_anomaly_sigma_t(t_sample[i], s_sample[i])} for i in range(100)]
             _mixed_layer_depth(levels)
             _mixed_layer_depth_density(levels)
             t3 = time.perf_counter()

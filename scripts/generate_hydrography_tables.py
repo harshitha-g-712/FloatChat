@@ -15,7 +15,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "backend"))
 
-from retrieval.dive_profile import build_dive_profile, potential_density_unesco
+from retrieval.dive_profile import build_dive_profile, surface_density_anomaly_sigma_t
 
 DB_PATH = ROOT / "backend" / "floatchat.db"
 OUT_PATH = ROOT / "eval" / "hydrography_tables.json"
@@ -81,7 +81,7 @@ def main():
             if mld_rho is not None and mld_t is not None:
                 ssts.append(surf["temperature"])
                 ssss.append(surf["salinity"])
-                sigs.append(potential_density_unesco(surf["temperature"], surf["salinity"]))
+                sigs.append(surface_density_anomaly_sigma_t(surf["temperature"], surf["salinity"]))
                 mld_rhos.append(mld_rho)
                 mld_ts.append(mld_t)
                 if blt is not None:

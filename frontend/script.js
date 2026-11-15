@@ -243,6 +243,12 @@ async function renderPlotlyChart(target, traces, layout = {}, config = {}) {
     showChartState(el, "No chart data is available for this selection.");
     return false;
   }
+  const defaultOpts = {
+    responsive: true,
+    displayModeBar: false,
+    topojsonURL: "/static/topojson/",
+    ...config
+  };
   try {
     el.innerHTML = "";
     await Plotly.newPlot(el, traces, {
@@ -251,9 +257,42 @@ async function renderPlotlyChart(target, traces, layout = {}, config = {}) {
       // Force the existing dark palette even when a backend chart supplies light defaults.
       paper_bgcolor: "#1e293b", plot_bgcolor: "#0f172a",
       font: { ...(layout.font || {}), family: "'Inter', sans-serif", color: "#94a3b8" },
-    }, { responsive: true, displayModeBar: false, ...config });
+    }, defaultOpts);
     return true;
   } catch (err) {
+    // If geo/topojson failed, gracefully fall back to an offline 2D scatter coordinate map
+    const hasGeo = traces.some(t => t.type === "scattergeo" || (t.lat && t.lon)) || Boolean(layout && layout.geo);
+    if (hasGeo) {
+      try {
+        const fallbackTraces = traces.map(t => {
+          if (t.type === "scattergeo" || (t.lat && t.lon)) {
+            return {
+              x: t.lon,
+              y: t.lat,
+              mode: t.mode || "lines+markers",
+              type: "scatter",
+              name: t.name || "Coordinates",
+              marker: t.marker || { size: 6, color: "#38bdf8" },
+              line: t.line || { width: 2, color: "#38bdf8" },
+              text: t.text || [],
+              hoverinfo: t.hoverinfo || "text+x+y"
+            };
+          }
+          return t;
+        });
+        const fallbackLayout = {
+          margin: { l: 50, r: 20, t: 40, b: 50 },
+          title: layout.title || { text: "Geographic Coordinates (Bay of Bengal)" },
+          xaxis: { title: "Longitude (°E)", gridcolor: "#334155", zeroline: false },
+          yaxis: { title: "Latitude (°N)", gridcolor: "#334155", zeroline: false },
+          paper_bgcolor: "#1e293b", plot_bgcolor: "#0f172a",
+          font: { family: "'Inter', sans-serif", color: "#94a3b8" }
+        };
+        el.innerHTML = "";
+        await Plotly.newPlot(el, fallbackTraces, fallbackLayout, { responsive: true, displayModeBar: false });
+        return true;
+      } catch (_) {}
+    }
     showChartState(el, `Chart could not be rendered: ${err?.message || "unknown error"}`, true);
     return false;
   }

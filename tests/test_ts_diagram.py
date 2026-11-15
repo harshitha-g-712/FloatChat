@@ -7,19 +7,22 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "backend"))
 
 from main import app, _RATE_LIMITS
-from retrieval.dive_profile import potential_density_unesco, classify_water_mass
+from retrieval.dive_profile import surface_density_anomaly_sigma_t, potential_density_unesco, classify_water_mass
 
 client = TestClient(app)
 
 
 def test_unesco_density_formula():
     # Warm surface Bay of Bengal
-    sig = potential_density_unesco(28.5, 33.5)
+    sig = surface_density_anomaly_sigma_t(28.5, 33.5)
     assert 20.0 <= sig <= 22.0
 
     # Cold intermediate depth
-    sig_cold = potential_density_unesco(8.0, 34.8)
+    sig_cold = surface_density_anomaly_sigma_t(8.0, 34.8)
     assert 26.5 <= sig_cold <= 27.5
+
+    # Verify alias parity
+    assert potential_density_unesco(28.5, 33.5) == sig
 
 
 def test_classify_water_mass():

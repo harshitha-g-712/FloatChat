@@ -21,7 +21,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "backend"))
 
-from retrieval.dive_profile import build_dive_profile, classify_water_mass, potential_density_unesco
+from retrieval.dive_profile import build_dive_profile, classify_water_mass, surface_density_anomaly_sigma_t
 
 DB_PATH = ROOT / "backend" / "floatchat.db"
 FIG_DIR = ROOT / "figures"
@@ -158,7 +158,7 @@ def plot_ts_diagram():
     sigma_mesh = np.zeros_like(S_mesh)
     for i in range(T_mesh.shape[0]):
         for j in range(S_mesh.shape[1]):
-            sigma_mesh[i, j] = potential_density_unesco(T_mesh[i, j], S_mesh[i, j])
+            sigma_mesh[i, j] = surface_density_anomaly_sigma_t(T_mesh[i, j], S_mesh[i, j])
 
     contours = ax.contour(S_mesh, T_mesh, sigma_mesh, levels=np.arange(18.0, 29.0, 1.0),
                           colors='gray', linestyles='dotted', linewidths=0.8, alpha=0.7)
