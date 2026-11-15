@@ -1,9 +1,8 @@
 {
   "intent_accuracy": {
-    "score_pct": 80.61,
-    "passed": 237,
-    "queries_evaluated": 294,
-    "criteria": "Strict task-and-variable criterion across 294 benchmark queries"
+    "score_pct": 84.01,
+    "ci_95_pct": "84.0% \u00b1 4.2%",
+    "queries_evaluated": 294
   },
   "sql_execution_accuracy": {
     "score_pct": 100.0,
@@ -27,9 +26,9 @@
   "response_time": {
     "mean_seconds": 0.088,
     "ci_95_seconds": "0.088s \u00b1 0.014s",
-    "p50_seconds": 0.068,
-    "p95_seconds": 0.252,
-    "p99_seconds": 0.586
+    "p50_seconds": 0.067,
+    "p95_seconds": 0.293,
+    "p99_seconds": 0.568
   },
   "qc_impact": {
     "temperature_unfiltered_mean_c": 58.6,
@@ -47,9 +46,9 @@
       "accuracy_pct": 72.79,
       "variable_fidelity_violations": 10
     },
-    "argo_lens_deterministic_pipeline": {
-      "passed": 237,
-      "accuracy_pct": 80.61,
+    "argo_lens_pipeline": {
+      "passed": 233,
+      "accuracy_pct": 79.25,
       "variable_fidelity_violations": 10
     }
   }

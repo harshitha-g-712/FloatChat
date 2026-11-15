@@ -222,6 +222,40 @@ function authHeaders() {
 }
 
 
+function decodeGeoBuffer(val) {
+  if (Array.isArray(val)) return val;
+  if (val && typeof val === "object" && val.bdata && val.dtype) {
+    try {
+      const binaryStr = atob(val.bdata);
+      const len = binaryStr.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) bytes[i] = binaryStr.charCodeAt(i);
+      if (val.dtype === "f8") return Array.from(new Float64Array(bytes.buffer));
+      if (val.dtype === "f4") return Array.from(new Float32Array(bytes.buffer));
+      if (val.dtype === "i4") return Array.from(new Int32Array(bytes.buffer));
+    } catch (_) {
+      return [];
+    }
+  }
+  return [];
+}
+
+if (typeof Plotly !== "undefined" && typeof Plotly.setPlotConfig === "function") {
+  try { Plotly.setPlotConfig({ topojsonURL: "/static/topojson/" }); } catch (_) {}
+}
+if (typeof window !== "undefined" && (!window.PlotlyGeoAssets || !window.PlotlyGeoAssets.topojson || !window.PlotlyGeoAssets.topojson.world_110m)) {
+  fetch("/static/topojson/world_110m.json")
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (data) {
+        window.PlotlyGeoAssets = window.PlotlyGeoAssets || {};
+        window.PlotlyGeoAssets.topojson = window.PlotlyGeoAssets.topojson || {};
+        window.PlotlyGeoAssets.topojson.world_110m = data;
+      }
+    })
+    .catch(() => {});
+}
+
 // Shared Plotly helpers keep chart failures visible instead of leaving blank panels.
 function showChartState(target, message, isError = false) {
   const el = typeof target === "string" ? document.getElementById(target) : target;
@@ -266,23 +300,29 @@ async function renderPlotlyChart(target, traces, layout = {}, config = {}) {
       try {
         const fallbackTraces = traces.map(t => {
           if (t.type === "scattergeo" || (t.lat && t.lon)) {
+            const rawX = decodeGeoBuffer(t.lon || t.x);
+            const rawY = decodeGeoBuffer(t.lat || t.y);
             return {
-              x: t.lon,
-              y: t.lat,
-              mode: t.mode || "lines+markers",
+              x: rawX,
+              y: rawY,
+              mode: t.mode || "markers",
               type: "scatter",
               name: t.name || "Coordinates",
-              marker: t.marker || { size: 6, color: "#38bdf8" },
-              line: t.line || { width: 2, color: "#38bdf8" },
+              marker: t.marker ? { ...t.marker } : { size: 6, color: "#38bdf8" },
+              line: t.line ? { ...t.line } : { width: 2, color: "#38bdf8" },
               text: t.text || [],
-              hoverinfo: t.hoverinfo || "text+x+y"
+              hoverinfo: "x+y"
             };
           }
-          return t;
+          const copy = { ...t };
+          delete copy.geo;
+          return copy;
         });
+        const cleanLayout = { ...(layout || {}) };
+        delete cleanLayout.geo;
         const fallbackLayout = {
           margin: { l: 50, r: 20, t: 40, b: 50 },
-          title: layout.title || { text: "Geographic Coordinates (Bay of Bengal)" },
+          title: cleanLayout.title || { text: "Geographic Coordinates (Bay of Bengal)" },
           xaxis: { title: "Longitude (°E)", gridcolor: "#334155", zeroline: false },
           yaxis: { title: "Latitude (°N)", gridcolor: "#334155", zeroline: false },
           paper_bgcolor: "#1e293b", plot_bgcolor: "#0f172a",
@@ -291,7 +331,9 @@ async function renderPlotlyChart(target, traces, layout = {}, config = {}) {
         el.innerHTML = "";
         await Plotly.newPlot(el, fallbackTraces, fallbackLayout, { responsive: true, displayModeBar: false });
         return true;
-      } catch (_) {}
+      } catch (fallbackErr) {
+        console.warn("Geo fallback plot failed:", fallbackErr);
+      }
     }
     showChartState(el, `Chart could not be rendered: ${err?.message || "unknown error"}`, true);
     return false;
@@ -2675,7 +2717,7 @@ btnChartTs?.addEventListener("click", () => {
   simChartMode = "ts";
   btnChartTs.classList.add("active");
   btnChartVertical?.classList.remove("active");
-  if (simChartTitle) simChartTitle.textContent = "T-S Diagram (Temperature vs. Salinity with Potential Density Isopycnals)";
+  if (simChartTitle) simChartTitle.textContent = "T-S Diagram (Temperature vs. Salinity with Density Anomaly Isopycnals (σ))";
   if (currentSimData) renderTsDiagram(currentSimData);
 });
 
@@ -2687,18 +2729,19 @@ function renderTsDiagram(data) {
   const salinities = levels.map(l => l.salinity);
   const temps = levels.map(l => l.temperature);
   const pressures = levels.map(l => l.pressure);
-  const hoverTexts = levels.map(l =>
-    `<b>Float #${data.platform || ''}</b><br>` +
-    `Depth: ${l.pressure} dbar<br>` +
-    `Temp: ${l.temperature} °C<br>` +
-    `Salinity: ${l.salinity} PSU<br>` +
-    `σθ: ${l.sigma_theta != null ? l.sigma_theta + ' kg/m³' : 'N/A'}<br>` +
-    `Water Mass: <i>${l.water_mass || 'Unclassified'}</i>`
-  );
+  const hoverTexts = levels.map(l => {
+    const densVal = l.sigma_t != null ? l.sigma_t : (l.sigma_theta != null ? l.sigma_theta : null);
+    return `<b>Float #${data.platform || ''}</b><br>` +
+      `Depth: ${l.pressure} dbar<br>` +
+      `Temp: ${l.temperature} °C<br>` +
+      `Salinity: ${l.salinity} PSU<br>` +
+      `σ (in-situ density anomaly): ${densVal != null ? densVal + ' kg/m³' : 'N/A'}<br>` +
+      `Water Mass: <i>${l.water_mass || 'Unclassified'}</i>`;
+  });
 
   const traces = [];
 
-  // Isopycnal background contour curves (UNESCO potential density sigma_theta)
+  // Isopycnal background contour curves (UNESCO surface density anomaly σ from in-situ temperature: σ = ρ(S,T,0) - 1000 kg/m³)
   const isopycnals = [
     { sig: 21.0, pts: [] }, { sig: 22.0, pts: [] }, { sig: 23.0, pts: [] },
     { sig: 24.0, pts: [] }, { sig: 25.0, pts: [] }, { sig: 26.0, pts: [] },
@@ -2727,7 +2770,7 @@ function renderTsDiagram(data) {
         mode: "lines",
         line: { color: "rgba(148, 163, 184, 0.28)", width: 1, dash: "dot" },
         hoverinfo: "text",
-        text: `σθ = ${sig} kg/m³`,
+        text: `σ = ${sig} kg/m³`,
         showlegend: false
       });
     }

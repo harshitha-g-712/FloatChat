@@ -62,8 +62,11 @@ _NOT_AN_ID = (
 
 def _extract_variable(text: str) -> Optional[str]:
     t = text.lower()
-    if re.search(r"\b(oxygen|dissolved oxygen|\bph\b|acidity|alkalinity|density|dense)\b", t):
-        return "unsupported:" + ("oxygen" if "oxygen" in t else "pH" if re.search(r"\bph\b", t) or "acidity" in t else "density")
+    m_unsupp = re.search(r"\b(oxygen|dissolved oxygen|\bph\b|acidity|alkalinity|density|dense|nitrate|chlorophyll|turbidity|carbon dioxide|co2|phosphate)\b", t)
+    if m_unsupp:
+        matched = m_unsupp.group(1)
+        label = "oxygen" if "oxygen" in matched else "pH" if re.search(r"\bph\b", matched) or "acidity" in matched else matched
+        return f"unsupported:{label}"
     if re.search(r"\b(temp|temperature|warmest|coldest|heat)\b", t):
         return "temperature"
     if re.search(r"\b(salinity|sal|saltiest|freshest|salty|salt)\b", t):
@@ -92,6 +95,8 @@ def _extract_stat(text: str, var: Optional[str]) -> str:
 
 def _extract_chart_type(text: str) -> str:
     t = text.lower()
+    if re.search(r"\b(t-?s|temperature[- ]salinity)\s*(?:diagram|plot|chart|graph)\b", t):
+        return "ts"
     if re.search(r"\b(trajectory|track|path|drift|travel(?:ed)?)\b", t):
         return "trajectory"
     if re.search(r"\b(coverage|availability|overview|monthly)\b", t):
@@ -392,6 +397,9 @@ def _extract_dates(text: str) -> Dict[str, Any]:
 
 def _check_conceptual(text: str) -> tuple[bool, Optional[str], Optional[List[str]]]:
     t = text.lower().strip()
+    # Unsupported variables are dataset/measurement requests that must be explicitly refused, not treated as concepts
+    if re.search(r"\b(oxygen|dissolved oxygen|\bph\b|acidity|alkalinity|turbidity|chlorophyll|nitrate|carbon dioxide|co2|phosphate)\b", t):
+        return False, None, None
     # A variable combined with a year/date asks for observations, not a definition.
     if re.search(r"\b(temperature|temp|salinity|pressure|dbar)\b", t) and re.search(r"\b(19\d{2}|20\d{2})\b", t):
         return False, None, None
@@ -561,6 +569,13 @@ def parse_intent(question: str, history: Optional[List[Dict[str, Any]]] = None) 
     intent["variable"] = _extract_variable(raw_q)
     intent["stat"] = _extract_stat(raw_q, intent["variable"])
     intent["chart_type"] = _extract_chart_type(raw_q)
+    if intent["chart_type"] == "ts":
+        intent["variable"] = intent["variable"] or "temperature"
+        intent["stat"] = "none"
+    if isinstance(intent.get("variable"), str) and intent["variable"].startswith("unsupported:"):
+        label = intent["variable"].split(":", 1)[1]
+        intent["ambiguous"] = True
+        intent["clarification_needed"] = f"This dataset does not contain {label} measurements. Choose temperature, salinity, or pressure."
     intent["platform_id"] = _extract_platform_id(raw_q)
     intent["profile_id"] = _extract_profile_id(raw_q)
     if intent["task"] == "trajectory":

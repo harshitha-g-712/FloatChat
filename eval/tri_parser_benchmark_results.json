@@ -1,13 +1,13 @@
 {
   "total_queries": 294,
   "rules_only": {
-    "passed": 214,
-    "accuracy_pct": 72.79,
+    "passed": 232,
+    "accuracy_pct": 78.91,
     "variable_fidelity_violations": 10
   },
   "argo_lens_pipeline": {
-    "passed": 237,
-    "accuracy_pct": 80.61,
+    "passed": 246,
+    "accuracy_pct": 83.67,
     "variable_fidelity_violations": 10
   }
 }

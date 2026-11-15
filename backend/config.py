@@ -58,7 +58,8 @@ ALLOWED_CHART_TYPES = {
     "trajectory",
     "coverage",
     "similar_profiles",
-    "floats_map"
+    "floats_map",
+    "ts"
 }
 # Named regions the rule-based parser can emit (see rule_intent._extract_named_region).
 # Used to validate the `region` field of LLM-parsed queries.

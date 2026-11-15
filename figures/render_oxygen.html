@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0b1120;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 30px;
+      display: flex;
+      justify-content: center;
+      color: #f8fafc;
+    }
+    .chat-container { width: 720px; display: flex; flex-direction: column; gap: 16px; }
+    .msg-user {
+      align-self: flex-end;
+      background: #0284c7;
+      color: #ffffff;
+      padding: 11px 18px;
+      border-radius: 18px 18px 4px 18px;
+      font-size: 14.5px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+    }
+    .msg-bot-card {
+      align-self: flex-start;
+      background: #1e293b;
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 18px 18px 18px 4px;
+      padding: 22px 24px;
+      width: 100%;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+    .badge-row { display: flex; gap: 8px; margin-bottom: 14px; }
+    .badge-basic {
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-refusal {
+      background: rgba(244, 63, 94, 0.12);
+      color: #f43f5e;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .answer-text {
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: #e2e8f0;
+      margin-bottom: 18px;
+    }
+    .stat-pill {
+      display: inline-flex;
+      background: rgba(244, 63, 94, 0.08);
+      border: 1px solid rgba(244, 63, 94, 0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 18px;
+      gap: 12px;
+    }
+    .stat-pill-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+    .stat-pill-val {
+      color: #f43f5e;
+      font-size: 13.5px;
+      font-weight: 700;
+      font-family: monospace;
+    }
+    .actions-row {
+      display: flex;
+      gap: 8px;
+      border-top: 1px solid rgba(148, 163, 184, 0.1);
+      padding-top: 14px;
+    }
+    .action-btn {
+      background: #334155;
+      border: none;
+      color: #cbd5e1;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="msg-user">
+      What is the dissolved oxygen level in 2023?
+    </div>
+    <div class="msg-bot-card">
+      <div class="badge-row">
+        <span class="badge-basic">⚡ Basic Answer</span>
+        <span class="badge-refusal">🛑 Explicit Refusal (Unsupported Variable)</span>
+      </div>
+      <div class="stat-pill">
+        <div>
+          <div class="stat-pill-label">Detected Variable</div>
+          <div class="stat-pill-val">Dissolved Oxygen (DO) — Not Available</div>
+        </div>
+      </div>
+      <div class="answer-text">
+        This database only contains physical oceanographic measurements (<strong>temperature</strong>, <strong>salinity</strong>, <strong>pressure</strong>, and derived <strong>UNESCO density anomaly σ</strong>). Biochemical variables such as dissolved oxygen, nitrate, chlorophyll, and pH are not available for these Bay of Bengal ARGO floats.
+      </div>
+      <div class="actions-row">
+        <button class="action-btn">📋 Copy</button>
+        <button class="action-btn">🔊 Listen</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

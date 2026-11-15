@@ -81,7 +81,9 @@ def surface_density_anomaly_sigma_t(t: float, s: float) -> float:
     return round(rho - 1000.0, 3)
 
 
-# Backwards-compatible alias for existing API endpoints and legacy callers
+# Backwards-compatible alias for existing API endpoints and legacy callers.
+# Note: This computes the UNESCO 1983 surface density anomaly sigma_t from in-situ
+# temperature (atmospheric pressure p=0), not potential density referenced to a non-zero pressure.
 potential_density_unesco = surface_density_anomaly_sigma_t
 
 
@@ -89,10 +91,10 @@ MLD_DELTA_SIGMA = 0.03  # de Boyer Montegut (2004) density criterion (kg/m^3)
 
 
 def _mixed_layer_depth_density(levels: Sequence[Dict[str, Any]]) -> Optional[float]:
-    """Density-based mixed layer depth (dbar) where sigma_theta increases by 0.03 kg/m^3
+    """Density-based mixed layer depth (dbar) where density anomaly increases by 0.03 kg/m^3
     from the ~10 dbar reference value (de Boyer Montegut et al. 2004).
     """
-    valid = [(lv["pressure"], lv["sigma_theta"]) for lv in levels if lv.get("sigma_theta") is not None]
+    valid = [(lv["pressure"], lv.get("sigma_t", lv.get("sigma_theta"))) for lv in levels if (lv.get("sigma_t") is not None or lv.get("sigma_theta") is not None)]
     if len(valid) < 2:
         return None
     ref = min((v for v in valid if v[0] <= MLD_REF_MAX_PRESSURE), key=lambda v: abs(v[0] - MLD_REF_PRESSURE), default=None)
@@ -173,7 +175,7 @@ def _thermocline(levels: Sequence[Dict[str, Any]]) -> tuple[Optional[float], Opt
 def _sofar(levels: Sequence[Dict[str, Any]], max_pressure: float) -> Dict[str, Any]:
     empty = {"depth": None, "speed": None, "band": None}
     if max_pressure < SOFAR_MIN_PROFILE_DEPTH:
-        return {**empty, "note": f"Profile only reaches {max_pressure:.0f} dbar; the SOFAR axis needs a profile to at "
+        return {**empty, "note": f"Profile only reaches {max_pressure:.0f} dbar of valid sound-speed data; the SOFAR axis needs a profile to at "
                                  f"least {SOFAR_MIN_PROFILE_DEPTH:.0f} dbar."}
     lo, hi = SOFAR_WINDOW
     win = [lv for lv in levels if lv["sound_speed"] is not None and lo <= lv["pressure"] <= hi]
@@ -249,15 +251,18 @@ def build_dive_profile(rows: Sequence[Any], lat: Optional[float] = None) -> Dict
             "temperature": round(t, 2) if t is not None else None,
             "salinity": round(s, 3) if s is not None else None,
             "sound_speed": speed,
-            "sigma_theta": sig,
+            "sigma_t": sig,
+            "sigma_theta": sig,  # backward-compatible alias for sigma_t
             "water_mass": water_mass,
             "temp_qc": tq,
             "sal_qc": sq,
         })
 
     max_p = levels[-1]["pressure"] if levels else 0.0
+    valid_sound_pressures = [lv["pressure"] for lv in levels if lv.get("sound_speed") is not None]
+    max_sound_p = max(valid_sound_pressures, default=0.0)
     thermo_depth, thermo_grad = _thermocline(levels)
-    sofar = _sofar(levels, max_p)
+    sofar = _sofar(levels, max_sound_p)
     mld_t = _mixed_layer_depth(levels)
     mld_rho = _mixed_layer_depth_density(levels)
     blt = round(max(0.0, mld_t - mld_rho), 1) if (mld_t is not None and mld_rho is not None) else None

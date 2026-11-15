@@ -1,6 +1,6 @@
 """Generate seasonal hydrography and stratification statistics.
 
-Computes median SST, SSS, potential density (sigma_theta),
+Computes median SST, SSS, surface density anomaly (sigma_t / UNESCO equation of state),
 density mixed layer depth (MLD_rho), thermal mixed layer depth (MLD_t),
 and barrier layer thickness (BLT) across the four canonical Bay of Bengal seasons.
 

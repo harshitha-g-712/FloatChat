@@ -12,7 +12,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <!-- Plotly.js for interactive charts -->
+  <script>
+    window.PlotlyConfig = { topojsonURL: '/static/topojson/' };
+  </script>
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <script src="/static/topojson/world_110m.js"></script>
 
   <!-- Leaflet.js for Interactive Geospatial Mapping -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
@@ -911,6 +915,6 @@
   </div>
 </div>
 
-<script src="script.js"></script>
+<script src="script.js?v=2.1"></script>
 </body>
 </html>

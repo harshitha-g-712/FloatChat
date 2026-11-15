@@ -44,6 +44,8 @@ def classify_question_rules(question: str, rules_intent: Dict[str, Any]) -> str:
     q = (question or "").strip()
     if not q:
         return "data"  # empty stays ambiguous data, as before
+    if isinstance(rules_intent.get("variable"), str) and rules_intent["variable"].startswith("unsupported:"):
+        return "data"
     has_domain = bool(_DOMAIN.search(q))
     has_data = bool(_DATA_SIGNAL.search(q))
     has_stat_action = bool(_STAT_OR_ACTION.search(q))

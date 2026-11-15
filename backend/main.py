@@ -945,7 +945,8 @@ def api_float_ts_diagram(platform: str, request: Request):
                     curve_pts.append({"salinity": s_val, "temperature": round(t_mid, 2)})
             if len(curve_pts) >= 2:
                 isopycnals.append({
-                    "sigma_theta": sig_target,
+                    "sigma_t": sig_target,
+                    "sigma_theta": sig_target,  # Backward-compatible alias for sigma_t (in-situ density anomaly)
                     "points": curve_pts
                 })
 
@@ -1538,8 +1539,18 @@ def _chat_pipeline(req: ChatRequest, request: Request):
             answer_mode = "gemini"
 
     if not answer:
-        answer = build_answer(question, db_result)
-        answer_mode = "basic"
+        if intent.get("chart_type") in ("ts", "ts_diagram"):
+            count = db_result.get("count", 0)
+            from answer_templates import _format_date_filter, _format_pressure_filter, _format_region_filter
+            filters = db_result.get("filters", {})
+            time_str = _format_date_filter(filters)
+            depth_str = _format_pressure_filter(filters)
+            region_str = _format_region_filter(filters)
+            answer = f"Showing Temperature–Salinity (T–S) diagram across {count:,} observations {time_str}{depth_str}{region_str} with UNESCO density anomaly isopycnals (σ)."
+            answer_mode = "basic"
+        else:
+            answer = build_answer(question, db_result)
+            answer_mode = "basic"
     # Disclose when a requested year/range extends outside the actual bundled data.
     requested_years = [y for y in (intent.get("year"), intent.get("year_end")) if isinstance(y, int)]
     if requested_years:

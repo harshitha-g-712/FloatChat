@@ -545,11 +545,89 @@ def make_similar_profiles_overlay(target_profile_id: str, similar_profiles: list
     return pio.to_json(fig)
 
 
+def make_ts_diagram(rows: list) -> Optional[str]:
+    """Render Temperature-Salinity (T-S) diagram with UNESCO density anomaly (sigma) isopycnals."""
+    df = rows_to_df(rows)
+    if df.empty or "temperature" not in df.columns or "salinity" not in df.columns:
+        return None
+    df = df.dropna(subset=["temperature", "salinity"])
+    if df.empty:
+        return None
+    df = _downsample(df, 3000)
+
+    fig = go.Figure()
+
+    # UNESCO surface density anomaly isopycnals (sigma = rho(S,T,0) - 1000 kg/m^3)
+    isopycnals = [21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 27.5]
+    for sig in isopycnals:
+        pts_s = []
+        pts_t = []
+        for s_int in range(300, 370, 5):
+            s_val = s_int / 10.0
+            t_low, t_high = -2.0, 35.0
+            for _ in range(16):
+                t_mid = (t_low + t_high) / 2.0
+                rhow = 999.842594 + 6.793952e-2 * t_mid - 9.095290e-3 * t_mid**2 + 1.001685e-4 * t_mid**3
+                A = 8.24493e-1 - 4.0899e-3 * t_mid + 7.6438e-5 * t_mid**2
+                B = -5.72466e-3 + 1.0227e-4 * t_mid
+                C = 4.8314e-4
+                est_sig = rhow + s_val * (A + B * (s_val**0.5) + C * s_val) - 1000.0
+                if est_sig > sig:
+                    t_low = t_mid
+                else:
+                    t_high = t_mid
+            if 0.0 <= t_mid <= 34.0:
+                pts_s.append(s_val)
+                pts_t.append(round(t_mid, 2))
+        if len(pts_s) >= 2:
+            fig.add_trace(go.Scatter(
+                x=pts_s,
+                y=pts_t,
+                mode="lines",
+                line=dict(color="rgba(148, 163, 184, 0.28)", width=1, dash="dot"),
+                hoverinfo="text",
+                text=f"σ = {sig} kg/m³",
+                showlegend=False
+            ))
+
+    color_col = df["pressure"] if "pressure" in df.columns else df["temperature"]
+    fig.add_trace(go.Scatter(
+        x=df["salinity"],
+        y=df["temperature"],
+        mode="markers",
+        marker=dict(
+            size=6,
+            color=color_col,
+            colorscale="Viridis",
+            reversescale=True,
+            colorbar=dict(
+                title=dict(text="Depth (dbar)", font=dict(color=TEXT_COLOR, size=11)),
+                tickfont=dict(color=TEXT_COLOR, size=9),
+                thickness=14,
+            ),
+            opacity=0.75
+        ),
+        hovertemplate="Salinity: %{x:.2f} PSU<br>Temp: %{y:.2f} °C<extra></extra>",
+        showlegend=False
+    ))
+
+    _apply_theme(
+        fig,
+        title="Temperature–Salinity (T–S) Diagram with Density Anomaly Isopycnals (σ)",
+        x_title="Salinity (PSU)",
+        y_title="Temperature (°C)"
+    )
+    return pio.to_json(fig)
+
+
 def pick_chart(chart_type: str, rows: list, variable: str = "temperature",
                compare_groups: Optional[list] = None,
                extra_data: Optional[dict] = None) -> Optional[str]:
     """Select and build the appropriate chart based on intent and payload."""
     extra_data = extra_data or {}
+
+    if chart_type in ("ts", "ts_diagram"):
+        return make_ts_diagram(rows)
 
     if chart_type == "trajectory":
         return make_trajectory(extra_data.get("trajectory", rows), extra_data.get("platform"))
