@@ -1226,14 +1226,35 @@ function formatRelativeTime(isoStr) {
   }
 }
 
+let currentConversations = [];
+
 function renderConversationList(conversations) {
   if (!convList) return;
+  if (Array.isArray(conversations)) {
+    currentConversations = conversations;
+  }
   convList.replaceChildren();
-  if (!Array.isArray(conversations) || conversations.length === 0) {
+  if (!Array.isArray(currentConversations) || currentConversations.length === 0) {
     setConvListMessage(searchInput?.value.trim() ? "No matching conversations" : "No conversations yet");
     return;
   }
-  conversations.forEach(c => {
+
+  let listToRender = [...currentConversations];
+  if (convActiveFilter === "old" || convActiveFilter === "oldest") {
+    listToRender.sort((a, b) => {
+      const ta = new Date(a.updated_at || a.created_at || 0).getTime();
+      const tb = new Date(b.updated_at || b.created_at || 0).getTime();
+      return ta - tb;
+    });
+  } else if (convActiveFilter === "latest" || convActiveFilter === "all") {
+    listToRender.sort((a, b) => {
+      const ta = new Date(a.updated_at || a.created_at || 0).getTime();
+      const tb = new Date(b.updated_at || b.created_at || 0).getTime();
+      return tb - ta;
+    });
+  }
+
+  listToRender.forEach(c => {
     if (!c || !c.id) return;
     const label = c.title || "New Chat";
 
@@ -1291,10 +1312,8 @@ function renderConversationList(conversations) {
     convList.appendChild(row);
   });
 
-  applyConversationFilter();
-
   // A full page means there may be more: offer to fetch the next batch.
-  if (conversations.length >= convLimit) {
+  if (currentConversations.length >= convLimit) {
     const more = document.createElement("button");
     more.type = "button";
     more.className = "conv-more";
@@ -1308,18 +1327,7 @@ function renderConversationList(conversations) {
 }
 
 function applyConversationFilter() {
-  if (!convList) return;
-  const items = convList.querySelectorAll(".conv-item");
-  items.forEach((item, index) => {
-    const title = item.querySelector(".conv-item-text")?.textContent || item.querySelector(".conv-item-title")?.textContent || "";
-    let match = true;
-    if (convActiveFilter === "recent") {
-      match = index < 15;
-    } else if (convActiveFilter === "named") {
-      match = title.trim() !== "New Chat";
-    }
-    item.style.display = match ? "" : "none";
-  });
+  renderConversationList();
 }
 
 convFilterRow?.addEventListener("click", (e) => {
@@ -1328,7 +1336,7 @@ convFilterRow?.addEventListener("click", (e) => {
   convFilterRow.querySelectorAll(".conv-filter-pill").forEach(p => p.classList.remove("active"));
   pill.classList.add("active");
   convActiveFilter = pill.getAttribute("data-filter") || "all";
-  applyConversationFilter();
+  renderConversationList();
 });
 
 // Opens a saved conversation. Messages are fetched BEFORE the current view is touched,
@@ -1395,20 +1403,49 @@ async function loadConversation(convId, opts = {}) {
 }
 
 let searchTimer = null;
+const searchWrap = searchInput?.closest(".search-wrap");
+
 searchClearBtn?.addEventListener("click", () => {
-  if (searchInput) searchInput.value = "";
+  if (searchInput) {
+    searchInput.value = "";
+    searchInput.focus();
+  }
   if (searchClearBtn) searchClearBtn.hidden = true;
+  if (searchWrap) searchWrap.classList.remove("has-query");
   convLimit = CONV_PAGE;
   loadConversations("");
 });
 
 searchInput?.addEventListener("input", () => {
   const val = searchInput.value.trim();
+  if (val.includes("@") || (currentUser?.email && val.toLowerCase() === currentUser.email.toLowerCase())) {
+    searchInput.value = "";
+    if (searchClearBtn) searchClearBtn.hidden = true;
+    if (searchWrap) searchWrap.classList.remove("has-query");
+    return;
+  }
   if (searchClearBtn) searchClearBtn.hidden = !val;
+  if (searchWrap) searchWrap.classList.toggle("has-query", !!val);
   clearTimeout(searchTimer);
   convLimit = CONV_PAGE;
   searchTimer = setTimeout(() => loadConversations(val), 300);
 });
+
+// Guard against browser password manager autofilling email into search input
+function purgeSearchAutofill() {
+  if (searchInput && (searchInput.value.includes("@") || (currentUser?.email && searchInput.value.toLowerCase().trim() === currentUser.email.toLowerCase().trim()))) {
+    searchInput.value = "";
+    if (searchClearBtn) searchClearBtn.hidden = true;
+    if (searchWrap) searchWrap.classList.remove("has-query");
+  }
+}
+window.addEventListener("load", purgeSearchAutofill);
+document.addEventListener("DOMContentLoaded", purgeSearchAutofill);
+setTimeout(purgeSearchAutofill, 50);
+setTimeout(purgeSearchAutofill, 250);
+setTimeout(purgeSearchAutofill, 600);
+setTimeout(purgeSearchAutofill, 1500);
+searchInput?.addEventListener("focus", purgeSearchAutofill);
 
 function scrollToBottom() {
   requestAnimationFrame(() => { chatFeed.scrollTop = chatFeed.scrollHeight; });
@@ -1701,7 +1738,7 @@ function renderTyping() {
   row.className = "message-row bot";
   row.id = "typing-row";
   row.innerHTML = `
-    <div class="avatar">&#x1f30a;</div>
+    <div class="avatar"><img src="argo-logo.svg" alt="ArgoLens" class="bot-avatar-img" /></div>
     <div class="bubble">
       <div class="typing-indicator">
         <div class="dot"></div><div class="dot"></div><div class="dot"></div>
@@ -1721,7 +1758,7 @@ function renderBotText(text) {
     ? '<button class="action-btn speak-btn" title="Listen to audio response">&#x1f50a; Listen</button>'
     : "";
   row.innerHTML = `
-    <div class="avatar">&#x1f30a;</div>
+    <div class="avatar"><img src="argo-logo.svg" alt="ArgoLens" class="bot-avatar-img" /></div>
     <div class="bubble">
       <div class="answer-text">${escapeHtml(text)}</div>
       <div class="bubble-actions">
@@ -1812,12 +1849,6 @@ function renderBot(data, originalQuestion) {
   const row = document.createElement("div");
   row.className = "message-row bot";
 
-  // Badge: Basic vs Gemini
-  const answerBadge = answer_mode === "gemini"
-    ? `<span class="answer-badge gemini">✨ Gemini AI</span>`
-    : `<span class="answer-badge basic">⚡ Basic Answer</span>`;
-  const badgeHtml = answerBadge + parserBadgeHtml(parser_used);
-
   let statsHtml = "";
   if (!ambiguous && !isKnowledge && observation_count > 0 && task === "stat") {
     const chips = [];
@@ -1873,8 +1904,6 @@ function renderBot(data, originalQuestion) {
     ? `<button class="action-btn sim-float-btn" data-float="${escapeHtml(simFloatId)}" title="Launch 4D Mission Simulator for Float ${escapeHtml(simFloatId)}">🤿 Dive Sim: ${escapeHtml(simFloatId)}</button>`
     : `<button class="action-btn sim-float-btn" title="Open ARGO 4D Mission Simulator">🤿 Dive Sim</button>`;
 
-  const techBadgesHtml = renderTechBadges(technologies_used);
-
   const actionBtns = `
     <div class="bubble-actions">
       <button class="action-btn copy-btn" title="Copy answer">&#x1f4cb; Copy</button>
@@ -1886,7 +1915,7 @@ function renderBot(data, originalQuestion) {
   `;
 
   row.innerHTML = `
-    <div class="avatar">&#x1f30a;</div>
+    <div class="avatar"><img src="argo-logo.svg" alt="ArgoLens" class="bot-avatar-img" /></div>
     <div class="bubble">
       <div class="answer-text">${escapeHtml(answerText)}</div>
       ${statsHtml}

@@ -22,7 +22,8 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
-  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/svg+xml" href="argo-logo.svg?v=3" />
+  <link rel="stylesheet" href="style.css?v=2.8" />
 </head>
 <body>
 
@@ -42,11 +43,12 @@
     <!-- Left decorative panel (visible on wider screens) -->
     <div class="auth-hero">
       <div class="auth-hero-content">
-        <span class="auth-hero-icon">🌊</span>
+        <img src="argo-logo.svg" alt="ArgoLens Logo" class="auth-hero-logo" />
         <h2>Explore the Ocean</h2>
         <p>Query ARGO float data in natural language. Visualize temperature, salinity, and density profiles across the Bay of Bengal.</p>
         <div class="auth-hero-badge">
-          <span>🌊 Bay of Bengal Oceanographic Array</span>
+          <img src="argo-logo.svg" alt="" style="width: 16px; height: 16px; border-radius: 50%;" />
+          <span>Bay of Bengal Oceanographic Array</span>
         </div>
       </div>
     </div>
@@ -54,7 +56,7 @@
     <!-- Right form panel -->
     <div class="auth-form-panel">
       <div class="auth-brand">
-        <span class="auth-logo">🌊</span>
+        <img src="argo-logo.svg" alt="ArgoLens Logo" class="auth-logo-img" />
         <h1 class="auth-title">ArgoLens</h1>
         <p class="auth-subtitle">Natural Language Ocean Data Retrieval</p>
       </div>
@@ -197,7 +199,7 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="logo-wrap">
-        <span class="logo-icon">🌊</span>
+        <img src="argo-logo.svg" alt="ArgoLens Logo" class="logo-img" />
         <span class="logo-text">ArgoLens</span>
       </div>
       <button id="user-menu-btn" class="user-avatar-btn" title="Account menu">
@@ -234,17 +236,19 @@
 
       <!-- Search bar -->
       <div class="search-wrap">
-        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <input type="search" id="search-input" class="search-input"
+        <input type="text" id="search-input" class="search-input"
                placeholder="Search conversations..."
-               name="search_conversations_filter"
+               name="not_an_email_search_field"
                autocomplete="off"
                autocorrect="off"
                autocapitalize="off"
                spellcheck="false"
+               readonly
+               onfocus="this.removeAttribute('readonly');"
                data-lpignore="true"
                data-1p-ignore="true" />
         <button type="button" id="search-clear-btn" class="search-clear-btn" title="Clear search" aria-label="Clear search" hidden>×</button>
@@ -254,8 +258,8 @@
       <div class="nav-section-label">Recent Conversations</div>
       <div class="conv-filter-row" id="conv-filter-row">
         <button type="button" class="conv-filter-pill active" data-filter="all">All</button>
-        <button type="button" class="conv-filter-pill" data-filter="recent">Recent</button>
-        <button type="button" class="conv-filter-pill" data-filter="named">Named</button>
+        <button type="button" class="conv-filter-pill" data-filter="latest">Latest</button>
+        <button type="button" class="conv-filter-pill" data-filter="old">Old</button>
       </div>
       <div class="conversation-list" id="conversation-list">
         <div class="conv-empty" id="conv-empty">No conversations yet</div>
@@ -418,16 +422,9 @@
     <div class="chat-feed" id="chat-feed">
       <!-- Welcome card -->
       <div class="welcome-card" id="welcome-card">
-        <div class="welcome-icon">🌊</div>
+        <div class="welcome-logo-wrap"><img src="argo-logo.svg" alt="ArgoLens Logo" class="welcome-logo-img" /></div>
         <h1>ArgoLens</h1>
-        <p class="welcome-sub"><strong>Deterministic Natural Language Retrieval &amp; Seawater Density Profiling for ARGO Float Networks</strong><br/>Explore real robotic ARGO float observations in the Bay of Bengal with UNESCO 1983 thermodynamic physics, WMO QC flag enforcement, and interactive geospatial mapping.</p>
-        <div class="feature-pills">
-          <span class="feature-pill">⚡ Rules-First & No Quota Failure</span>
-          <span class="feature-pill">🧭 Interactive Data Discovery</span>
-          <span class="feature-pill">📚 Offline Oceanographic RAG</span>
-          <span class="feature-pill">📊 High-Density Plotly Charts</span>
-          <span class="feature-pill">💾 CSV Data Export</span>
-        </div>
+        <p class="welcome-sub"><strong>Deterministic Natural Language Retrieval &amp; Seawater Density Profiling for ARGO Float Networks</strong></p>
       </div>
 
       <!-- Messages injected here -->
@@ -915,6 +912,6 @@
   </div>
 </div>
 
-<script src="script.js?v=2.2"></script>
+<script src="script.js?v=2.9"></script>
 </body>
 </html>
