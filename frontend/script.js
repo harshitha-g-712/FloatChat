@@ -1888,16 +1888,12 @@ function renderBot(data, originalQuestion) {
   row.innerHTML = `
     <div class="avatar">&#x1f30a;</div>
     <div class="bubble">
-      <div class="bubble-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-        ${badgeHtml}
-      </div>
       <div class="answer-text">${escapeHtml(answerText)}</div>
       ${statsHtml}
       ${discoveryTableHtml}
       ${sourcesHtml}
       ${chart_data ? '<div class="chart-wrap" id="chart-' + Date.now() + '"></div>' : ""}
       ${actionBtns}
-      ${techBadgesHtml}
     </div>
   `;
 
