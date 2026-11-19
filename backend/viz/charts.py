@@ -4,7 +4,8 @@ FloatChat – Visualisation Layer
 Builds interactive, modern Plotly charts serialized to JSON for the frontend.
 Supports:
   - Vertical depth profiles (reversed y-axis, <= 15 profiles, clean traces)
-  - Timeseries trends with units
+    with automatic Mixed Layer Depth (MLD) annotation
+  - Timeseries trends with min/max uncertainty bands
   - Histograms and distribution plots
   - Geographic profile maps & float summary maps
   - Float drift trajectories (line + points)
@@ -12,6 +13,8 @@ Supports:
   - Depth-vs-time Hovmöller section plots
   - Coverage charts (monthly profiles stacked by year)
   - Similar profiles comparison overlay
+  - T-S Diagram with UNESCO density anomaly isopycnals
+  - Monthly×Depth heatmap (Hovmöller)
   - Downsampling to <= 4,000 points
 """
 
@@ -103,6 +106,25 @@ def _depth_note(df: pd.DataFrame) -> str:
 MAX_PROFILE_TRACES = 15
 
 
+def _compute_mld(pressure: list, values: list, threshold: float = 0.2) -> Optional[float]:
+    """Estimate Mixed Layer Depth (MLD) using a temperature threshold criterion.
+
+    MLD = shallowest depth where |T(z) - T(ref)| > threshold degrees C,
+    where T(ref) is the value at the shallowest valid level.
+    Returns the pressure (dbar) of that level, or None if not determinable.
+    """
+    if not pressure or not values or len(pressure) < 3:
+        return None
+    pairs = sorted(zip(pressure, values), key=lambda x: x[0])
+    pref, tref = pairs[0]
+    for p, t in pairs[1:]:
+        if t is None or tref is None:
+            continue
+        if abs(t - tref) > threshold:
+            return p
+    return None
+
+
 def _even_indices(n: int, q: int) -> List[int]:
     """q indices spread evenly over range(n) (q <= n); the middle one when q == 1."""
     if q >= n:
@@ -176,8 +198,10 @@ def make_depth_profile(rows: list, variable: str = "temperature") -> Optional[st
     df = _downsample(df)
     fig = go.Figure()
 
+    mld_val = None
     if profile_col:
-        for idx, (pid, group) in enumerate(df.groupby(profile_col)):
+        groups = list(df.groupby(profile_col))
+        for idx, (pid, group) in enumerate(groups):
             sorted_g = group.sort_values(by="pressure")
             color = ACCENT_COLORS[idx % len(ACCENT_COLORS)]
             fig.add_trace(go.Scatter(
@@ -189,6 +213,9 @@ def make_depth_profile(rows: list, variable: str = "temperature") -> Optional[st
                 marker=dict(size=4),
                 hovertemplate=f"Depth: %{{y:.1f}} dbar<br>{variable.capitalize()}: %{{x:.2f}} {units}<br>Profile: {pid}<extra></extra>"
             ))
+            # Compute MLD for single profile view if temperature
+            if idx == 0 and len(groups) == 1 and variable == "temperature":
+                mld_val = _compute_mld(sorted_g["pressure"].tolist(), sorted_g[variable].tolist())
     else:
         sorted_df = df.sort_values(by="pressure")
         fig.add_trace(go.Scatter(
@@ -198,6 +225,18 @@ def make_depth_profile(rows: list, variable: str = "temperature") -> Optional[st
             marker=dict(size=4, color="#38bdf8"),
             hovertemplate=f"Depth: %{{y:.1f}} dbar<br>{variable.capitalize()}: %{{x:.2f}} {units}<extra></extra>"
         ))
+        if variable == "temperature":
+            mld_val = _compute_mld(sorted_df["pressure"].tolist(), sorted_df[variable].tolist())
+
+    if mld_val is not None:
+        fig.add_hline(
+            y=mld_val,
+            line_dash="dash",
+            line_color="#fbbf24",
+            annotation_text=f"MLD ≈ {mld_val:.0f} dbar (ΔT = 0.2°C)",
+            annotation_position="bottom right",
+            annotation_font=dict(color="#fbbf24", size=10)
+        )
 
     _apply_theme(
         fig,
@@ -227,6 +266,7 @@ def make_timeseries(rows: list, variable: str = "temperature") -> Optional[str]:
     daily = df.groupby("date", as_index=False)[variable].agg(["mean", "min", "max", "count"]).reset_index()
 
     fig = go.Figure()
+    # Primary trace 0: daily mean line
     fig.add_trace(go.Scatter(
         x=daily["date"],
         y=daily["mean"],
@@ -236,6 +276,20 @@ def make_timeseries(rows: list, variable: str = "temperature") -> Optional[str]:
         marker=dict(size=5),
         hovertemplate=f"Date: %{{x}}<br>Mean: %{{y:.2f}} {units}<extra></extra>"
     ))
+
+    # Trace 1: Min-Max envelope band when multiple observations exist per date
+    if len(daily) > 1 and "min" in daily.columns and "max" in daily.columns:
+        dates_list = daily["date"].tolist()
+        fig.add_trace(go.Scatter(
+            x=dates_list + dates_list[::-1],
+            y=daily["max"].tolist() + daily["min"].tolist()[::-1],
+            fill="toself",
+            fillcolor="rgba(56, 189, 248, 0.12)",
+            line=dict(color="rgba(255,255,255,0)"),
+            hoverinfo="skip",
+            showlegend=True,
+            name="Min–Max Envelope"
+        ))
 
     _apply_theme(
         fig,
@@ -620,6 +674,51 @@ def make_ts_diagram(rows: list) -> Optional[str]:
     return pio.to_json(fig)
 
 
+def make_heatmap(rows: list, variable: str = "temperature") -> Optional[str]:
+    """Monthly depth section heatmap (Hovmöller-style grid)."""
+    df = rows_to_df(rows)
+    if df.empty or variable not in df.columns or "pressure" not in df.columns or "timestamp" not in df.columns:
+        return None
+
+    df = df.dropna(subset=[variable, "pressure", "timestamp"])
+    if df.empty:
+        return None
+
+    var_meta = VARIABLES.get(variable, {"units": ""})
+    units = var_meta.get("units", "")
+
+    df["month_label"] = df["timestamp"].dt.strftime("%Y-%m")
+    depth_bins = [0, 50, 100, 200, 400, 750, 1200, 2000]
+    depth_labels = ["0–50", "50–100", "100–200", "200–400", "400–750", "750–1200", "1200–2000"]
+    df["depth_bin"] = pd.cut(df["pressure"], bins=depth_bins, labels=depth_labels)
+
+    pivot = df.pivot_table(index="depth_bin", columns="month_label", values=variable, aggfunc="mean")
+    if pivot.empty or pivot.shape[1] < 2:
+        return make_timeseries(rows, variable)
+
+    colorscale = "Thermal" if variable == "temperature" else "Haline" if variable == "salinity" else "Viridis"
+
+    fig = go.Figure(data=go.Heatmap(
+        z=pivot.values,
+        x=pivot.columns.tolist(),
+        y=[str(i) for i in pivot.index.tolist()],
+        colorscale=colorscale,
+        colorbar=dict(
+            title=dict(text=f"{variable.capitalize()} ({units})", font=dict(color=TEXT_COLOR, size=11)),
+            tickfont=dict(color=TEXT_COLOR)
+        ),
+        hovertemplate=f"Month: %{{x}}<br>Depth: %{{y}} dbar<br>{variable.capitalize()}: %{{z:.2f}} {units}<extra></extra>"
+    ))
+
+    _apply_theme(
+        fig,
+        title=f"{variable.capitalize()} Hovmöller Depth–Time Heatmap ({units})",
+        x_title="Month",
+        y_title="Depth Interval (dbar)"
+    )
+    return pio.to_json(fig)
+
+
 def pick_chart(chart_type: str, rows: list, variable: str = "temperature",
                compare_groups: Optional[list] = None,
                extra_data: Optional[dict] = None) -> Optional[str]:
@@ -628,6 +727,8 @@ def pick_chart(chart_type: str, rows: list, variable: str = "temperature",
 
     if chart_type in ("ts", "ts_diagram"):
         return make_ts_diagram(rows)
+    if chart_type in ("heatmap", "hovmoller"):
+        return make_heatmap(rows, variable)
 
     if chart_type == "trajectory":
         return make_trajectory(extra_data.get("trajectory", rows), extra_data.get("platform"))

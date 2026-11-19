@@ -1,9 +1,9 @@
 {
-  "precision_at_1": 100.0,
-  "precision_at_k": 71.66666666666666,
-  "recall_at_k": 90.0,
-  "mrr": 1.0,
-  "answer_grounding": 93.33333333333333,
+  "precision_at_1": 90.0,
+  "precision_at_k": 46.666666666666664,
+  "recall_at_k": 81.66666666666667,
+  "mrr": 0.9,
+  "answer_grounding": 76.66666666666666,
   "citation_provenance_ratio": 100.0,
   "queries_evaluated": 10
 }

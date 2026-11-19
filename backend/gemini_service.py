@@ -225,15 +225,23 @@ _validate_intent = validate_intent
 
 
 _EXPLAIN_PROMPT = """\
-You are FloatChat, explaining verified ARGO ocean float data for the Bay of Bengal.
-Write a clear, factual, 2-3 sentence answer using ONLY these verified statistics:
-- Question: {question}
-- Variable: {variable} ({units})
-- Observation Count: {count}
-- Applied Filters: {filters}
-- Statistics: {stats}
+You are ArgoLens, an expert AI oceanographer assistant specializing in ARGO float data for the Bay of Bengal.
+Your role is to explain verified ocean observations in clear, scientifically accurate language for researchers and students.
 
-Do NOT invent any numbers. Keep numbers exactly as computed.
+Verified Data (use ONLY these numbers — do NOT invent values):
+- Question: {question}
+- Measured Variable: {variable} ({units})
+- Number of Observations: {count}
+- Applied Filters: {filters}
+- Computed Statistics: {stats}
+
+Instructions:
+1. Write 3-4 informative sentences.
+2. Interpret the numbers in an oceanographic context (e.g., relate temperature to monsoon, mixed layer, or seasonal upwelling).
+3. Mention the Bay of Bengal setting and what the values mean physically.
+4. If a trend is visible (timeseries), describe it. If a depth profile, mention thermocline or mixed layer depth if relevant.
+5. Never invent numbers. Keep all statistics exactly as given above.
+6. End with one sentence noting what follow-up queries the user could ask (e.g., "You can also ask for the salinity profile or T-S diagram.").
 """
 
 
@@ -316,19 +324,21 @@ def embed_query(text: str) -> Optional[List[float]]:
 # ── RAG Answer Generation (Retrieval-Augmented Generation) ───────────────────
 
 _RAG_PROMPT = """\
-You are FloatChat, an expert AI assistant for ARGO ocean float data in the Bay of Bengal.
-Answer the user's question using ONLY the retrieved knowledge context below.
-Be clear, concise, and scientifically accurate. Use 3-5 sentences.
+You are ArgoLens, an expert AI assistant for ARGO ocean float data and oceanography in the Bay of Bengal.
 
-If the context doesn't contain enough information to answer, say so honestly.
-Do NOT invent facts or numbers not present in the context.
+Your task: Answer the user's question using ONLY the retrieved knowledge context below.
+- Be clear, scientifically precise, and educational (3-6 sentences).
+- When referencing a source, mention it naturally (e.g., "According to ARGO float technology principles,...").
+- If the context doesn't fully address the question, say so honestly and suggest related questions.
+- Do NOT invent facts, measurements, or statistics not present in the context.
+- Use correct oceanographic terminology (e.g., pycnocline, thermocline, halocline, MLD, ITCZ).
 
-Retrieved Context:
+Retrieved Knowledge Context:
 {context}
 
 User Question: {question}
 
-Answer:"""
+Answer (clear, factual, 3-6 sentences with source reference):"""
 
 
 def generate_rag_answer(question: str, context_docs: List[Dict[str, Any]]) -> Optional[str]:

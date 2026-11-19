@@ -62,17 +62,39 @@ _NOT_AN_ID = (
 
 def _extract_variable(text: str) -> Optional[str]:
     t = text.lower()
-    m_unsupp = re.search(r"\b(oxygen|dissolved oxygen|\bph\b|acidity|alkalinity|density|dense|nitrate|chlorophyll|turbidity|carbon dioxide|co2|phosphate)\b", t)
+    # ── Unsupported / biochemical variables ───────────────────────────────────
+    m_unsupp = re.search(
+        r"\b(dissolved oxygen|oxygen|\bph\b|acidity|alkalinity|density|dense|"
+        r"nitrate|chlorophyll|chl\b|turbidity|carbon dioxide|co2|phosphate|"
+        r"fluorescence|particulate|backscatter|current speed|current velocity)\b", t)
     if m_unsupp:
         matched = m_unsupp.group(1)
-        label = "oxygen" if "oxygen" in matched else "pH" if re.search(r"\bph\b", matched) or "acidity" in matched else matched
+        if "oxygen" in matched:
+            label = "oxygen"
+        elif re.search(r"\bph\b", matched) or "acidity" in matched:
+            label = "pH"
+        elif "chlorophyll" in matched or matched == "chl":
+            label = "chlorophyll"
+        elif "current" in matched:
+            label = "current velocity"
+        else:
+            label = matched
         return f"unsupported:{label}"
-    if re.search(r"\b(temp|temperature|warmest|coldest|heat)\b", t):
+    # ── Temperature — expanded synonyms ───────────────────────────────────────
+    # Includes SST (sea surface temperature), thermohaline, etc.
+    if re.search(
+        r"\b(temp|temperature|warmest|coldest|heat|thermal|sst|sea surface temp"
+        r"|thermohaline|warm water|cold water|isotherm)\b", t):
         return "temperature"
-    if re.search(r"\b(salinity|sal|saltiest|freshest|salty|salt)\b", t):
+    # ── Salinity — expanded synonyms ──────────────────────────────────────────
+    if re.search(
+        r"\b(salinity|sal\b|saltiest|freshest|salty|salt|fresh water|freshwater|"
+        r"haline|isohaline|brackish)\b", t):
         return "salinity"
+    # ── Pressure / Depth ──────────────────────────────────────────────────────
     # Note: "at 500 dbar" specifies a depth/pressure level, not variable="pressure".
-    if re.search(r"\b(pressure|deepest)\b", t) or (re.search(r"\bdepth\b", t) and not re.search(r"\bdepth[ -]profiles?\b", t)):
+    if re.search(r"\b(pressure|deepest)\b", t) or (
+            re.search(r"\bdepth\b", t) and not re.search(r"\bdepth[ -]profiles?\b", t)):
         return "pressure"
     # Default for 'depth profile' without explicit variable is temperature
     if re.search(r"\bdepth[ -]profiles?\b", t):
@@ -82,36 +104,42 @@ def _extract_variable(text: str) -> Optional[str]:
 
 def _extract_stat(text: str, var: Optional[str]) -> str:
     t = text.lower()
-    if re.search(r"\b(average|avg|mean)\b", t):
+    if re.search(r"\b(average|avg|mean|typical|normally|on average)\b", t):
         return "avg"
-    if re.search(r"\b(highest|maximum|max|warmest|saltiest|deepest|peak)\b", t):
+    if re.search(r"\b(highest|maximum|max|warmest|saltiest|deepest|peak|most|extreme)\b", t):
         return "max"
-    if re.search(r"\b(lowest|minimum|min|coldest|freshest|shallowest)\b", t):
+    if re.search(r"\b(lowest|minimum|min|coldest|freshest|shallowest|least)\b", t):
         return "min"
-    if re.search(r"\b(count|how many|number of observations|total profiles|number of profiles)\b", t):
+    if re.search(r"\b(count|how many|number of observations|total profiles|number of profiles|total count)\b", t):
         return "count"
+    if re.search(r"\b(range|spread|variability|difference between max and min)\b", t):
+        return "max"  # range = max - min; handled downstream
+    if re.search(r"\b(std|standard deviation|deviation|variance)\b", t):
+        return "avg"  # closest supported stat
     return "none"
 
 
 def _extract_chart_type(text: str) -> str:
     t = text.lower()
-    if re.search(r"\b(t-?s|temperature[- ]salinity)\s*(?:diagram|plot|chart|graph)\b", t):
+    if re.search(r"\b(t-?s|temperature[- ]salinity)\s*(?:diagram|plot|chart|graph)?\b", t):
         return "ts"
-    if re.search(r"\b(trajectory|track|path|drift|travel(?:ed)?)\b", t):
+    if re.search(r"\b(trajectory|track|path|drift|travel(?:ed)?|route|movement|float moved)\b", t):
         return "trajectory"
-    if re.search(r"\b(coverage|availability|overview|monthly)\b", t):
+    if re.search(r"\b(coverage|availability|overview|monthly|dataset stats)\b", t):
         return "coverage"
-    if re.search(r"\b(similar|closest profiles?|profile similarity)\b", t):
+    if re.search(r"\b(similar|closest profiles?|profile similarity|analogous)\b", t):
         return "similar_profiles"
-    if re.search(r"\b(map|spatial|location|where)\b", t):
+    if re.search(r"\b(map|spatial|location|where|geographic|coordinates)\b", t):
         return "map"
+    if re.search(r"\b(heatmap|heat map|monthly.*depth|depth.*monthly|grid)\b", t):
+        return "heatmap"
     if re.search(r"\b(depth[ -]profiles?|profiles? vs depth|vs depth|vertical profiles?|(?:temperature|temp|salinity)\s+profiles?)\b", t):
         return "depth_profile"
-    if re.search(r"\b(timeseries|trend|over time|time series|progression)\b", t):
+    if re.search(r"\b(timeseries|trend|over time|time series|progression|evolution|interannual)\b", t):
         return "timeseries"
-    if re.search(r"\b(distribution|histogram|hist|spread)\b", t):
+    if re.search(r"\b(distribution|histogram|hist|spread|frequency)\b", t):
         return "distribution"
-    if re.search(r"\b(compare|versus|vs|comparison)\b", t):
+    if re.search(r"\b(compare|versus|vs\b|comparison|contrast)\b", t):
         return "compare"
     return "none"
 
