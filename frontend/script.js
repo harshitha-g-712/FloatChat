@@ -1586,6 +1586,20 @@ function prepareTextForSpeech(text) {
   clean = clean.replace(/\[S\d+\]/g, "");
   // Drop markdown symbols
   clean = clean.replace(/[*_#`~]/g, "");
+
+  // Fix pronunciation for all-caps acronyms that TTS engines spell letter-by-letter:
+  // Convert "ARGO" to "Argo" so speech synthesis pronounces it as a word, not spelling "A-R-G-O"
+  clean = clean.replace(/\bARGO\b/g, "Argo");
+  clean = clean.replace(/\bArgoLens\b/g, "Argo Lens");
+  clean = clean.replace(/\bSOFAR\b/g, "Sofar");
+  clean = clean.replace(/\bUNESCO\b/g, "Unesco");
+  clean = clean.replace(/\bCTD\b/g, "C T D");
+  clean = clean.replace(/\bMLD\b/g, "M L D");
+  clean = clean.replace(/\bSST\b/g, "S S T");
+  clean = clean.replace(/\bBLT\b/g, "B L T");
+  clean = clean.replace(/\bQC\b/g, "Q C");
+  clean = clean.replace(/\bT-S\b/gi, "T S");
+
   // Expand oceanographic terms and symbols for natural pronunciation
   clean = clean.replace(/°C\b/g, " degrees Celsius");
   clean = clean.replace(/\bpsu\b/gi, " practical salinity units");
@@ -1593,6 +1607,8 @@ function prepareTextForSpeech(text) {
   clean = clean.replace(/\bapprox\./gi, "approximately");
   clean = clean.replace(/\bvs\.\b/gi, "versus");
   clean = clean.replace(/(\d+)-(\d+)/g, "$1 to $2");
+  clean = clean.replace(/\bσ\b/g, "sigma");
+  clean = clean.replace(/\bθ\b/g, "theta");
   clean = clean.replace(/\s+/g, " ").trim();
   return clean;
 }
