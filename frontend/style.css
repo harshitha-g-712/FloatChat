@@ -3248,6 +3248,12 @@ body.shared-view .main-area { margin-left: 0; width: 100%; }
   cursor: pointer; transition: all var(--transition);
 }
 .voice-cancel-btn:hover { background: rgba(255, 60, 60, 0.3); color: #fff; }
+.voice-test-sample-btn {
+  padding: 4px 12px; background: rgba(0, 150, 255, 0.18); border: 1px solid rgba(0, 150, 255, 0.4);
+  border-radius: var(--radius-sm); color: #38bdf8; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all var(--transition); white-space: nowrap; margin-left: auto;
+}
+.voice-test-sample-btn:hover { background: rgba(0, 150, 255, 0.35); color: #fff; }
 
 /* ── Light Theme Adaptations ─────────────────────────────── */
 [data-theme="light"] .tab-switch-group {

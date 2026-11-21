@@ -59,6 +59,7 @@ from retrieval.discovery import (
 )
 from rag.indexer import answer_conceptual_query
 from viz.charts import pick_chart
+from voice_service import normalize_marine_speech, prepare_text_for_speech, get_voice_capabilities
 from gemini_service import init_gemini, is_gemini_available, generate_explanation as gemini_explain
 from auth import (
     init_auth_db, register_user, login_user, validate_token, logout_user,
@@ -123,6 +124,7 @@ if not _cors_origins:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
+    allow_origin_regex=r"^https?://.*$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -474,6 +476,7 @@ class ChatResponse(BaseModel):
     # Technology metadata — lets the frontend show which tech stack powered this response
     technologies_used: Optional[List[str]] = None
     rag_mode: Optional[str] = None
+    speech_text: Optional[str] = None
 
 
 class ExportRequest(BaseModel):
@@ -1269,7 +1272,10 @@ def _record_chat_failure(req: "ChatRequest", request: Request) -> None:
 def api_chat(req: ChatRequest, request: Request):
     """Primary conversational query endpoint (crash-safe wrapper around the pipeline)."""
     try:
-        return _chat_pipeline(req, request)
+        res = _chat_pipeline(req, request)
+        if isinstance(res, ChatResponse) and res.answer and not getattr(res, "speech_text", None):
+            res.speech_text = prepare_text_for_speech(res.answer)
+        return res
     except HTTPException:
         raise
     except Exception:
@@ -1717,6 +1723,54 @@ def api_reset(body: ResetModel, request: Request):
     return {"status": "ok"}
 
 
+# ── Voice Interaction & Speech Processing Routes ───────────────────────────
+
+class VoiceNormalizeRequest(BaseModel):
+    transcript: str
+
+
+class VoiceNormalizeResponse(BaseModel):
+    original: str
+    normalized: str
+    spoken_prompt: str
+
+
+class VoicePrepareRequest(BaseModel):
+    text: str
+
+
+class VoicePrepareResponse(BaseModel):
+    original: str
+    speech_text: str
+
+
+@app.get("/api/voice/status")
+def api_voice_status():
+    """Returns voice interaction capabilities, engines, and domain vocabulary normalizer rules."""
+    return get_voice_capabilities()
+
+
+@app.post("/api/voice/normalize", response_model=VoiceNormalizeResponse)
+def api_voice_normalize(body: VoiceNormalizeRequest):
+    """Corrects marine acoustic homophones and digit sequences from speech-to-text input."""
+    norm = normalize_marine_speech(body.transcript)
+    return VoiceNormalizeResponse(
+        original=body.transcript,
+        normalized=norm,
+        spoken_prompt=norm
+    )
+
+
+@app.post("/api/voice/prepare", response_model=VoicePrepareResponse)
+def api_voice_prepare(body: VoicePrepareRequest):
+    """Converts technical oceanographic text to natural speech phonetics for Text-to-Speech synthesis."""
+    speech_txt = prepare_text_for_speech(body.text)
+    return VoicePrepareResponse(
+        original=body.text,
+        speech_text=speech_txt
+    )
+
+
 # ── Static File Serving (Frontend) ───────────────────────────────────────────
 FRONTEND_DIR = PROJECT_ROOT / "frontend"
 if FRONTEND_DIR.exists():
@@ -1732,7 +1786,7 @@ def start_server():
     import uvicorn
 
     port = int(os.environ.get("PORT", 8000))
-    host = "127.0.0.1"
+    host = os.environ.get("HOST", "127.0.0.1")
 
     # Test port availability
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

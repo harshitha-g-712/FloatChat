@@ -86,6 +86,7 @@ const sessionDismissBtn    = document.getElementById("session-dismiss-btn");
 const voiceVisualizer      = document.getElementById("voice-visualizer");
 const voiceStatusText      = document.getElementById("voice-status-text");
 const voiceCancelBtn       = document.getElementById("voice-cancel-btn");
+const voiceTestSampleBtn   = document.getElementById("voice-test-sample-btn");
 
 // Conversation Filtering
 const convFilterRow        = document.getElementById("conv-filter-row");
@@ -1950,7 +1951,8 @@ function renderBot(data, originalQuestion) {
   row.querySelector(".download-img-btn")?.addEventListener("click", () => downloadChartImage(row.querySelector("[id^='chart-']"), row.querySelector(".download-img-btn")));
   const speakBtn = row.querySelector(".speak-btn");
   if (speakBtn) {
-    speakBtn.addEventListener("click", () => toggleSpeakAnswer(answerText, speakBtn));
+    const textToSpeak = data.speech_text || answerText;
+    speakBtn.addEventListener("click", () => toggleSpeakAnswer(textToSpeak, speakBtn));
   }
   const simBtn = row.querySelector(".sim-float-btn");
   if (simBtn) {
@@ -2020,7 +2022,7 @@ async function sendMessage(question) {
     const botRow = renderBot(data, question);
     if (autoSpeakEnabled || askedWithMic) {
       const speakBtn = botRow?.querySelector(".speak-btn");
-      const cleanAnswer = stripSourcesFooter(data.answer, data.sources);
+      const cleanAnswer = data.speech_text || stripSourcesFooter(data.answer, data.sources);
       toggleSpeakAnswer(cleanAnswer, speakBtn);
     }
     await loadConversations(searchInput?.value || "");
@@ -2145,6 +2147,7 @@ const shareLinkInput  = document.getElementById("share-link-input");
 const shareStatusEl   = document.getElementById("share-status");
 const shareCopyBtn    = document.getElementById("share-copy-btn");
 const shareNativeBtn  = document.getElementById("share-native-btn");
+const shareWhatsAppBtn = document.getElementById("share-whatsapp-btn");
 const shareRefreshBtn = document.getElementById("share-refresh-btn");
 const shareStopBtn    = document.getElementById("share-stop-btn");
 
@@ -2189,8 +2192,15 @@ shareCopyBtn?.addEventListener("click", async () => {
 
 shareNativeBtn?.addEventListener("click", async () => {
   if (!shareLinkInput.value || !navigator.share) return;
-  try { await navigator.share({ title: "FloatChat conversation", text: "A FloatChat ARGO ocean-data chat", url: shareLinkInput.value }); }
+  try { await navigator.share({ title: "ArgoLens conversation", text: "ArgoLens ARGO Ocean Data Chat", url: shareLinkInput.value }); }
   catch (_) { /* user dismissed the share sheet */ }
+});
+
+shareWhatsAppBtn?.addEventListener("click", () => {
+  if (!shareLinkInput.value) return;
+  const message = `ArgoLens ARGO Ocean Data Chat:\n${shareLinkInput.value}`;
+  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+  window.open(whatsappUrl, "_blank", "noopener,noreferrer");
 });
 
 shareRefreshBtn?.addEventListener("click", async () => {
@@ -2230,7 +2240,7 @@ async function showSharedChat(token) {
     }
     const chat = await resp.json();
     bannerText.textContent = `Shared chat (read-only): ${chat.title || ""}`;
-    document.title = `${chat.title || "Shared chat"} · FloatChat`;
+    document.title = `${chat.title || "Shared chat"} · ArgoLens`;
     (chat.messages || []).forEach(msg => {
       try {
         if (msg.role === "user") renderUser(msg.content);
@@ -2289,15 +2299,102 @@ const micBtn = document.getElementById("mic-btn");
 if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
   const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognizer = new SpeechRec();
-  recognizer.continuous = false;
+  // Keep recognition open continuously so it never abruptly times out on silence
+  recognizer.continuous = true;
   recognizer.interimResults = true;
-  recognizer.lang = "en-US";
+  // Use browser locale (e.g. en-IN for Indian English, en-US for US English)
+  recognizer.lang = navigator.language || "en-IN";
+
+  let lastRecognizedText = "";
+  let voiceSubmitted = false;
+  let hadVoiceError = false;
+  let statusClearTimer = null;
+  let speechSilenceTimer = null;
+  let audioMeterCtx = null;
+  let audioMeterStream = null;
+  let audioMeterAnim = null;
+
+  async function startAudioMeter() {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+      audioMeterStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioMeterCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioMeterCtx.createMediaStreamSource(audioMeterStream);
+      const analyser = audioMeterCtx.createAnalyser();
+      analyser.fftSize = 64;
+      source.connect(analyser);
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const waveBars = document.querySelectorAll(".voice-wave-bar");
+
+      function updateMeter() {
+        if (!micBtn.classList.contains("recording")) return;
+        analyser.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+        const avg = sum / dataArray.length;
+        const pct = Math.min(100, Math.round((avg / 128) * 100));
+
+        // Dynamically scale wave bars based on REAL microphone sound
+        waveBars.forEach((bar, idx) => {
+          const factor = (idx % 2 === 0 ? 1.3 : 0.7);
+          const scale = Math.max(0.2, (pct / 50) * factor);
+          bar.style.transform = `scaleY(${Math.min(2.8, scale)})`;
+        });
+
+        if (!lastRecognizedText && voiceStatusText) {
+          if (pct < 3) {
+            voiceStatusText.textContent = "🎙️ Listening... (Waiting for voice - speak into your mic)";
+          } else {
+            voiceStatusText.textContent = `🎙️ Detecting sound (${pct}% volume)... Speak your question!`;
+          }
+        }
+        audioMeterAnim = requestAnimationFrame(updateMeter);
+      }
+      updateMeter();
+    } catch (e) {
+      console.warn("Could not start live audio level meter:", e);
+    }
+  }
+
+  function stopAudioMeter() {
+    if (audioMeterAnim) cancelAnimationFrame(audioMeterAnim);
+    audioMeterAnim = null;
+    if (audioMeterCtx) {
+      try { audioMeterCtx.close(); } catch (_) {}
+      audioMeterCtx = null;
+    }
+    if (audioMeterStream) {
+      try { audioMeterStream.getTracks().forEach(t => t.stop()); } catch (_) {}
+      audioMeterStream = null;
+    }
+    const waveBars = document.querySelectorAll(".voice-wave-bar");
+    waveBars.forEach(b => b.style.transform = "");
+  }
+
+  function setVoiceStatus(msg, isError = false, timeoutMs = 0) {
+    if (statusClearTimer) {
+      clearTimeout(statusClearTimer);
+      statusClearTimer = null;
+    }
+    showStatus(msg, isError);
+    if (voiceStatusText) voiceStatusText.textContent = msg;
+    if (timeoutMs > 0) {
+      statusClearTimer = setTimeout(() => {
+        clearStatus();
+        statusClearTimer = null;
+      }, timeoutMs);
+    }
+  }
 
   recognizer.onstart = () => {
+    hadVoiceError = false;
+    lastRecognizedText = "";
+    voiceSubmitted = false;
     micBtn.classList.add("recording");
     if (voiceVisualizer) voiceVisualizer.hidden = false;
-    if (voiceStatusText) voiceStatusText.textContent = "Listening... Speak your ocean question";
-    showStatus("🎙️ Listening... Speak your ocean question (e.g. 'What is the average temperature in January 2023?')");
+    setVoiceStatus("🎙️ Listening... Speak your ocean question clearly now");
+    startAudioMeter();
   };
 
   recognizer.onresult = (e) => {
@@ -2310,48 +2407,154 @@ if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
         interim += e.results[i][0].transcript;
       }
     }
-    const currentText = finalTranscript || interim;
-    const normalized = normalizeMarineSpeechTranscript(currentText);
-    if (questionInput) questionInput.value = normalized;
-    if (voiceStatusText) voiceStatusText.textContent = `Heard: "${normalized}"`;
+    const currentText = (finalTranscript || interim).trim();
+    if (currentText) {
+      lastRecognizedText = currentText;
+      const normalized = normalizeMarineSpeechTranscript(currentText);
+      if (questionInput) questionInput.value = normalized;
+      if (voiceStatusText) voiceStatusText.textContent = `Heard: "${normalized}"`;
 
-    if (finalTranscript) {
+      // Debounce: auto-submit 1.6s after the user stops speaking
+      if (speechSilenceTimer) clearTimeout(speechSilenceTimer);
+      speechSilenceTimer = setTimeout(() => {
+        if (!voiceSubmitted && lastRecognizedText && lastRecognizedText.trim().length > 1) {
+          voiceSubmitted = true;
+          wasAskedViaMic = true;
+          try { recognizer.stop(); } catch (_) {}
+          stopAudioMeter();
+          if (voiceVisualizer) voiceVisualizer.hidden = true;
+          clearStatus();
+          askForm?.dispatchEvent(new Event("submit"));
+        }
+      }, 1600);
+    }
+
+    if (finalTranscript && !voiceSubmitted) {
+      // If recognized explicitly as final and long enough, submit
+      if (speechSilenceTimer) clearTimeout(speechSilenceTimer);
+      voiceSubmitted = true;
       wasAskedViaMic = true;
+      try { recognizer.stop(); } catch (_) {}
+      stopAudioMeter();
       if (voiceVisualizer) voiceVisualizer.hidden = true;
+      clearStatus();
       askForm?.dispatchEvent(new Event("submit"));
     }
   };
 
   recognizer.onerror = (e) => {
-    console.warn("Speech recognition error:", e);
+    hadVoiceError = true;
+    console.warn("Speech recognition error:", e.error, e);
+    stopAudioMeter();
     if (voiceVisualizer) voiceVisualizer.hidden = true;
-    showStatus(e.error === "not-allowed" ? "Microphone access denied. Please allow microphone permission in your browser." : "Voice recognition failed. Please try again.", true);
+    micBtn.classList.remove("recording");
+
+    let errMsg = "Voice recognition error. Please try again.";
+    if (e.error === "not-allowed" || e.error === "permission-denied") {
+      errMsg = "Microphone access blocked. Click the lock/tune icon in your browser URL bar and allow Microphone.";
+    } else if (e.error === "audio-capture") {
+      errMsg = "No microphone found. Please connect a microphone or check Windows sound settings.";
+    } else if (e.error === "network") {
+      errMsg = "Speech recognition network error: Edge/Chrome requires 'Online speech recognition' ON in Windows Settings.";
+    } else if (e.error === "no-speech") {
+      errMsg = "No sound detected from microphone. Check: 1) Windows Settings -> Sound -> Input (Microphone Volume), 2) Laptop F4 mute key.";
+    }
+    setVoiceStatus(errMsg, true, 8000);
   };
 
   recognizer.onend = () => {
     micBtn.classList.remove("recording");
+    stopAudioMeter();
     if (voiceVisualizer) voiceVisualizer.hidden = true;
-    clearStatus();
+
+    // If text was captured before silence, submit it now
+    if (!voiceSubmitted && !hadVoiceError && lastRecognizedText && lastRecognizedText.trim().length > 1) {
+      voiceSubmitted = true;
+      wasAskedViaMic = true;
+      const normalized = normalizeMarineSpeechTranscript(lastRecognizedText);
+      if (questionInput) questionInput.value = normalized;
+      clearStatus();
+      askForm?.dispatchEvent(new Event("submit"));
+      return;
+    }
+
+    if (!hadVoiceError) {
+      clearStatus();
+    }
   };
 
   voiceCancelBtn?.addEventListener("click", () => {
     try { recognizer.abort(); } catch (_) {}
+    stopAudioMeter();
     micBtn.classList.remove("recording");
     if (voiceVisualizer) voiceVisualizer.hidden = true;
     clearStatus();
   });
 
+  const sampleVoiceQueries = [
+    "Show temperature depth profile for float two nine zero two seven five eight",
+    "What is a thermocline?",
+    "Compare temperature in January and June 2023",
+    "Where did float two nine zero two seven five eight travel?"
+  ];
+  let sampleQueryIdx = 0;
+
+  voiceTestSampleBtn?.addEventListener("click", () => {
+    try { recognizer.abort(); } catch (_) {}
+    stopAudioMeter();
+    micBtn.classList.remove("recording");
+    if (voiceVisualizer) voiceVisualizer.hidden = true;
+    clearStatus();
+
+    const sample = sampleVoiceQueries[sampleQueryIdx % sampleVoiceQueries.length];
+    sampleQueryIdx++;
+
+    // Demonstrate marine acoustic normalizer on spoken float ID / terms
+    const normalized = normalizeMarineSpeechTranscript(sample);
+    if (questionInput) questionInput.value = normalized;
+    wasAskedViaMic = true; // Automatically speaks answer upon arrival via TTS
+
+    showStatus(`🎙️ Spoken input: "${sample}" → Normalized to "${normalized}". Submitting...`);
+    setTimeout(() => {
+      clearStatus();
+      askForm?.dispatchEvent(new Event("submit"));
+    }, 500);
+  });
+
   micBtn?.addEventListener("click", () => {
     if (micBtn.classList.contains("recording")) {
-      recognizer.stop();
-    } else {
+      // If already recording and user clicked again:
+      if (lastRecognizedText && lastRecognizedText.trim().length > 1) {
+        voiceSubmitted = true;
+        wasAskedViaMic = true;
+        try { recognizer.stop(); } catch (_) {}
+        stopAudioMeter();
+        if (voiceVisualizer) voiceVisualizer.hidden = true;
+        clearStatus();
+        askForm?.dispatchEvent(new Event("submit"));
+        return;
+      }
+      try { recognizer.stop(); } catch (_) {}
+      stopAudioMeter();
+      return;
+    }
+
+    try {
       recognizer.start();
+    } catch (startErr) {
+      console.warn("Could not start recognizer:", startErr);
+      try { recognizer.abort(); } catch (_) {}
+      setTimeout(() => {
+        try { recognizer.start(); } catch (err2) {
+          setVoiceStatus("Could not start voice recognition: " + (err2.message || err2), true, 7000);
+        }
+      }, 150);
     }
   });
 } else if (micBtn) {
   micBtn.addEventListener("click", () => {
     showStatus("Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.", true);
-    setTimeout(clearStatus, 4000);
+    setTimeout(clearStatus, 7000);
   });
 }
 

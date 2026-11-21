@@ -23,7 +23,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <link rel="icon" type="image/svg+xml" href="argo-logo.svg?v=3" />
-  <link rel="stylesheet" href="style.css?v=2.8" />
+  <link rel="stylesheet" href="style.css?v=3.0" />
 </head>
 <body>
 
@@ -679,6 +679,7 @@
         <div class="voice-wave-bar"></div>
       </div>
       <span class="voice-status-text" id="voice-status-text">Listening... Speak your ocean question</span>
+      <button type="button" id="voice-test-sample-btn" class="voice-test-sample-btn" title="Click to test with a sample voice query">🎙️ Sample Voice Query</button>
       <button type="button" id="voice-cancel-btn" class="voice-cancel-btn" title="Cancel voice search">✕ Cancel</button>
     </div>
 
@@ -890,6 +891,7 @@
     </div>
     <div class="share-actions">
       <button type="button" id="share-native-btn" class="action-btn" hidden>📤 Share…</button>
+      <button type="button" id="share-whatsapp-btn" class="action-btn" title="Share via WhatsApp">💬 Share on WhatsApp</button>
       <button type="button" id="share-refresh-btn" class="action-btn">🔄 Update with latest messages</button>
       <button type="button" id="share-stop-btn" class="action-btn danger">🚫 Stop sharing</button>
     </div>
@@ -912,6 +914,6 @@
   </div>
 </div>
 
-<script src="script.js?v=2.9"></script>
+<script src="script.js?v=6.0"></script>
 </body>
 </html>
