@@ -12,12 +12,19 @@ import logging
 import os
 import re
 import secrets
+import smtplib
 import sqlite3
 from datetime import datetime, timezone, timedelta
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from typing import Optional, Dict, Any, List
+from dotenv import load_dotenv
 from pydantic import BaseModel, Field, field_validator
 
-from config import AUTH_DB_PATH
+from config import AUTH_DB_PATH, PROJECT_ROOT
+
+# Ensure .env is loaded
+load_dotenv(PROJECT_ROOT / ".env")
 
 logger = logging.getLogger("floatchat.auth")
 
@@ -136,6 +143,76 @@ class ChangePasswordModel(BaseModel):
         return v
 
 
+class VerifyRegisterModel(BaseModel):
+    email: str
+    code: str = Field(..., min_length=4, max_length=16, description="Registration verification code")
+
+    @field_validator("email")
+    @classmethod
+    def clean_email(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", v):
+            raise ValueError("Invalid email format")
+        return v
+
+
+class RequestRegCodeModel(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50, description="Username")
+    email: str = Field(..., description="User email")
+
+    @field_validator("email")
+    @classmethod
+    def clean_email(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", v):
+            raise ValueError("Invalid email format")
+        return v
+
+    @field_validator("username")
+    @classmethod
+    def clean_username(cls, v: str) -> str:
+        v = v.strip()
+        if not USERNAME_RE.match(v):
+            raise ValueError("Username can only contain letters, numbers, hyphens, and underscores")
+        return v
+
+
+class CheckRegCodeModel(BaseModel):
+    email: str
+    code: str = Field(..., min_length=4, max_length=16, description="Verification code")
+
+    @field_validator("email")
+    @classmethod
+    def clean_email(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", v):
+            raise ValueError("Invalid email format")
+        return v
+
+
+class CompleteRegModel(BaseModel):
+    email: str
+    code: str = Field(..., min_length=4, max_length=16, description="Verification code")
+    password: str = Field(..., min_length=10, max_length=128, description="Password (10–128 characters)")
+
+    @field_validator("email")
+    @classmethod
+    def clean_email(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", v):
+            raise ValueError("Invalid email format")
+        return v
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        if v.strip().lower() in {"password", "password123", "1234567890", "qwerty12345", "admin12345"}:
+            raise ValueError("Choose a less common password")
+        if len(v) > 128:
+            raise ValueError("Password must be at most 128 characters")
+        return v
+
+
 class RequestResetModel(BaseModel):
     email: str
 
@@ -164,6 +241,76 @@ class ConfirmResetModel(BaseModel):
     @field_validator("new_password")
     @classmethod
     def validate_new_password(cls, v: str) -> str:
+        if v.strip().lower() in {"password", "password123", "1234567890", "qwerty12345", "admin12345"}:
+            raise ValueError("Choose a less common password")
+        if len(v) > 128:
+            raise ValueError("Password must be at most 128 characters")
+        return v
+
+
+class VerifyRegisterModel(BaseModel):
+    email: str
+    code: str = Field(..., min_length=4, max_length=16, description="Registration verification code")
+
+    @field_validator("email")
+    @classmethod
+    def clean_email(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", v):
+            raise ValueError("Invalid email format")
+        return v
+
+
+class RequestRegCodeModel(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50, description="Username")
+    email: str = Field(..., description="User email")
+
+    @field_validator("email")
+    @classmethod
+    def clean_email(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", v):
+            raise ValueError("Invalid email format")
+        return v
+
+    @field_validator("username")
+    @classmethod
+    def clean_username(cls, v: str) -> str:
+        v = v.strip()
+        if not USERNAME_RE.match(v):
+            raise ValueError("Username can only contain letters, numbers, hyphens, and underscores")
+        return v
+
+
+class CheckRegCodeModel(BaseModel):
+    email: str
+    code: str = Field(..., min_length=4, max_length=16, description="Verification code")
+
+    @field_validator("email")
+    @classmethod
+    def clean_email(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", v):
+            raise ValueError("Invalid email format")
+        return v
+
+
+class CompleteRegModel(BaseModel):
+    email: str
+    code: str = Field(..., min_length=4, max_length=16, description="Verification code")
+    password: str = Field(..., min_length=10, max_length=128, description="Password (10–128 characters)")
+
+    @field_validator("email")
+    @classmethod
+    def clean_email(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", v):
+            raise ValueError("Invalid email format")
+        return v
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
         if v.strip().lower() in {"password", "password123", "1234567890", "qwerty12345", "admin12345"}:
             raise ValueError("Choose a less common password")
         if len(v) > 128:
@@ -225,12 +372,49 @@ def init_auth_db(db_path: Optional[str] = None):
             created_at    TEXT DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
         );
+        CREATE TABLE IF NOT EXISTS pending_registrations (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            username      TEXT NOT NULL,
+            email         TEXT NOT NULL,
+            password_hash TEXT,
+            verify_code   TEXT NOT NULL,
+            expires_at    TEXT NOT NULL,
+            verified      INTEGER DEFAULT 0,
+            used          INTEGER DEFAULT 0,
+            created_at    TEXT DEFAULT CURRENT_TIMESTAMP
+        );
         CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
         CREATE INDEX IF NOT EXISTS idx_conv_user ON conversations(user_id);
         CREATE INDEX IF NOT EXISTS idx_msg_conv ON chat_messages(conversation_id);
         CREATE INDEX IF NOT EXISTS idx_pwd_resets_code ON password_resets(reset_code);
+        CREATE INDEX IF NOT EXISTS idx_pending_reg_email ON pending_registrations(email);
     """)
     # Migrate legacy databases: CREATE TABLE IF NOT EXISTS does not alter columns.
+    reg_info = conn.execute("PRAGMA table_info(pending_registrations)").fetchall()
+    for col in reg_info:
+        if col[1] == "password_hash" and col[3] == 1:
+            conn.execute("DROP TABLE pending_registrations")
+            conn.execute("""
+                CREATE TABLE pending_registrations (
+                    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username      TEXT NOT NULL,
+                    email         TEXT NOT NULL,
+                    password_hash TEXT,
+                    verify_code   TEXT NOT NULL,
+                    expires_at    TEXT NOT NULL,
+                    verified      INTEGER DEFAULT 0,
+                    used          INTEGER DEFAULT 0,
+                    created_at    TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_pending_reg_email ON pending_registrations(email)")
+            break
+    reg_cols = {r[1] for r in conn.execute("PRAGMA table_info(pending_registrations)")}
+    if "verified" not in reg_cols:
+        try:
+            conn.execute("ALTER TABLE pending_registrations ADD COLUMN verified INTEGER DEFAULT 0")
+        except Exception:
+            pass
     user_cols = {r[1] for r in conn.execute("PRAGMA table_info(users)")}
     if "salt" not in user_cols:
         conn.execute("ALTER TABLE users ADD COLUMN salt TEXT")
@@ -456,6 +640,255 @@ def validate_token(token: str, db_path: Optional[str] = None) -> Optional[Dict[s
         conn.close()
 
 
+def _send_argo_email(to_email: str, subject: str, headline: str, intro_text: str, code: str, note_text: str) -> bool:
+    """Send an ArgoLens branded verification email via Gmail SMTP with modern dark UI styling."""
+    smtp_user = os.environ.get("SMTP_EMAIL", "").strip()
+    smtp_pass = os.environ.get("SMTP_PASSWORD", "").strip().replace(" ", "")
+    if not smtp_user or not smtp_pass:
+        logger.info("SMTP credentials not configured; skipping email dispatch.")
+        return False
+
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = f"ArgoLens Ocean Intelligence <{smtp_user}>"
+        msg["To"] = to_email
+
+        plain_text = (
+            f"Hello,\n\n"
+            f"{intro_text}\n\n"
+            f"Your 6-digit verification code is: {code}\n\n"
+            f"{note_text}\n\n"
+            f"— ArgoLens Security Team"
+        )
+
+        html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b132b; color: #e2e8f0; margin: 0; padding: 24px; }}
+    .container {{ max-width: 520px; margin: 0 auto; background: #1c2541; border: 1px solid #3a506b; border-radius: 12px; padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }}
+    .logo {{ text-align: center; margin-bottom: 24px; }}
+    .logo-badge {{ display: inline-block; background: linear-gradient(135deg, #0ea5e9, #38bdf8); color: #0b132b; font-weight: bold; font-size: 18px; padding: 10px 20px; border-radius: 24px; text-decoration: none; }}
+    h2 {{ color: #ffffff; text-align: center; margin-top: 0; font-size: 22px; }}
+    p {{ color: #cbd5e1; font-size: 15px; line-height: 1.6; }}
+    .code-box {{ text-align: center; margin: 28px 0; }}
+    .code {{ display: inline-block; font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #38bdf8; background: #0b132b; border: 2px dashed #0284c7; padding: 14px 28px; border-radius: 10px; font-family: monospace; }}
+    .warning {{ background: rgba(56, 189, 248, 0.1); border-left: 4px solid #38bdf8; padding: 12px 16px; margin: 20px 0; font-size: 13px; color: #94a3b8; border-radius: 4px; }}
+    .footer {{ text-align: center; font-size: 12px; color: #64748b; margin-top: 28px; border-top: 1px solid #3a506b; padding-top: 16px; }}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <span class="logo-badge">🌊 ArgoLens Ocean AI</span>
+    </div>
+    <h2>{headline}</h2>
+    <p>Hello,</p>
+    <p>{intro_text}</p>
+    <div class="code-box">
+      <div class="code">{code}</div>
+    </div>
+    <div class="warning">
+      ⏱️ <strong>Note:</strong> {note_text}
+    </div>
+    <div class="footer">
+      ArgoLens Deterministic Natural Language Interface for Oceanographic Discovery<br>
+      Automated Security Notification • Please do not reply to this email
+    </div>
+  </div>
+</body>
+</html>"""
+
+        msg.attach(MIMEText(plain_text, "plain"))
+        msg.attach(MIMEText(html_content, "html"))
+
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=12) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_pass)
+            server.send_message(msg)
+
+        logger.info("Successfully sent email to %s (subject: %s)", to_email, subject)
+        return True
+    except Exception as e:
+        logger.warning("Failed to send email to %s: %s", to_email, e)
+        return False
+
+
+def send_password_reset_email(to_email: str, reset_code: str) -> bool:
+    """Send a professional 6-digit password reset verification email."""
+    return _send_argo_email(
+        to_email=to_email,
+        subject=f"ArgoLens - Password Reset Code: {reset_code}",
+        headline="Password Reset Verification",
+        intro_text="You requested a verification code to reset the password for your <strong>ArgoLens</strong> account. Use the code below to complete the reset:",
+        code=reset_code,
+        note_text="This verification code is valid for <strong>15 minutes</strong>. If you did not request a password reset, please ignore this email. Your account remains secure."
+    )
+
+
+def send_registration_code_email(to_email: str, username: str, verify_code: str) -> bool:
+    """Send a professional 6-digit registration activation code email."""
+    return _send_argo_email(
+        to_email=to_email,
+        subject=f"ArgoLens - Account Registration Code: {verify_code}",
+        headline="Verify Your Email Address",
+        intro_text=f"Welcome to <strong>ArgoLens</strong>, <strong>{username}</strong>! Use the verification code below to confirm your email and activate your account:",
+        code=verify_code,
+        note_text="This registration verification code is valid for <strong>15 minutes</strong>. If you did not create an account on ArgoLens, please ignore this email."
+    )
+
+
+def request_registration_code(username: str, email: str, db_path: Optional[str] = None) -> Dict[str, Any]:
+    """Validate username and email, generate 6-digit code, and send verification email."""
+    try:
+        req = RequestRegCodeModel(username=username, email=email)
+    except Exception as e:
+        return {"error": str(e)}
+
+    path = db_path or str(AUTH_DB_PATH)
+    conn = _connect(path)
+    try:
+        # Check if email is already registered
+        if conn.execute("SELECT 1 FROM users WHERE email = ?", (req.email,)).fetchone():
+            return {"error": "An account with this email already exists. Please sign in or reset your password."}
+
+        # Check if username is already taken
+        if conn.execute("SELECT 1 FROM users WHERE username = ?", (req.username,)).fetchone():
+            return {"error": "This username is already taken. Please choose another username."}
+
+        # Generate 6-digit verification code
+        code = f"{secrets.randbelow(900000) + 100000}"
+        expires_at = (datetime.now(timezone.utc) + timedelta(minutes=15)).isoformat()
+
+        # Invalidate earlier unused pending codes for this email
+        conn.execute("UPDATE pending_registrations SET used = 1 WHERE email = ?", (req.email,))
+
+        # Store pending registration (password_hash is set in Step 3 after code verification)
+        conn.execute(
+            """
+            INSERT INTO pending_registrations (username, email, password_hash, verify_code, expires_at, verified)
+            VALUES (?, ?, NULL, ?, ?, 0)
+            """,
+            (req.username, req.email, code, expires_at)
+        )
+        conn.commit()
+        logger.info("Registration verification code generated for %s (%s)", req.username, req.email)
+
+        # Dispatch verification email via Gmail SMTP
+        email_sent = send_registration_code_email(req.email, req.username, code)
+        if email_sent:
+            return {
+                "ok": True,
+                "message": f"Verification code sent to {req.email}. Please check your inbox.",
+                "email_sent": True
+            }
+
+        # Offline fallback for local standalone / campus network demo
+        return {
+            "ok": True,
+            "message": "Registration verification code generated (offline mode).",
+            "verify_code": code,
+            "email_sent": False
+        }
+    finally:
+        conn.close()
+
+
+def check_registration_code(email: str, code: str, db_path: Optional[str] = None) -> Dict[str, Any]:
+    """Verify that the 6-digit registration code is valid and unexpired."""
+    try:
+        model = CheckRegCodeModel(email=email, code=code)
+    except Exception as e:
+        return {"error": str(e)}
+
+    path = db_path or str(AUTH_DB_PATH)
+    conn = _connect(path)
+    now = datetime.now(timezone.utc).isoformat()
+    try:
+        row = conn.execute(
+            """
+            SELECT id, username FROM pending_registrations
+            WHERE email = ? AND verify_code = ? AND used = 0 AND expires_at >= ?
+            ORDER BY id DESC LIMIT 1
+            """,
+            (model.email, model.code, now)
+        ).fetchone()
+
+        if not row:
+            return {"error": "Invalid or expired verification code. Please check your code or request a new one."}
+
+        reg_id, username = row
+        conn.execute("UPDATE pending_registrations SET verified = 1 WHERE id = ?", (reg_id,))
+        conn.commit()
+        return {
+            "ok": True,
+            "verified": True,
+            "username": username,
+            "message": "Email verified successfully! Now please create your password."
+        }
+    finally:
+        conn.close()
+
+
+def complete_registration(email: str, code: str, password: str, db_path: Optional[str] = None) -> Dict[str, Any]:
+    """Finalize registration by hashing password and creating the account."""
+    try:
+        model = CompleteRegModel(email=email, code=code, password=password)
+    except Exception as e:
+        return {"error": str(e)}
+
+    path = db_path or str(AUTH_DB_PATH)
+    conn = _connect(path)
+    now = datetime.now(timezone.utc).isoformat()
+    try:
+        row = conn.execute(
+            """
+            SELECT id, username FROM pending_registrations
+            WHERE email = ? AND verify_code = ? AND used = 0 AND expires_at >= ?
+            ORDER BY id DESC LIMIT 1
+            """,
+            (model.email, model.code, now)
+        ).fetchone()
+
+        if not row:
+            return {"error": "Verification expired or invalid. Please start registration again."}
+
+        reg_id, username = row
+
+        # Hash password securely with Argon2/PBKDF2
+        pw_hash = _hash_new_password(model.password)
+
+        # Check again if email or username got taken in the meantime
+        if conn.execute("SELECT 1 FROM users WHERE email = ?", (model.email,)).fetchone():
+            return {"error": "An account with this email already exists. Please sign in."}
+        if conn.execute("SELECT 1 FROM users WHERE username = ?", (username,)).fetchone():
+            return {"error": "This username is already taken. Please choose another username."}
+
+        # Insert user into users table
+        conn.execute(
+            "INSERT INTO users (username, email, password_hash, salt) VALUES (?, ?, ?, ?)",
+            (username, model.email, pw_hash, None)
+        )
+        # Mark pending registration as used
+        conn.execute("UPDATE pending_registrations SET used = 1 WHERE id = ?", (reg_id,))
+        conn.commit()
+        logger.info("User successfully registered and verified via email: %s (%s)", username, model.email)
+
+        return {
+            "ok": True,
+            "message": "Account created successfully! Please sign in with your email and password."
+        }
+    finally:
+        conn.close()
+
+
+def verify_registration(email: str, code: str, db_path: Optional[str] = None) -> Dict[str, Any]:
+    """Compatibility alias for verify_registration."""
+    return check_registration_code(email, code, db_path)
+
+
 def request_password_reset(email: str, db_path: Optional[str] = None) -> Dict[str, Any]:
     """Generate a 6-digit secure password reset code valid for 15 minutes."""
     try:
@@ -488,10 +921,22 @@ def request_password_reset(email: str, db_path: Optional[str] = None) -> Dict[st
         )
         conn.commit()
         logger.info("Password reset code generated for user %d", user_id)
+
+        # Attempt real email dispatch via Gmail SMTP
+        email_sent = send_password_reset_email(model.email, code)
+        if email_sent:
+            return {
+                "ok": True,
+                "message": f"Verification code sent to {model.email}. Please check your inbox.",
+                "email_sent": True
+            }
+
+        # Offline fallback for standalone execution / campus network safety
         return {
             "ok": True,
-            "message": "Password reset code generated (valid for 15 minutes).",
-            "reset_code": code  # Directly returned for offline/standalone execution
+            "message": "Password reset code generated (offline fallback mode).",
+            "reset_code": code,
+            "email_sent": False
         }
     finally:
         conn.close()

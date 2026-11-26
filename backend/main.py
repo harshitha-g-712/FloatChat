@@ -68,8 +68,10 @@ from auth import (
     create_or_refresh_share, revoke_share, get_share_status, get_shared_chat,
     get_user_profile, update_user_username, change_user_password, revoke_all_user_sessions,
     request_password_reset, verify_and_reset_password,
+    request_registration_code, check_registration_code, complete_registration, verify_registration,
     RegisterModel, LoginModel, ResetModel, UpdateUsernameModel, ChangePasswordModel,
-    RequestResetModel, ConfirmResetModel
+    RequestResetModel, ConfirmResetModel, VerifyRegisterModel,
+    RequestRegCodeModel, CheckRegCodeModel, CompleteRegModel
 )
 
 # ── Logging Setup (Rotating log in logs/) ──────────────────────────────────────
@@ -651,9 +653,39 @@ def api_register(req: RegisterModel, request: Request):
     result = register_user(req.username, req.email, req.password)
     if "error" in result:
         raise HTTPException(status_code=400, detail=result["error"])
-    # Identical response for a new and an already-registered email (no account enumeration),
-    # so there is no auto-login: the client sends the user to the sign-in form.
     return {"ok": True, "message": "Account request received. Please sign in with your email and password."}
+
+
+@app.post("/api/register/send-code")
+def api_register_send_code(req: RequestRegCodeModel, request: Request):
+    res = request_registration_code(req.username, req.email)
+    if "error" in res:
+        raise HTTPException(status_code=400, detail=res["error"])
+    return res
+
+
+@app.post("/api/register/check-code")
+def api_register_check_code(req: CheckRegCodeModel, request: Request):
+    res = check_registration_code(req.email, req.code)
+    if "error" in res:
+        raise HTTPException(status_code=400, detail=res["error"])
+    return res
+
+
+@app.post("/api/register/complete")
+def api_register_complete(req: CompleteRegModel, request: Request):
+    res = complete_registration(req.email, req.code, req.password)
+    if "error" in res:
+        raise HTTPException(status_code=400, detail=res["error"])
+    return res
+
+
+@app.post("/api/register/verify")
+def api_register_verify(req: VerifyRegisterModel, request: Request):
+    res = verify_registration(req.email, req.code)
+    if "error" in res:
+        raise HTTPException(status_code=400, detail=res["error"])
+    return res
 
 
 @app.post("/api/login")

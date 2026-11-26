@@ -396,6 +396,8 @@ graph TD
     RespFormatter -->|Phonetic Speech Text| WebSpeech
 ```
 
+![Figure 4.1: System Architecture of ArgoLens](figures/fig_4_1_system_architecture.png)
+
 ## 4.3 Data Flow Diagrams (DFDs)
 
 ### 4.3.1 DFD Level 0 (Context Diagram)
@@ -416,6 +418,8 @@ flowchart TD
     ArgoLens -->|"5. Phonetic Speech Synthesis Stream"| AudioSpeaker
     ArgoLens -->|"6. Ingestion Status & Audit Logs"| Admin
 ```
+
+![Figure 4.2: DFD Level 0 – Context Diagram](figures/fig_4_2_dfd_level_0.png)
 
 ### 4.3.2 DFD Level 1 (High-Level Process Decomposition)
 Decomposes the core system into seven interconnected functional processes.
@@ -438,6 +442,8 @@ flowchart TD
     P7 -->|"Interactive Visual Payload"| ClientDisplay["Client Browser Display"]
     P7 -->|"Phonetic Text"| TTSAudio["Speech Synthesis Playback"]
 ```
+
+![Figure 4.3: DFD Level 1 – ArgoLens Functional Modules](figures/fig_4_3_dfd_level_1.png)
 
 ### 4.3.3 DFD Level 2 (Detailed Chat & Thermodynamic Pipeline)
 Illustrates the internal operations of the query execution and thermodynamic calculation pipeline.
@@ -463,6 +469,8 @@ flowchart TD
     BLTCalc --> PlotlyEngine["Generate Multi-Trace Profile / Isopycnal Plotly JSON"]
     PlotlyEngine --> FinalChatResponse["Construct Final ChatResponse Payload"]
 ```
+
+![Figure 4.4: DFD Level 2 – Chat Query Processing](figures/fig_4_4_dfd_level_2.png)
 
 # CHAPTER 5: DETAILED DESIGN
 

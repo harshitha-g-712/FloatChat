@@ -22,6 +22,10 @@ const ENDPOINTS = {
   reset:         `${API_BASE}/api/reset`,
   health:        `${API_BASE}/api/health`,
   register:      `${API_BASE}/api/register`,
+  registerSendCode:  `${API_BASE}/api/register/send-code`,
+  registerCheckCode: `${API_BASE}/api/register/check-code`,
+  registerComplete:  `${API_BASE}/api/register/complete`,
+  registerVerify:    `${API_BASE}/api/register/verify`,
   login:         `${API_BASE}/api/login`,
   logout:        `${API_BASE}/api/logout`,
   me:            `${API_BASE}/api/me`,
@@ -56,8 +60,26 @@ let allFloats = [];
 const authScreen       = document.getElementById("auth-screen");
 const appShell         = document.getElementById("app-shell");
 const loginForm        = document.getElementById("login-form");
-const registerForm     = document.getElementById("register-form");
-const loginError       = document.getElementById("login-error");
+const registerForm            = document.getElementById("register-form");
+const registerStep1           = document.getElementById("register-step-1");
+const registerStep2           = document.getElementById("register-step-2");
+const registerStep3           = document.getElementById("register-step-3");
+const registerUsernameInput   = document.getElementById("register-username");
+const registerEmailInput      = document.getElementById("register-email");
+const registerStep1Error      = document.getElementById("register-step1-error");
+const registerSendCodeBtn     = document.getElementById("register-send-code-btn");
+const registerVerifyCodeInput = document.getElementById("register-verify-code");
+const registerCodeHint        = document.getElementById("register-code-hint");
+const registerStep2Notice     = document.getElementById("register-step2-notice");
+const registerStep2Error      = document.getElementById("register-step2-error");
+const registerCheckCodeBtn    = document.getElementById("register-check-code-btn");
+const registerBackToStep1     = document.getElementById("register-back-to-step1");
+const registerPasswordInput   = document.getElementById("register-password");
+const registerConfirmPasswordInput = document.getElementById("register-confirm-password");
+const registerStep3Notice     = document.getElementById("register-step3-notice");
+const registerStep3Error      = document.getElementById("register-step3-error");
+const registerCompleteBtn     = document.getElementById("register-complete-btn");
+const loginError              = document.getElementById("login-error");
 const registerError    = document.getElementById("register-error");
 const showRegisterLink = document.getElementById("show-register");
 const showLoginLink    = document.getElementById("show-login");
@@ -465,7 +487,9 @@ document.querySelectorAll(".auth-toggle-pw").forEach(btn => {
     if (!input) return;
     const isPw = input.type === "password";
     input.type = isPw ? "text" : "password";
-    btn.textContent = isPw ? "🙈" : "👁️";
+    btn.innerHTML = isPw
+      ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>`
+      : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
     btn.classList.toggle("active", isPw);
   });
 });
@@ -525,16 +549,24 @@ regConfirmPassword?.addEventListener("input", checkPwMatch);
 showRegisterLink?.addEventListener("click", (e) => {
   e.preventDefault();
   loginForm.hidden = true;
+  forgotForm.hidden = true;
   registerForm.hidden = false;
+  if (registerStep1) registerStep1.hidden = false;
+  if (registerStep2) registerStep2.hidden = true;
+  if (registerStep3) registerStep3.hidden = true;
   loginError.hidden = true;
-  registerError.hidden = true;
+  if (registerStep1Error) registerStep1Error.hidden = true;
+  if (registerStep2Error) registerStep2Error.hidden = true;
+  if (registerStep3Error) registerStep3Error.hidden = true;
+  if (registerStep2Notice) registerStep2Notice.hidden = true;
 });
 showLoginLink?.addEventListener("click", (e) => {
   e.preventDefault();
   registerForm.hidden = true;
+  forgotForm.hidden = true;
   loginForm.hidden = false;
   loginError.hidden = true;
-  registerError.hidden = true;
+  if (registerStep1Error) registerStep1Error.hidden = true;
 });
 
 // ── Forgot Password Handlers ──────────────────────────────────────────────────
@@ -586,10 +618,22 @@ forgotSendBtn?.addEventListener("click", async () => {
     // Switch to step 2
     forgotStep1.hidden = true;
     forgotStep2.hidden = false;
-    if (data.reset_code && forgotCodeInput) {
+    const codeHint = document.getElementById("forgot-code-hint");
+    if (data.email_sent) {
+      if (forgotCodeInput) {
+        forgotCodeInput.value = "";
+        forgotCodeInput.placeholder = "Enter 6-digit code from email";
+      }
+      if (codeHint) {
+        codeHint.textContent = `A 6-digit verification code was sent to ${email}. Please check your inbox.`;
+        codeHint.style.color = "#38bdf8";
+      }
+    } else if (data.reset_code && forgotCodeInput) {
       forgotCodeInput.value = data.reset_code;
-      const codeHint = document.getElementById("forgot-code-hint");
-      if (codeHint) codeHint.textContent = `Offline reset code: ${data.reset_code} (auto-filled)`;
+      if (codeHint) {
+        codeHint.textContent = `Offline reset code: ${data.reset_code} (auto-filled)`;
+        codeHint.style.color = "";
+      }
     }
     if (resetNotice) {
       resetNotice.textContent = data.message || "Verification code issued. Enter your code and new password.";
@@ -693,56 +737,219 @@ loginForm?.addEventListener("submit", async (e) => {
   }
 });
 
-registerForm?.addEventListener("submit", async (e) => {
+// ── Progressive 3-Step Registration Handlers ─────────────────────────────────
+registerSendCodeBtn?.addEventListener("click", async () => {
+  if (registerStep1Error) registerStep1Error.hidden = true;
+  const username = registerUsernameInput ? registerUsernameInput.value.trim() : "";
+  const email = registerEmailInput ? registerEmailInput.value.trim() : "";
+
+  if (!username || username.length < 3) {
+    if (registerStep1Error) {
+      registerStep1Error.textContent = "Please enter a username (at least 3 characters).";
+      registerStep1Error.hidden = false;
+    }
+    return;
+  }
+  if (!email || !email.includes("@")) {
+    if (registerStep1Error) {
+      registerStep1Error.textContent = "Please enter a valid email address.";
+      registerStep1Error.hidden = false;
+    }
+    return;
+  }
+
+  const btnText = registerSendCodeBtn.querySelector(".auth-btn-text");
+  const btnLoader = registerSendCodeBtn.querySelector(".auth-btn-loader");
+  if (registerSendCodeBtn) registerSendCodeBtn.disabled = true;
+  if (btnText) btnText.textContent = "Sending code...";
+  if (btnLoader) btnLoader.hidden = false;
+
+  try {
+    const resp = await fetch(ENDPOINTS.registerSendCode, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, email }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      if (registerStep1Error) {
+        registerStep1Error.textContent = apiErrorText(data, "Cannot send code");
+        registerStep1Error.hidden = false;
+      }
+      return;
+    }
+
+    // Advance to Step 2: Verification Code
+    if (registerStep1) registerStep1.hidden = true;
+    if (registerStep2) registerStep2.hidden = false;
+    if (registerStep3) registerStep3.hidden = true;
+
+    if (registerStep2Notice) {
+      registerStep2Notice.textContent = data.message || `Verification code sent to ${email}.`;
+      registerStep2Notice.hidden = false;
+    }
+
+    if (data.email_sent) {
+      if (registerVerifyCodeInput) {
+        registerVerifyCodeInput.value = "";
+        registerVerifyCodeInput.placeholder = "Enter 6-digit code from email";
+      }
+      if (registerCodeHint) {
+        registerCodeHint.textContent = `A 6-digit verification code was sent to ${email}. Check your inbox.`;
+        registerCodeHint.style.color = "#38bdf8";
+      }
+    } else if (data.verify_code && registerVerifyCodeInput) {
+      registerVerifyCodeInput.value = data.verify_code;
+      if (registerCodeHint) {
+        registerCodeHint.textContent = `Offline verification code: ${data.verify_code} (auto-filled)`;
+        registerCodeHint.style.color = "";
+      }
+    }
+  } catch (err) {
+    if (registerStep1Error) {
+      registerStep1Error.textContent = "Cannot reach server. Is the backend running?";
+      registerStep1Error.hidden = false;
+    }
+  } finally {
+    if (registerSendCodeBtn) registerSendCodeBtn.disabled = false;
+    if (btnText) btnText.textContent = "Get Verification Code";
+    if (btnLoader) btnLoader.hidden = true;
+  }
+});
+
+registerBackToStep1?.addEventListener("click", (e) => {
   e.preventDefault();
-  registerError.hidden = true;
-  const username = document.getElementById("register-username").value.trim();
-  const email = document.getElementById("register-email").value.trim();
-  const password = document.getElementById("register-password").value;
-  const confirmPassword = regConfirmPassword ? regConfirmPassword.value : password;
+  if (registerStep2) registerStep2.hidden = true;
+  if (registerStep3) registerStep3.hidden = true;
+  if (registerStep1) registerStep1.hidden = false;
+  if (registerStep1Error) registerStep1Error.hidden = true;
+  if (registerStep2Error) registerStep2Error.hidden = true;
+});
 
+registerCheckCodeBtn?.addEventListener("click", async () => {
+  if (registerStep2Error) registerStep2Error.hidden = true;
+  const email = registerEmailInput ? registerEmailInput.value.trim() : "";
+  const code = registerVerifyCodeInput ? registerVerifyCodeInput.value.trim() : "";
+
+  if (!code) {
+    if (registerStep2Error) {
+      registerStep2Error.textContent = "Please enter the 6-digit verification code.";
+      registerStep2Error.hidden = false;
+    }
+    return;
+  }
+
+  const btnText = registerCheckCodeBtn.querySelector(".auth-btn-text");
+  const btnLoader = registerCheckCodeBtn.querySelector(".auth-btn-loader");
+  if (registerCheckCodeBtn) registerCheckCodeBtn.disabled = true;
+  if (btnText) btnText.textContent = "Verifying code...";
+  if (btnLoader) btnLoader.hidden = false;
+
+  try {
+    const resp = await fetch(ENDPOINTS.registerCheckCode, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      if (registerStep2Error) {
+        registerStep2Error.textContent = apiErrorText(data, "Invalid code");
+        registerStep2Error.hidden = false;
+      }
+      return;
+    }
+
+    // Code is verified! Now reveal Step 3: Password Fields
+    if (registerStep1) registerStep1.hidden = true;
+    if (registerStep2) registerStep2.hidden = true;
+    if (registerStep3) registerStep3.hidden = false;
+
+    if (registerStep3Notice) {
+      registerStep3Notice.textContent = "Email verified! Now choose a strong password to complete registration.";
+      registerStep3Notice.hidden = false;
+    }
+  } catch (err) {
+    if (registerStep2Error) {
+      registerStep2Error.textContent = "Cannot reach server. Please try again.";
+      registerStep2Error.hidden = false;
+    }
+  } finally {
+    if (registerCheckCodeBtn) registerCheckCodeBtn.disabled = false;
+    if (btnText) btnText.textContent = "Verify Code";
+    if (btnLoader) btnLoader.hidden = true;
+  }
+});
+
+registerCompleteBtn?.addEventListener("click", async () => {
+  if (registerStep3Error) registerStep3Error.hidden = true;
+  const email = registerEmailInput ? registerEmailInput.value.trim() : "";
+  const code = registerVerifyCodeInput ? registerVerifyCodeInput.value.trim() : "";
+  const password = registerPasswordInput ? registerPasswordInput.value : "";
+  const confirmPassword = registerConfirmPasswordInput ? registerConfirmPasswordInput.value : "";
+
+  if (!password || password.length < 10) {
+    if (registerStep3Error) {
+      registerStep3Error.textContent = "Password must be at least 10 characters long.";
+      registerStep3Error.hidden = false;
+    }
+    return;
+  }
   if (password !== confirmPassword) {
-    registerError.textContent = "Passwords do not match. Please verify and try again.";
-    registerError.hidden = false;
-    return;
-  }
-  if (password.length < 10) {
-    registerError.textContent = "Password must be at least 10 characters long.";
-    registerError.hidden = false;
+    if (registerStep3Error) {
+      registerStep3Error.textContent = "Passwords do not match. Please verify.";
+      registerStep3Error.hidden = false;
+    }
     return;
   }
 
-  const btn = document.getElementById("register-submit-btn");
-  const btnText = btn?.querySelector(".auth-btn-text");
-  const btnLoader = btn?.querySelector(".auth-btn-loader");
-
-  if (btn) btn.disabled = true;
+  const btnText = registerCompleteBtn.querySelector(".auth-btn-text");
+  const btnLoader = registerCompleteBtn.querySelector(".auth-btn-loader");
+  if (registerCompleteBtn) registerCompleteBtn.disabled = true;
   if (btnText) btnText.textContent = "Creating account...";
   if (btnLoader) btnLoader.hidden = false;
 
   try {
-    const resp = await fetch(ENDPOINTS.register, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, email, password }),
+    const resp = await fetch(ENDPOINTS.registerComplete, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code, password }),
     });
     const data = await resp.json();
-    if (!resp.ok) { registerError.textContent = apiErrorText(data, "Registration failed"); registerError.hidden = false; return; }
-    // The server gives the same answer whether or not the email already had an account, so we
-    // cannot sign the user in here: send them to the sign-in form instead.
+    if (!resp.ok) {
+      if (registerStep3Error) {
+        registerStep3Error.textContent = apiErrorText(data, "Registration failed");
+        registerStep3Error.hidden = false;
+      }
+      return;
+    }
+
+    // Registration succeeded! Reset and switch to login
     registerForm.reset();
     if (pwStrengthContainer) pwStrengthContainer.hidden = true;
     if (pwMatchHint) pwMatchHint.hidden = true;
+    if (registerStep1) registerStep1.hidden = false;
+    if (registerStep2) registerStep2.hidden = true;
+    if (registerStep3) registerStep3.hidden = true;
     registerForm.hidden = true;
     loginForm.hidden = false;
-    document.getElementById("login-email").value = email.trim().toLowerCase();
+
+    if (document.getElementById("login-email")) {
+      document.getElementById("login-email").value = email.toLowerCase();
+    }
     const notice = document.getElementById("login-notice");
-    if (notice) { notice.textContent = (data && data.message) || "Account request received. Please sign in."; notice.hidden = false; }
+    if (notice) {
+      notice.textContent = data.message || "Account created successfully! Please sign in.";
+      notice.hidden = false;
+    }
   } catch (err) {
-    registerError.textContent = "Cannot reach server. Is backend running?";
-    registerError.hidden = false;
+    if (registerStep3Error) {
+      registerStep3Error.textContent = "Cannot reach server. Please try again.";
+      registerStep3Error.hidden = false;
+    }
   } finally {
-    if (btn) btn.disabled = false;
-    if (btnText) btnText.textContent = "Create Account";
+    if (registerCompleteBtn) registerCompleteBtn.disabled = false;
+    if (btnText) btnText.textContent = "Complete Registration";
     if (btnLoader) btnLoader.hidden = true;
   }
 });
@@ -874,7 +1081,7 @@ profileChangePwBtn?.addEventListener("click", async () => {
     if (profilePwError) { profilePwError.textContent = "Network error. Please try again."; profilePwError.hidden = false; }
   } finally {
     profileChangePwBtn.disabled = false;
-    profileChangePwBtn.textContent = "🔑 Update Password";
+    profileChangePwBtn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg> Update Password`;
   }
 });
 
@@ -1015,7 +1222,7 @@ function renderFloatsTable(floats) {
         <td>${f.avg_max_depth ? f.avg_max_depth.toFixed(1) + " dbar" : "—"}</td>
         <td>
           <button class="view-float-btn" data-platform="${escapeHtml(f.platform)}">Explore</button>
-          <button class="action-btn sim-float-table-btn" data-platform="${escapeHtml(f.platform)}" style="margin-left: 4px; padding: 3px 8px; font-size: 11px;" title="Open in 4D Dive Simulator">🤿 Sim</button>
+          <button class="action-btn sim-float-table-btn" data-platform="${escapeHtml(f.platform)}" style="margin-left: 4px; padding: 3px 8px; font-size: 11px;" title="Open in 4D Dive Simulator">Sim</button>
         </td>
       </tr>
     `;
@@ -1092,7 +1299,7 @@ async function openFloatDetail(platform) {
       <div class="modal-stat-card"><span class="lbl">Active Period</span><span class="val">${d1} – ${d2}</span></div>
       <div class="modal-stat-card"><span class="lbl">Last Position</span><span class="val">${lastPos}</span></div>
       <div class="modal-stat-card"><span class="lbl">Avg Max Depth</span><span class="val">${s.avg_max_depth != null ? escapeHtml(s.avg_max_depth) : "—"}${s.avg_max_depth != null ? " dbar" : ""}</span></div>
-      <div class="modal-stat-card" style="cursor: pointer; background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4);" id="modal-launch-sim-btn"><span class="lbl">🤿 4D Dive Simulator</span><span class="val" style="font-size: 13px; color: #38bdf8;">Launch Mission ➔</span></div>
+      <div class="modal-stat-card" style="cursor: pointer; background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4);" id="modal-launch-sim-btn"><span class="lbl">4D Dive Simulator</span><span class="val" style="font-size: 13px; color: #38bdf8;">Launch Mission ➔</span></div>
     `;
 
     document.getElementById("modal-launch-sim-btn")?.addEventListener("click", () => {
@@ -1782,10 +1989,10 @@ function renderBotText(text) {
 
 // ── Technology badge rendering ──────────────────────────────────────────────
 const TECH_BADGE_MAP = {
-  "GenAI/LLM":          { icon: "🤖", label: "LLM",  cssClass: "tech-llm" },
-  "NLP":                 { icon: "🔍", label: "NLP",  cssClass: "tech-nlp" },
-  "RAG":                 { icon: "📚", label: "RAG",  cssClass: "tech-rag" },
-  "Data Visualization":  { icon: "📊", label: "Viz",  cssClass: "tech-viz" },
+  "GenAI/LLM":          { label: "LLM",  cssClass: "tech-llm" },
+  "NLP":                 { label: "NLP",  cssClass: "tech-nlp" },
+  "RAG":                 { label: "RAG",  cssClass: "tech-rag" },
+  "Data Visualization":  { label: "Viz",  cssClass: "tech-viz" },
 };
 
 /**
@@ -1798,7 +2005,7 @@ function renderTechBadges(techList) {
   const badges = techList.map(t => {
     const info = TECH_BADGE_MAP[t];
     if (!info) return `<span class="tech-badge" title="${escapeHtml(t)}">${escapeHtml(t)}</span>`;
-    return `<span class="tech-badge ${info.cssClass}" title="${escapeHtml(t)}">${info.icon} ${info.label}</span>`;
+    return `<span class="tech-badge ${info.cssClass}" title="${escapeHtml(t)}">${info.label}</span>`;
   }).join("");
   return `<div class="tech-badges">${badges}</div>`;
 }
@@ -1812,10 +2019,10 @@ function isKnowledgeAnswer(data) {
 // ("llm" | "rules"). If the field is missing we show nothing rather than guess.
 function parserBadgeHtml(parserUsed) {
   if (parserUsed === "llm") {
-    return `<span class="answer-badge parser-ai" title="The question was interpreted by the AI model">🧠 Understood by AI</span>`;
+    return `<span class="answer-badge parser-ai" title="The question was interpreted by the AI model">Understood by AI</span>`;
   }
   if (parserUsed === "rules") {
-    return `<span class="answer-badge parser-rules" title="The question was interpreted by the built-in rule parser">📐 Understood by rules</span>`;
+    return `<span class="answer-badge parser-rules" title="The question was interpreted by the built-in rule parser">Understood by rules</span>`;
   }
   return "";
 }
@@ -1830,7 +2037,7 @@ function stripSourcesFooter(answer, sources) {
 
 function sourcesPanelHtml(sources) {
   if (!sources || !sources.length) return "";
-  const items = sources.map(s => `<li class="source-item">📖 ${escapeHtml(s)}</li>`).join("");
+  const items = sources.map(s => `<li class="source-item">${escapeHtml(s)}</li>`).join("");
   return `
     <details class="sources-panel">
       <summary class="sources-toggle">
@@ -1902,12 +2109,12 @@ function renderBot(data, originalQuestion) {
     if (floatMatch) simFloatId = floatMatch[1];
   }
   const simBtnHtml = simFloatId
-    ? `<button class="action-btn sim-float-btn" data-float="${escapeHtml(simFloatId)}" title="Launch 4D Mission Simulator for Float ${escapeHtml(simFloatId)}">🤿 Dive Sim: ${escapeHtml(simFloatId)}</button>`
-    : `<button class="action-btn sim-float-btn" title="Open ARGO 4D Mission Simulator">🤿 Dive Sim</button>`;
+    ? `<button class="action-btn sim-float-btn" data-float="${escapeHtml(simFloatId)}" title="Launch 4D Mission Simulator for Float ${escapeHtml(simFloatId)}">Dive Sim: ${escapeHtml(simFloatId)}</button>`
+    : `<button class="action-btn sim-float-btn" title="Open ARGO 4D Mission Simulator">Dive Sim</button>`;
 
   const actionBtns = `
     <div class="bubble-actions">
-      <button class="action-btn copy-btn" title="Copy answer">&#x1f4cb; Copy</button>
+      <button class="action-btn copy-btn" title="Copy answer">Copy</button>
       ${speakBtnHtml}
       ${simBtnHtml}
       ${imageBtnHtml}
@@ -2344,9 +2551,9 @@ if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
 
         if (!lastRecognizedText && voiceStatusText) {
           if (pct < 3) {
-            voiceStatusText.textContent = "🎙️ Listening... (Waiting for voice - speak into your mic)";
+            voiceStatusText.textContent = "Listening... (Waiting for voice - speak into your mic)";
           } else {
-            voiceStatusText.textContent = `🎙️ Detecting sound (${pct}% volume)... Speak your question!`;
+            voiceStatusText.textContent = `Detecting sound (${pct}% volume)... Speak your question!`;
           }
         }
         audioMeterAnim = requestAnimationFrame(updateMeter);
@@ -2393,7 +2600,7 @@ if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
     voiceSubmitted = false;
     micBtn.classList.add("recording");
     if (voiceVisualizer) voiceVisualizer.hidden = false;
-    setVoiceStatus("🎙️ Listening... Speak your ocean question clearly now");
+    setVoiceStatus("Listening... Speak your ocean question clearly now");
     startAudioMeter();
   };
 
@@ -2514,7 +2721,7 @@ if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
     if (questionInput) questionInput.value = normalized;
     wasAskedViaMic = true; // Automatically speaks answer upon arrival via TTS
 
-    showStatus(`🎙️ Spoken input: "${sample}" → Normalized to "${normalized}". Submitting...`);
+    showStatus(`Spoken input: "${sample}" → Normalized to "${normalized}". Submitting...`);
     setTimeout(() => {
       clearStatus();
       askForm?.dispatchEvent(new Event("submit"));
@@ -2653,10 +2860,10 @@ healthBtn?.addEventListener("click", async () => {
     <hr style="border-color: rgba(255,255,255,0.1); margin: 10px 0;">
     <p><strong>Active Technologies:</strong></p>
     <div class="tech-badges" style="margin-top: 6px;">
-      <span class="tech-badge tech-nlp" title="NLP">🔍 NLP</span>
-      ${data.gemini_ready ? '<span class="tech-badge tech-llm" title="GenAI/LLM">🤖 LLM</span>' : ''}
-      <span class="tech-badge tech-rag" title="RAG">📚 RAG</span>
-      <span class="tech-badge tech-viz" title="Data Visualization">📊 Viz</span>
+      <span class="tech-badge tech-nlp" title="NLP">NLP</span>
+      ${data.gemini_ready ? '<span class="tech-badge tech-llm" title="GenAI/LLM">LLM</span>' : ''}
+      <span class="tech-badge tech-rag" title="RAG">RAG</span>
+      <span class="tech-badge tech-viz" title="Data Visualization">Viz</span>
     </div>
   `;
 });
@@ -3081,13 +3288,13 @@ function updateSimulatorHud(depth) {
   if (simZoneTag) {
     if (depth < 200) {
       simZoneTag.className = "zone-badge epipelagic";
-      simZoneTag.textContent = "☀️ Sunlight Zone (0–200m)";
+      simZoneTag.textContent = "Sunlight Zone (0–200m)";
     } else if (depth < 1000) {
       simZoneTag.className = "zone-badge mesopelagic";
-      simZoneTag.textContent = "🌒 Twilight Zone (200–1000m)";
+      simZoneTag.textContent = "Twilight Zone (200–1000m)";
     } else {
       simZoneTag.className = "zone-badge bathypelagic";
-      simZoneTag.textContent = "🌌 Midnight Abyss (1000–2000m)";
+      simZoneTag.textContent = "Midnight Abyss (1000–2000m)";
     }
   }
 
@@ -3096,19 +3303,19 @@ function updateSimulatorHud(depth) {
     let phaseText = "";
     let phaseClass = "phase-surface";
     if (simMissionPhase === 1) {
-      phaseText = "📡 Phase 1: Surface GPS & Telemetry (0 dbar)";
+      phaseText = "Phase 1: Surface GPS & Telemetry (0 dbar)";
       phaseClass = "phase-surface";
     } else if (simMissionPhase === 2) {
-      phaseText = `⬇️ Phase 2: Descent to Parking Depth (${Math.round(depth)} dbar)`;
+      phaseText = `Phase 2: Descent to Parking Depth (${Math.round(depth)} dbar)`;
       phaseClass = "phase-descent";
     } else if (simMissionPhase === 3) {
-      phaseText = `🌊 Phase 3: Isobaric Drift (1000 dbar Parking, Day 1–9)`;
+      phaseText = `Phase 3: Isobaric Drift (1000 dbar Parking, Day 1–9)`;
       phaseClass = "phase-drift";
     } else if (simMissionPhase === 4) {
-      phaseText = `⚓ Phase 4: Abyssal Dive to Profiling Depth (${Math.round(depth)} dbar)`;
+      phaseText = `Phase 4: Abyssal Dive to Profiling Depth (${Math.round(depth)} dbar)`;
       phaseClass = "phase-dive";
     } else if (simMissionPhase === 5) {
-      phaseText = `🔬 Phase 5: Scientific Profiling Ascent (${Math.round(depth)} dbar, CTD sampling)`;
+      phaseText = `Phase 5: Scientific Profiling Ascent (${Math.round(depth)} dbar, CTD sampling)`;
       phaseClass = "phase-ascent";
     }
     simPhaseBadge.className = `sim-phase-pill ${phaseClass}`;
@@ -3312,7 +3519,7 @@ function renderOceanFrame() {
 
     ctx.fillStyle = "#c084fc";
     ctx.font = "10px monospace";
-    ctx.fillText(`🔊 SOFAR Channel Axis (${simProfileData.sofar_depth} dbar)`, w - 195, sofarY - 6);
+    ctx.fillText(`SOFAR Channel Axis (${simProfileData.sofar_depth} dbar)`, w - 180, sofarY - 6);
     ctx.restore();
 
     // Trigger acoustic sound rings in SOFAR channel
@@ -3801,8 +4008,8 @@ function showMapFloatCard(pt) {
       <span class="map-card-val">${pt.max_depth !== null ? pt.max_depth.toFixed(0) + ' dbar' : 'N/A'}</span>
     </div>
     <div class="map-card-actions">
-      <button class="map-card-btn primary" id="map-inspect-dive-btn">🤿 Dive Profile</button>
-      <button class="map-card-btn" id="map-ask-chat-btn">💬 Ask in Chat</button>
+      <button class="map-card-btn primary" id="map-inspect-dive-btn">Dive Profile</button>
+      <button class="map-card-btn" id="map-ask-chat-btn">Ask in Chat</button>
     </div>
   `;
 
