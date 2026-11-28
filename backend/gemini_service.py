@@ -29,18 +29,40 @@ _CLIENT = None
 _MODEL_NAME: str = GEMINI_MODEL or "gemini-2.5-flash"
 _BLOCKED_UNTIL: float = 0.0
 
-MAX_RETRIES = 2
-BASE_BACKOFF_SECONDS = 1.0
+MAX_RETRIES = 1
+BASE_BACKOFF_SECONDS = 0.5
+
+
+# ── Runtime AI mode override (set via /api/settings/ai-mode) ─────────────────
+# None = use .env/config default; True = forced ON; False = forced OFF
+_RUNTIME_GEMINI_OVERRIDE: Optional[bool] = None
+
+
+def set_runtime_gemini_override(enabled: Optional[bool]) -> None:
+    """Set a runtime override for Gemini mode without changing .env."""
+    global _RUNTIME_GEMINI_OVERRIDE
+    _RUNTIME_GEMINI_OVERRIDE = enabled
+
+
+def get_runtime_gemini_override() -> Optional[bool]:
+    """Return the current runtime override (None means use .env default)."""
+    return _RUNTIME_GEMINI_OVERRIDE
 
 
 def is_gemini_available() -> bool:
     """Check if Gemini client is initialized and not currently cooling down from a quota limit."""
-    env_val = os.environ.get("USE_GEMINI")
-    if env_val is not None:
-        if env_val.strip().lower() not in ("true", "1", "yes"):
+    # Runtime override takes priority over .env
+    if _RUNTIME_GEMINI_OVERRIDE is not None:
+        if not _RUNTIME_GEMINI_OVERRIDE:
             return False
-    elif not USE_GEMINI:
-        return False
+        # Override is True — still need API key and client
+    else:
+        env_val = os.environ.get("USE_GEMINI")
+        if env_val is not None:
+            if env_val.strip().lower() not in ("true", "1", "yes"):
+                return False
+        elif not USE_GEMINI:
+            return False
     if not os.environ.get("GEMINI_API_KEY", "").strip():
         return False
     if _CLIENT is None:
@@ -61,8 +83,11 @@ def init_gemini() -> bool:
 
     try:
         from google import genai
-        model_name = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash").strip()
-        _CLIENT = genai.Client(api_key=key)
+        model_name = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash").strip()
+        # Fallback to gemini-3.8-flash if legacy retired model was set
+        if model_name in ("gemini-2.0-flash", "gemini-2.5-flash", "gemini-1.5-flash"):
+            model_name = "gemini-3.8-flash"
+        _CLIENT = genai.Client(api_key=key, http_options={"timeout": 15000})
         _MODEL_NAME = model_name
         logger.info("Gemini client initialized successfully (model=%s)", model_name)
         return True
@@ -247,7 +272,11 @@ Instructions:
 
 def generate_explanation(question: str, db_result: Dict[str, Any]) -> Optional[str]:
     """Generate plain-English summary of verified numbers using Gemini if enabled."""
-    use_llm_exp = os.environ.get("USE_LLM_EXPLANATION", "false").strip().lower() == "true" or USE_LLM_EXPLANATION
+    use_llm_exp = (
+        (_RUNTIME_GEMINI_OVERRIDE is True)
+        or (os.environ.get("USE_LLM_EXPLANATION", "false").strip().lower() == "true")
+        or USE_LLM_EXPLANATION
+    )
     if not is_gemini_available() or not use_llm_exp:
         return None
 

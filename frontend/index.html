@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ArgoLens — Deterministic Natural Language Retrieval &amp; Seawater Density Profiling for ARGO Float Networks</title>
-  <meta name="description" content="ArgoLens: Deterministic Natural Language Retrieval &amp; Seawater Density Profiling for ARGO Float Networks (Bay of Bengal)." />
+  <title>ArgoLens — Deterministic Natural Language Retrieval &amp; Seawater Density Profiling for ARGO Float Networks
+  </title>
+  <meta name="description"
+    content="ArgoLens: Deterministic Natural Language Retrieval &amp; Seawater Density Profiling for ARGO Float Networks (Bay of Bengal)." />
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
 
   <!-- Plotly.js for interactive charts -->
   <script>
@@ -23,1076 +28,1445 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <link rel="icon" type="image/svg+xml" href="argo-logo.svg?v=3" />
-  <link rel="stylesheet" href="style.css?v=7.0" />
+  <link rel="stylesheet" href="style.css?v=9.0" />
 </head>
+
 <body>
 
-<!-- ── Auth Screen (Login / Register) ──────────────────────────────────────── -->
-<div class="auth-screen" id="auth-screen">
-  <!-- Animated ocean particles background -->
-  <div class="auth-particles" aria-hidden="true">
-    <div class="auth-particle"></div>
-    <div class="auth-particle"></div>
-    <div class="auth-particle"></div>
-    <div class="auth-particle"></div>
-    <div class="auth-particle"></div>
-    <div class="auth-particle"></div>
+  <!-- ── Auth Screen (Login / Register) ──────────────────────────────────────── -->
+  <div class="auth-screen" id="auth-screen">
+    <!-- Animated ocean particles background -->
+    <div class="auth-particles" aria-hidden="true">
+      <div class="auth-particle"></div>
+      <div class="auth-particle"></div>
+      <div class="auth-particle"></div>
+      <div class="auth-particle"></div>
+      <div class="auth-particle"></div>
+      <div class="auth-particle"></div>
+    </div>
+
+    <div class="auth-container">
+      <!-- Left decorative panel (visible on wider screens) -->
+      <div class="auth-hero">
+        <div class="auth-hero-content">
+          <img src="argo-logo.svg" alt="ArgoLens Logo" class="auth-hero-logo" />
+          <h2>Explore the Ocean</h2>
+          <p>Query ARGO float data in natural language. Visualize temperature, salinity, and density profiles across the
+            Bay of Bengal.</p>
+          <div class="auth-hero-badge">
+            <img src="argo-logo.svg" alt="" style="width: 16px; height: 16px; border-radius: 50%;" />
+            <span>Bay of Bengal Oceanographic Array</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right form panel -->
+      <div class="auth-form-panel">
+        <div class="auth-brand">
+          <img src="argo-logo.svg" alt="ArgoLens Logo" class="auth-logo-img" />
+          <h1 class="auth-title">ArgoLens</h1>
+          <p class="auth-subtitle">Natural Language Ocean Data Retrieval</p>
+        </div>
+
+        <!-- Login Form -->
+        <form class="auth-form" id="login-form">
+          <h2>Welcome back</h2>
+          <p class="auth-form-desc">Sign in to access your ocean data queries and saved conversations.</p>
+          <div class="auth-field">
+            <label for="login-email">Email</label>
+            <div class="auth-input-wrap">
+              <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="20" height="16" x="2" y="4" rx="2" />
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                </svg></span>
+              <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email" />
+            </div>
+          </div>
+          <div class="auth-field">
+            <label for="login-password">Password</label>
+            <div class="auth-input-wrap">
+              <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg></span>
+              <input type="password" id="login-password" placeholder="Your password" required
+                autocomplete="current-password" />
+              <button type="button" class="auth-toggle-pw" data-target="login-password"
+                aria-label="Toggle password visibility"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg></button>
+            </div>
+          </div>
+          <div id="login-notice" class="auth-notice" role="status" hidden></div>
+          <div id="login-error" class="auth-error" hidden></div>
+          <button type="submit" class="auth-submit-btn" id="login-submit-btn">
+            <span class="auth-btn-text">Sign In</span>
+            <span class="auth-btn-loader" hidden></span>
+          </button>
+          <p class="auth-switch">Don't have an account? <a href="#" id="show-register">Create one</a></p>
+          <p class="auth-switch auth-switch-sm"><a href="#" id="show-forgot">Forgot your password?</a></p>
+        </form>
+
+        <!-- Forgot Password Form -->
+        <form class="auth-form" id="forgot-form" hidden>
+          <h2>Reset Password</h2>
+          <p class="auth-form-desc">Request a 15-minute verification code to recover your account.</p>
+
+          <div id="forgot-step-1">
+            <div class="auth-field">
+              <label for="forgot-email">Account Email</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="20" height="16" x="2" y="4" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                  </svg></span>
+                <input type="email" id="forgot-email" placeholder="you@example.com" required autocomplete="email" />
+              </div>
+            </div>
+            <div id="forgot-notice" class="auth-notice" hidden></div>
+            <div id="forgot-error" class="auth-error" hidden></div>
+            <button type="button" class="auth-submit-btn" id="forgot-send-btn">
+              <span class="auth-btn-text">Get Verification Code</span>
+              <span class="auth-btn-loader" hidden></span>
+            </button>
+          </div>
+
+          <div id="forgot-step-2" hidden>
+            <div class="auth-field">
+              <label for="forgot-code">Verification Code</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="7.5" cy="15.5" r="5.5" />
+                    <path d="m21 2-9.6 9.6" />
+                    <path d="m15.5 7.5 3 3L22 7l-3-3" />
+                  </svg></span>
+                <input type="text" id="forgot-code" placeholder="e.g. 593812" maxlength="16" />
+              </div>
+              <span class="auth-field-hint" id="forgot-code-hint">Check your email for the 6-digit code</span>
+            </div>
+            <div class="auth-field">
+              <label for="forgot-new-password">New Password</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg></span>
+                <input type="password" id="forgot-new-password" placeholder="New password (min 10 chars)" minlength="10"
+                  maxlength="128" autocomplete="new-password" />
+                <button type="button" class="auth-toggle-pw" data-target="forgot-new-password"
+                  aria-label="Toggle password visibility"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg></button>
+              </div>
+            </div>
+            <div id="reset-notice" class="auth-notice" hidden></div>
+            <div id="reset-error" class="auth-error" hidden></div>
+            <button type="button" class="auth-submit-btn" id="forgot-reset-btn">
+              <span class="auth-btn-text">Reset Password</span>
+              <span class="auth-btn-loader" hidden></span>
+            </button>
+          </div>
+
+          <p class="auth-switch"><a href="#" id="forgot-back-to-login">← Back to Sign In</a></p>
+        </form>
+
+        <!-- Register Form -->
+        <form class="auth-form" id="register-form" hidden>
+          <h2>Create account</h2>
+          <p class="auth-form-desc">Join ArgoLens to explore ARGO float data with natural language.</p>
+
+          <!-- Step 1: Username & Email -->
+          <div id="register-step-1">
+            <div class="auth-field">
+              <label for="register-username">Username</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg></span>
+                <input type="text" id="register-username" placeholder="Choose a username" required minlength="3"
+                  maxlength="50" pattern="[A-Za-z0-9_\-]+"
+                  title="Letters, numbers, hyphens and underscores only (no spaces or dots)" autocomplete="username" />
+              </div>
+              <span class="auth-field-hint">Letters, numbers, hyphens and underscores only</span>
+            </div>
+            <div class="auth-field">
+              <label for="register-email">Email</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="20" height="16" x="2" y="4" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                  </svg></span>
+                <input type="email" id="register-email" placeholder="you@example.com" required autocomplete="email" />
+              </div>
+            </div>
+            <div id="register-step1-error" class="auth-error" hidden></div>
+            <button type="button" class="auth-submit-btn" id="register-send-code-btn">
+              <span class="auth-btn-text">Get Verification Code</span>
+              <span class="auth-btn-loader" hidden></span>
+            </button>
+          </div>
+
+          <!-- Step 2: Verification Code -->
+          <div id="register-step-2" hidden>
+            <div class="auth-field">
+              <label for="register-verify-code">Verification Code</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="7.5" cy="15.5" r="5.5" />
+                    <path d="m21 2-9.6 9.6" />
+                    <path d="m15.5 7.5 3 3L22 7l-3-3" />
+                  </svg></span>
+                <input type="text" id="register-verify-code" placeholder="Enter 6-digit code from email"
+                  maxlength="16" />
+              </div>
+              <span class="auth-field-hint" id="register-code-hint">Check your email for the 6-digit verification
+                code</span>
+            </div>
+            <div id="register-step2-notice" class="auth-notice" hidden></div>
+            <div id="register-step2-error" class="auth-error" hidden></div>
+            <button type="button" class="auth-submit-btn" id="register-check-code-btn">
+              <span class="auth-btn-text">Verify Code</span>
+              <span class="auth-btn-loader" hidden></span>
+            </button>
+            <p class="auth-switch auth-switch-sm"><a href="#" id="register-back-to-step1">← Change username or email</a>
+            </p>
+          </div>
+
+          <!-- Step 3: Password & Confirm Password (shown after code is verified) -->
+          <div id="register-step-3" hidden>
+            <div id="register-step3-notice" class="auth-notice">
+              Email verified! Now set a strong password to complete your registration.
+            </div>
+            <div class="auth-field">
+              <label for="register-password">Password</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg></span>
+                <input type="password" id="register-password" placeholder="Create a strong password (min 10 chars)"
+                  required minlength="10" maxlength="128" autocomplete="new-password" />
+                <button type="button" class="auth-toggle-pw" data-target="register-password"
+                  aria-label="Toggle password visibility"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg></button>
+              </div>
+              <div class="password-strength" id="password-strength" hidden>
+                <div class="password-strength-bar">
+                  <div class="password-strength-fill" id="password-strength-fill"></div>
+                </div>
+                <span class="password-strength-text" id="password-strength-text"></span>
+              </div>
+              <span class="auth-field-hint">Minimum 10 characters</span>
+            </div>
+            <div class="auth-field">
+              <label for="register-confirm-password">Confirm Password</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg></span>
+                <input type="password" id="register-confirm-password" placeholder="Confirm your password" required
+                  minlength="10" maxlength="128" autocomplete="new-password" />
+              </div>
+              <span class="auth-field-hint auth-pw-match" id="pw-match-hint" hidden></span>
+            </div>
+            <div id="register-step3-error" class="auth-error" hidden></div>
+            <button type="button" class="auth-submit-btn" id="register-complete-btn">
+              <span class="auth-btn-text">Complete Registration</span>
+              <span class="auth-btn-loader" hidden></span>
+            </button>
+          </div>
+
+          <p class="auth-switch">Already have an account? <a href="#" id="show-login">Sign in</a></p>
+        </form>
+      </div>
+    </div>
   </div>
 
-  <div class="auth-container">
-    <!-- Left decorative panel (visible on wider screens) -->
-    <div class="auth-hero">
-      <div class="auth-hero-content">
-        <img src="argo-logo.svg" alt="ArgoLens Logo" class="auth-hero-logo" />
-        <h2>Explore the Ocean</h2>
-        <p>Query ARGO float data in natural language. Visualize temperature, salinity, and density profiles across the Bay of Bengal.</p>
-        <div class="auth-hero-badge">
-          <img src="argo-logo.svg" alt="" style="width: 16px; height: 16px; border-radius: 50%;" />
-          <span>Bay of Bengal Oceanographic Array</span>
+  <!-- ── Main App ────────────────────────────────────────────────────────────── -->
+  <div class="app-shell" id="app-shell" hidden>
+
+    <!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-wrap">
+          <img src="argo-logo.svg" alt="ArgoLens Logo" class="logo-img" />
+          <span class="logo-text">ArgoLens</span>
+        </div>
+        <button id="user-menu-btn" class="user-avatar-btn" title="Account menu">
+          <span id="user-initial">U</span>
+        </button>
+      </div>
+
+      <!-- User dropdown -->
+      <div class="user-dropdown" id="user-dropdown" hidden>
+        <div class="user-dropdown-info">
+          <div class="user-dropdown-avatar" id="dropdown-avatar">U</div>
+          <div class="user-dropdown-details">
+            <strong id="dropdown-username">User</strong>
+            <small id="dropdown-email">user@email.com</small>
+          </div>
+        </div>
+        <div class="user-dropdown-divider"></div>
+        <button id="profile-btn" class="user-dropdown-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg> My Profile
+        </button>
+        <button id="logout-btn" class="user-dropdown-btn user-dropdown-btn-danger">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="21" x2="9" y1="12" y2="12" />
+          </svg> Sign Out
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button id="new-chat-btn" class="sidebar-btn primary-btn" aria-label="New conversation">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" style="margin-right: 7px;">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg> New Chat
+        </button>
+
+        <!-- View Switcher Tabs in Sidebar (Executive Navigation Module Rail) -->
+        <div class="sidebar-nav-modules">
+          <button id="tab-chat-btn" class="view-tab nav-module-item active" aria-label="Open Chat Assistant">
+            <div class="nav-module-icon-box nav-icon-cyan">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            </div>
+            <div class="nav-module-content">
+              <div class="nav-module-header">
+                <span class="nav-module-title"> Ocean Chat</span>
+                <span class="nav-module-pill pill-cyan">LLM</span>
+              </div>
+              <span class="nav-module-desc">Natural language ocean queries</span>
+            </div>
+          </button>
+
+          <button id="tab-map-btn" class="view-tab nav-module-item" aria-label="Open Geospatial Ocean Map">
+            <div class="nav-module-icon-box nav-icon-emerald">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+                <line x1="8" y1="2" x2="8" y2="18" />
+                <line x1="16" y1="6" x2="16" y2="22" />
+              </svg>
+            </div>
+            <div class="nav-module-content">
+              <div class="nav-module-header">
+                <span class="nav-module-title">Geospatial GIS</span>
+                <span class="nav-module-pill pill-emerald">Map</span>
+              </div>
+              <span class="nav-module-desc">Live trajectories &amp; positions</span>
+            </div>
+          </button>
+
+          <button id="tab-discover-btn" class="view-tab nav-module-item" aria-label="Open Float Discovery Catalog">
+            <div class="nav-module-icon-box nav-icon-purple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+              </svg>
+            </div>
+            <div class="nav-module-content">
+              <div class="nav-module-header">
+                <span class="nav-module-title">Float Discovery</span>
+                <span class="nav-module-pill pill-purple">Data</span>
+              </div>
+              <span class="nav-module-desc">Catalog &amp; profile archives</span>
+            </div>
+          </button>
+
+          <button id="tab-simulator-btn" class="view-tab nav-module-item" aria-label="Open Sonar and 4D Dive Simulator">
+            <div class="nav-module-icon-box nav-icon-amber">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12h5l2 8 5-16 2 8h6" />
+              </svg>
+            </div>
+            <div class="nav-module-content">
+              <div class="nav-module-header">
+                <span class="nav-module-title">Sonar &amp; 4D Dive</span>
+                <span class="nav-module-pill pill-amber">Sim</span>
+              </div>
+              <span class="nav-module-desc">Acoustic SOFAR &amp; dive physics</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Search bar -->
+        <div class="search-wrap">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input type="text" id="search-input" class="search-input" placeholder="Search conversations..."
+            name="not_an_email_search_field" autocomplete="off" autocorrect="off" autocapitalize="off"
+            spellcheck="false" readonly onfocus="this.removeAttribute('readonly');" data-lpignore="true"
+            data-1p-ignore="true" />
+          <button type="button" id="search-clear-btn" class="search-clear-btn" title="Clear search"
+            aria-label="Clear search" hidden>×</button>
+        </div>
+
+        <!-- Conversation history -->
+        <div class="nav-section-label">Recent Conversations</div>
+        <div class="conv-filter-row" id="conv-filter-row">
+          <button type="button" class="conv-filter-pill active" data-filter="all">All</button>
+          <button type="button" class="conv-filter-pill" data-filter="latest">Latest</button>
+          <button type="button" class="conv-filter-pill" data-filter="old">Old</button>
+        </div>
+        <div class="conversation-list" id="conversation-list">
+          <div class="conv-empty" id="conv-empty">No conversations yet</div>
+        </div>
+
+        <!-- Example questions: Data / Knowledge / Discovery -->
+        <div class="nav-section-label">
+          <span class="section-dot dot-cyan"></span> Data Queries
+        </div>
+        <div class="example-list" id="example-list-data">
+          <button class="example-pill query-card query-cyan" data-q="What is the average temperature in January 2023?">
+            <span class="query-icon-box q-cyan">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+              </svg>
+            </span>
+            <span class="query-text">Avg temperature, Jan 2023</span>
+            <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg></span>
+          </button>
+          <button class="example-pill query-card query-cyan" data-q="What is the maximum salinity in March 2023?">
+            <span class="query-icon-box q-cyan">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+              </svg>
+            </span>
+            <span class="query-text">Max salinity, Mar 2023</span>
+            <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg></span>
+          </button>
+          <button class="example-pill query-card query-cyan" data-q="Compare temperature in January and June 2023">
+            <span class="query-icon-box q-cyan">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                <path d="M7 21h10" />
+                <path d="M12 3v18" />
+                <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" />
+              </svg>
+            </span>
+            <span class="query-text">Compare Jan vs Jun temperature</span>
+            <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg></span>
+          </button>
+          <button class="example-pill query-card query-cyan" data-q="Show salinity vs depth for float 2902758">
+            <span class="query-icon-box q-cyan">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                <polyline points="16 7 22 7 22 13" />
+              </svg>
+            </span>
+            <span class="query-text">Salinity depth profile, float 2902758</span>
+            <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg></span>
+          </button>
+        </div>
+
+        <div class="nav-section-label">
+          <span class="section-dot dot-purple"></span> Science &amp; Knowledge
+        </div>
+        <div class="example-list" id="example-list-knowledge">
+          <button class="example-pill query-card query-purple" data-q="What is a thermocline?">
+            <span class="query-icon-box q-purple">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+                <path d="M6 6h10" />
+                <path d="M6 10h10" />
+              </svg>
+            </span>
+            <span class="query-text">What is a thermocline?</span>
+            <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg></span>
+          </button>
+          <button class="example-pill query-card query-purple" data-q="What is an ARGO float?">
+            <span class="query-icon-box q-purple">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="4" />
+                <line x1="4.93" y1="4.93" x2="9.17" y2="9.17" />
+                <line x1="14.83" y1="14.83" x2="19.07" y2="19.07" />
+                <line x1="14.83" y1="9.17" x2="19.07" y2="4.93" />
+                <line x1="4.93" y1="19.07" x2="9.17" y2="14.83" />
+              </svg>
+            </span>
+            <span class="query-text">What is an ARGO float?</span>
+            <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg></span>
+          </button>
+          <button class="example-pill query-card query-purple" data-q="How do monsoons affect the Bay of Bengal?">
+            <span class="query-icon-box q-purple">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+              </svg>
+            </span>
+            <span class="query-text">Monsoons &amp; the Bay of Bengal</span>
+            <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg></span>
+          </button>
+          <button class="example-pill query-card query-purple" data-q="How do I read a depth profile chart?">
+            <span class="query-icon-box q-purple">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4" />
+                <path d="M12 8h.01" />
+              </svg>
+            </span>
+            <span class="query-text">How to read a depth profile</span>
+            <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg></span>
+          </button>
+        </div>
+
+        <div class="nav-section-label">
+          <span class="section-dot dot-emerald"></span> Discovery &amp; Floats
+        </div>
+        <div class="example-list" id="example-list-discovery">
+          <button class="example-pill query-card query-emerald" data-q="List floats in 2023">
+            <span class="query-icon-box q-emerald">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </span>
+            <span class="query-text">List floats in 2023</span>
+            <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg></span>
+          </button>
+          <button class="example-pill query-card query-emerald" data-q="Tell me about float 2902758">
+            <span class="query-icon-box q-emerald">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2" />
+                <path d="M9 9h6v6H9z" />
+              </svg>
+            </span>
+            <span class="query-text">Details of float 2902758</span>
+            <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg></span>
+          </button>
+          <button class="example-pill query-card query-emerald" data-q="Where did float 2902758 travel?">
+            <span class="query-icon-box q-emerald">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </span>
+            <span class="query-text">Trajectory of float 2902758</span>
+            <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg></span>
+          </button>
+          <button class="example-pill query-card query-emerald" data-q="What data do you have in the Bay of Bengal?">
+            <span class="query-icon-box q-emerald">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="20" x2="12" y2="10" />
+                <line x1="18" y1="20" x2="18" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="16" />
+              </svg>
+            </span>
+            <span class="query-text">Dataset coverage</span>
+            <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg></span>
+          </button>
+          <button class="example-pill query-card query-emerald" data-q="Profiles similar to 2902758_139">
+            <span class="query-icon-box q-emerald">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
+              </svg>
+            </span>
+            <span class="query-text">Profiles similar to 2902758_139</span>
+            <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg></span>
+          </button>
+        </div>
+
+        <div class="nav-section-label">
+          <span class="section-dot dot-blue"></span> Engine Health
+        </div>
+        <button id="health-btn" class="sidebar-btn health-card-btn" aria-label="Check server health">
+          <span class="health-icon-box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+          </span>
+          <span class="health-text">
+            <span class="health-title">Server &amp; RAG Engine</span>
+            <span class="health-status-sub">Operational &amp; verified</span>
+          </span>
+          <span class="health-live-tag">Online</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-ai-mode-card">
+          <div class="ai-mode-header">
+            <span class="ai-mode-label">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+              Engine Mode
+            </span>
+            <span id="ai-mode-status-badge" class="ai-mode-badge badge-rules">Rules</span>
+          </div>
+          <div class="ai-mode-toggle-group" role="radiogroup" aria-label="Select AI Engine Mode">
+            <button type="button" class="ai-toggle-btn active" id="btn-mode-rules" data-mode="rules" title="Offline Rules Engine (Fast, zero AI quota)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Rules
+            </button>
+            <button type="button" class="ai-toggle-btn" id="btn-mode-gemini" data-mode="gemini" title="Google Gemini AI (Natural language understanding)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+              Gemini AI
+            </button>
+          </div>
+        </div>
+        <div class="data-status-pill">
+          <span class="status-pulse-dot"></span>
+          <span class="data-badge-text">ARGO Ocean Array · Bay of Bengal</span>
         </div>
       </div>
+    </aside>
+
+    <!-- ── Draggable Sidebar Navigation Resizer ──────────────────────────────── -->
+    <div class="sidebar-resizer" id="sidebar-resizer" role="separator" aria-orientation="vertical"
+      aria-label="Resize sidebar navigation" title="Drag to resize sidebar (double-click to reset)">
+      <div class="resizer-handle"></div>
     </div>
 
-    <!-- Right form panel -->
-    <div class="auth-form-panel">
-      <div class="auth-brand">
-        <img src="argo-logo.svg" alt="ArgoLens Logo" class="auth-logo-img" />
-        <h1 class="auth-title">ArgoLens</h1>
-        <p class="auth-subtitle">Natural Language Ocean Data Retrieval</p>
+    <!-- ── Main area ────────────────────────────────────────────────────────── -->
+    <main class="main-area">
+
+      <!-- Session Expiration Warning Banner -->
+      <div id="session-warning-banner" class="session-warning-banner" hidden>
+        <div class="session-warning-content">
+          <span class="session-warning-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg></span>
+          <span id="session-warning-text">Your session will expire soon.</span>
+        </div>
+        <div class="session-warning-actions">
+          <button type="button" id="session-refresh-btn" class="session-refresh-btn">Extend Session</button>
+          <button type="button" id="session-dismiss-btn" class="session-dismiss-btn" aria-label="Dismiss">✕</button>
+        </div>
       </div>
 
-      <!-- Login Form -->
-      <form class="auth-form" id="login-form">
-        <h2>Welcome back</h2>
-        <p class="auth-form-desc">Sign in to access your ocean data queries and saved conversations.</p>
-        <div class="auth-field">
-          <label for="login-email">Email</label>
-          <div class="auth-input-wrap">
-            <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
-            <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email" />
-          </div>
-        </div>
-        <div class="auth-field">
-          <label for="login-password">Password</label>
-          <div class="auth-input-wrap">
-            <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-            <input type="password" id="login-password" placeholder="Your password" required autocomplete="current-password" />
-            <button type="button" class="auth-toggle-pw" data-target="login-password" aria-label="Toggle password visibility"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-          </div>
-        </div>
-        <div id="login-notice" class="auth-notice" role="status" hidden></div>
-        <div id="login-error" class="auth-error" hidden></div>
-        <button type="submit" class="auth-submit-btn" id="login-submit-btn">
-          <span class="auth-btn-text">Sign In</span>
-          <span class="auth-btn-loader" hidden></span>
+      <!-- Top bar -->
+      <header class="topbar">
+        <button class="hamburger" id="sidebar-toggle" aria-label="Toggle sidebar">
+          <span></span><span></span><span></span>
         </button>
-        <p class="auth-switch">Don't have an account? <a href="#" id="show-register">Create one</a></p>
-        <p class="auth-switch auth-switch-sm"><a href="#" id="show-forgot">Forgot your password?</a></p>
-      </form>
-
-      <!-- Forgot Password Form -->
-      <form class="auth-form" id="forgot-form" hidden>
-        <h2>Reset Password</h2>
-        <p class="auth-form-desc">Request a 15-minute verification code to recover your account.</p>
-        
-        <div id="forgot-step-1">
-          <div class="auth-field">
-            <label for="forgot-email">Account Email</label>
-            <div class="auth-input-wrap">
-              <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
-              <input type="email" id="forgot-email" placeholder="you@example.com" required autocomplete="email" />
-            </div>
-          </div>
-          <div id="forgot-notice" class="auth-notice" hidden></div>
-          <div id="forgot-error" class="auth-error" hidden></div>
-          <button type="button" class="auth-submit-btn" id="forgot-send-btn">
-            <span class="auth-btn-text">Get Verification Code</span>
-            <span class="auth-btn-loader" hidden></span>
+        <div class="topbar-title" id="current-view-title">ARGO Ocean Data Chat</div>
+        <div class="topbar-actions">
+          <button id="speech-toggle-btn" class="topbar-icon-btn" title="Toggle audio responses (Read answers aloud)"
+            aria-label="Toggle audio response">
+            <svg id="speech-icon-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+            </svg>
+            <svg id="speech-icon-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <line x1="23" y1="9" x2="17" y2="15" />
+              <line x1="17" y1="9" x2="23" y2="15" />
+            </svg>
+          </button>
+          <button id="theme-toggle-btn" class="topbar-icon-btn" title="Toggle light/dark mode"
+            aria-label="Toggle theme">
+            <svg id="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+            <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+          </button>
+          <button id="dive-sim-top-btn" class="topbar-icon-btn" title="Open ARGO 4D Mission Simulator & Sonar"
+            aria-label="Open Dive Simulator">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+              <path d="M2 12h20" />
+            </svg>
+          </button>
+          <button id="share-btn" class="topbar-icon-btn" title="Share this chat" aria-label="Share chat">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+            </svg>
+          </button>
+          <button id="export-btn" class="topbar-icon-btn" title="Export current results as CSV" aria-label="Export CSV">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </button>
+          <button id="export-pdf-btn" class="topbar-icon-btn" title="Download Scientific PDF Report"
+            aria-label="Export PDF Report">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
           </button>
         </div>
+      </header>
 
-        <div id="forgot-step-2" hidden>
-          <div class="auth-field">
-            <label for="forgot-code">Verification Code</label>
-            <div class="auth-input-wrap">
-              <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg></span>
-              <input type="text" id="forgot-code" placeholder="e.g. 593812" maxlength="16" />
-            </div>
-            <span class="auth-field-hint" id="forgot-code-hint">Check your email for the 6-digit code</span>
-          </div>
-          <div class="auth-field">
-            <label for="forgot-new-password">New Password</label>
-            <div class="auth-input-wrap">
-              <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-              <input type="password" id="forgot-new-password" placeholder="New password (min 10 chars)" minlength="10" maxlength="128" autocomplete="new-password" />
-              <button type="button" class="auth-toggle-pw" data-target="forgot-new-password" aria-label="Toggle password visibility"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-            </div>
-          </div>
-          <div id="reset-notice" class="auth-notice" hidden></div>
-          <div id="reset-error" class="auth-error" hidden></div>
-          <button type="button" class="auth-submit-btn" id="forgot-reset-btn">
-            <span class="auth-btn-text">Reset Password</span>
-            <span class="auth-btn-loader" hidden></span>
-          </button>
+      <!-- ── View 1: Chat Feed ──────────────────────────────────────────────── -->
+      <div class="chat-feed" id="chat-feed">
+        <!-- Welcome card -->
+        <div class="welcome-card" id="welcome-card">
+          <div class="welcome-logo-wrap"><img src="argo-logo.svg" alt="ArgoLens Logo" class="welcome-logo-img" /></div>
+          <h1>ArgoLens</h1>
+          <p class="welcome-sub"><strong>Deterministic Natural Language Retrieval &amp; Seawater Density Profiling for
+              ARGO Float Networks</strong></p>
         </div>
 
-        <p class="auth-switch"><a href="#" id="forgot-back-to-login">← Back to Sign In</a></p>
-      </form>
+        <!-- Messages injected here -->
+        <div id="messages" role="log" aria-label="Chat messages" aria-live="polite"></div>
+      </div><!-- .chat-feed -->
 
-      <!-- Register Form -->
-      <form class="auth-form" id="register-form" hidden>
-        <h2>Create account</h2>
-        <p class="auth-form-desc">Join ArgoLens to explore ARGO float data with natural language.</p>
-        
-        <!-- Step 1: Username & Email -->
-        <div id="register-step-1">
-          <div class="auth-field">
-            <label for="register-username">Username</label>
-            <div class="auth-input-wrap">
-              <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-              <input type="text" id="register-username" placeholder="Choose a username" required minlength="3" maxlength="50" pattern="[A-Za-z0-9_\-]+" title="Letters, numbers, hyphens and underscores only (no spaces or dots)" autocomplete="username" />
+      <!-- ── View 2: Discover Tab ───────────────────────────────────────────── -->
+      <div class="discover-feed" id="discover-feed" style="display:none;">
+        <div class="discover-container">
+          <!-- Coverage metric cards -->
+          <div class="coverage-grid" id="coverage-grid">
+            <div class="metric-card">
+              <span class="metric-label">Total Profiles</span>
+              <span class="metric-val" id="metric-profiles">-</span>
             </div>
-            <span class="auth-field-hint">Letters, numbers, hyphens and underscores only</span>
-          </div>
-          <div class="auth-field">
-            <label for="register-email">Email</label>
-            <div class="auth-input-wrap">
-              <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
-              <input type="email" id="register-email" placeholder="you@example.com" required autocomplete="email" />
+            <div class="metric-card">
+              <span class="metric-label">Active Floats</span>
+              <span class="metric-val" id="metric-floats">-</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Measurement Levels</span>
+              <span class="metric-val" id="metric-measurements">-</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Observation Window</span>
+              <span class="metric-val small" id="metric-dates">-</span>
             </div>
           </div>
-          <div id="register-step1-error" class="auth-error" hidden></div>
-          <button type="button" class="auth-submit-btn" id="register-send-code-btn">
-            <span class="auth-btn-text">Get Verification Code</span>
-            <span class="auth-btn-loader" hidden></span>
-          </button>
+
+          <!-- Coverage Chart Container -->
+          <div class="chart-box" id="coverage-chart-box" style="margin-bottom: 20px;">
+            <div id="coverage-chart-div" class="chart-plotly"></div>
+          </div>
+
+          <!-- Float Search and Filter Bar -->
+          <div class="discover-toolbar">
+            <input type="text" id="float-search-input" class="search-input"
+              placeholder="Filter floats by ID or region..." />
+            <button id="export-floats-csv" class="action-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg> Export Floats CSV
+            </button>
+            <button id="refresh-discover-btn" class="action-btn secondary">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                <path d="M8 16H3v5" />
+              </svg> Refresh
+            </button>
+          </div>
+
+          <!-- Floats Table Container -->
+          <div class="table-wrap">
+            <table class="floats-table" id="floats-table">
+              <thead>
+                <tr>
+                  <th>Platform ID</th>
+                  <th>Profiles</th>
+                  <th>First Date</th>
+                  <th>Last Date</th>
+                  <th>Bounding Lat/Lon</th>
+                  <th>Avg Max Depth</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="floats-table-body">
+                <tr>
+                  <td colspan="7" style="text-align:center; padding: 20px;">Loading ARGO floats data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty state -->
+          <div class="empty-state" id="db-empty-state" style="display:none;">
+            <h3>Database is Empty</h3>
+            <p>No ARGO float profiles loaded. Please run <code>fetch_data.bat</code> to populate real ocean data.</p>
+          </div>
         </div>
+      </div><!-- .discover-feed -->
 
-        <!-- Step 2: Verification Code -->
-        <div id="register-step-2" hidden>
-          <div class="auth-field">
-            <label for="register-verify-code">Verification Code</label>
-            <div class="auth-input-wrap">
-              <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg></span>
-              <input type="text" id="register-verify-code" placeholder="Enter 6-digit code from email" maxlength="16" />
-            </div>
-            <span class="auth-field-hint" id="register-code-hint">Check your email for the 6-digit verification code</span>
-          </div>
-          <div id="register-step2-notice" class="auth-notice" hidden></div>
-          <div id="register-step2-error" class="auth-error" hidden></div>
-          <button type="button" class="auth-submit-btn" id="register-check-code-btn">
-            <span class="auth-btn-text">Verify Code</span>
-            <span class="auth-btn-loader" hidden></span>
-          </button>
-          <p class="auth-switch auth-switch-sm"><a href="#" id="register-back-to-step1">← Change username or email</a></p>
-        </div>
-
-        <!-- Step 3: Password & Confirm Password (shown after code is verified) -->
-        <div id="register-step-3" hidden>
-          <div id="register-step3-notice" class="auth-notice">
-            Email verified! Now set a strong password to complete your registration.
-          </div>
-          <div class="auth-field">
-            <label for="register-password">Password</label>
-            <div class="auth-input-wrap">
-              <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-              <input type="password" id="register-password" placeholder="Create a strong password (min 10 chars)" required minlength="10" maxlength="128" autocomplete="new-password" />
-              <button type="button" class="auth-toggle-pw" data-target="register-password" aria-label="Toggle password visibility"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-            </div>
-            <div class="password-strength" id="password-strength" hidden>
-              <div class="password-strength-bar">
-                <div class="password-strength-fill" id="password-strength-fill"></div>
+      <!-- ── View 3: ARGO 4D Mission Simulator & Sonar ──────────────────────── -->
+      <div class="simulator-feed" id="simulator-feed" style="display:none;">
+        <div class="sim-container">
+          <!-- Simulator Header & Mission Status -->
+          <div class="sim-header-card">
+            <div class="sim-header-main">
+              <div class="sim-title-wrap">
+                <h2>ARGO 4D Mission Simulator &amp; Underwater Sonar</h2>
+                <p class="sim-desc">Experience an oceanic robotic ARGO float mission in the Bay of Bengal. Follow the
+                  10-day lifecycle from surface satellite fix, 1000 dbar parking drift, and 2000 dbar deep dive, while
+                  exploring mixed layer depths and the <strong>SOFAR acoustic sound channel</strong>.</p>
               </div>
-              <span class="password-strength-text" id="password-strength-text"></span>
-            </div>
-            <span class="auth-field-hint">Minimum 10 characters</span>
-          </div>
-          <div class="auth-field">
-            <label for="register-confirm-password">Confirm Password</label>
-            <div class="auth-input-wrap">
-              <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-              <input type="password" id="register-confirm-password" placeholder="Confirm your password" required minlength="10" maxlength="128" autocomplete="new-password" />
-            </div>
-            <span class="auth-field-hint auth-pw-match" id="pw-match-hint" hidden></span>
-          </div>
-          <div id="register-step3-error" class="auth-error" hidden></div>
-          <button type="button" class="auth-submit-btn" id="register-complete-btn">
-            <span class="auth-btn-text">Complete Registration</span>
-            <span class="auth-btn-loader" hidden></span>
-          </button>
-        </div>
-
-        <p class="auth-switch">Already have an account? <a href="#" id="show-login">Sign in</a></p>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- ── Main App ────────────────────────────────────────────────────────────── -->
-<div class="app-shell" id="app-shell" hidden>
-
-  <!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="logo-wrap">
-        <img src="argo-logo.svg" alt="ArgoLens Logo" class="logo-img" />
-        <span class="logo-text">ArgoLens</span>
-      </div>
-      <button id="user-menu-btn" class="user-avatar-btn" title="Account menu">
-        <span id="user-initial">U</span>
-      </button>
-    </div>
-
-    <!-- User dropdown -->
-    <div class="user-dropdown" id="user-dropdown" hidden>
-      <div class="user-dropdown-info">
-        <div class="user-dropdown-avatar" id="dropdown-avatar">U</div>
-        <div class="user-dropdown-details">
-          <strong id="dropdown-username">User</strong>
-          <small id="dropdown-email">user@email.com</small>
-        </div>
-      </div>
-      <div class="user-dropdown-divider"></div>
-      <button id="profile-btn" class="user-dropdown-btn">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> My Profile
-      </button>
-      <button id="logout-btn" class="user-dropdown-btn user-dropdown-btn-danger">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="21" x2="9" y1="12" y2="12"/></svg> Sign Out
-      </button>
-    </div>
-
-    <nav class="sidebar-nav">
-      <button id="new-chat-btn" class="sidebar-btn primary-btn" aria-label="New conversation">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 7px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Chat
-      </button>
-
-      <!-- View Switcher Tabs in Sidebar (Executive Navigation Module Rail) -->
-      <div class="sidebar-nav-modules">
-        <button id="tab-chat-btn" class="view-tab nav-module-item active" aria-label="Open Chat Assistant">
-          <div class="nav-module-icon-box nav-icon-cyan">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </div>
-          <div class="nav-module-content">
-            <div class="nav-module-header">
-              <span class="nav-module-title">AI Ocean Chat</span>
-              <span class="nav-module-pill pill-cyan">LLM</span>
-            </div>
-            <span class="nav-module-desc">Natural language ocean queries</span>
-          </div>
-        </button>
-
-        <button id="tab-map-btn" class="view-tab nav-module-item" aria-label="Open Geospatial Ocean Map">
-          <div class="nav-module-icon-box nav-icon-emerald">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-          </div>
-          <div class="nav-module-content">
-            <div class="nav-module-header">
-              <span class="nav-module-title">Geospatial GIS</span>
-              <span class="nav-module-pill pill-emerald">Map</span>
-            </div>
-            <span class="nav-module-desc">Live trajectories &amp; positions</span>
-          </div>
-        </button>
-
-        <button id="tab-discover-btn" class="view-tab nav-module-item" aria-label="Open Float Discovery Catalog">
-          <div class="nav-module-icon-box nav-icon-purple">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
-          </div>
-          <div class="nav-module-content">
-            <div class="nav-module-header">
-              <span class="nav-module-title">Float Discovery</span>
-              <span class="nav-module-pill pill-purple">Data</span>
-            </div>
-            <span class="nav-module-desc">Catalog &amp; profile archives</span>
-          </div>
-        </button>
-
-        <button id="tab-simulator-btn" class="view-tab nav-module-item" aria-label="Open Sonar and 4D Dive Simulator">
-          <div class="nav-module-icon-box nav-icon-amber">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h5l2 8 5-16 2 8h6"/></svg>
-          </div>
-          <div class="nav-module-content">
-            <div class="nav-module-header">
-              <span class="nav-module-title">Sonar &amp; 4D Dive</span>
-              <span class="nav-module-pill pill-amber">Sim</span>
-            </div>
-            <span class="nav-module-desc">Acoustic SOFAR &amp; dive physics</span>
-          </div>
-        </button>
-      </div>
-
-      <!-- Search bar -->
-      <div class="search-wrap">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input type="text" id="search-input" class="search-input"
-               placeholder="Search conversations..."
-               name="not_an_email_search_field"
-               autocomplete="off"
-               autocorrect="off"
-               autocapitalize="off"
-               spellcheck="false"
-               readonly
-               onfocus="this.removeAttribute('readonly');"
-               data-lpignore="true"
-               data-1p-ignore="true" />
-        <button type="button" id="search-clear-btn" class="search-clear-btn" title="Clear search" aria-label="Clear search" hidden>×</button>
-      </div>
-
-      <!-- Conversation history -->
-      <div class="nav-section-label">Recent Conversations</div>
-      <div class="conv-filter-row" id="conv-filter-row">
-        <button type="button" class="conv-filter-pill active" data-filter="all">All</button>
-        <button type="button" class="conv-filter-pill" data-filter="latest">Latest</button>
-        <button type="button" class="conv-filter-pill" data-filter="old">Old</button>
-      </div>
-      <div class="conversation-list" id="conversation-list">
-        <div class="conv-empty" id="conv-empty">No conversations yet</div>
-      </div>
-
-      <!-- Example questions: Data / Knowledge / Discovery -->
-      <div class="nav-section-label">
-        <span class="section-dot dot-cyan"></span> Data Queries
-      </div>
-      <div class="example-list" id="example-list-data">
-        <button class="example-pill query-card query-cyan" data-q="What is the average temperature in January 2023?">
-          <span class="query-icon-box q-cyan">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
-          </span>
-          <span class="query-text">Avg temperature, Jan 2023</span>
-          <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </button>
-        <button class="example-pill query-card query-cyan" data-q="What is the maximum salinity in March 2023?">
-          <span class="query-icon-box q-cyan">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
-          </span>
-          <span class="query-text">Max salinity, Mar 2023</span>
-          <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </button>
-        <button class="example-pill query-card query-cyan" data-q="Compare temperature in January and June 2023">
-          <span class="query-icon-box q-cyan">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
-          </span>
-          <span class="query-text">Compare Jan vs Jun temperature</span>
-          <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </button>
-        <button class="example-pill query-card query-cyan" data-q="Show salinity vs depth for float 2902758">
-          <span class="query-icon-box q-cyan">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-          </span>
-          <span class="query-text">Salinity depth profile, float 2902758</span>
-          <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </button>
-      </div>
-
-      <div class="nav-section-label">
-        <span class="section-dot dot-purple"></span> Science &amp; Knowledge
-      </div>
-      <div class="example-list" id="example-list-knowledge">
-        <button class="example-pill query-card query-purple" data-q="What is a thermocline?">
-          <span class="query-icon-box q-purple">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
-          </span>
-          <span class="query-text">What is a thermocline?</span>
-          <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </button>
-        <button class="example-pill query-card query-purple" data-q="What is an ARGO float?">
-          <span class="query-icon-box q-purple">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>
-          </span>
-          <span class="query-text">What is an ARGO float?</span>
-          <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </button>
-        <button class="example-pill query-card query-purple" data-q="How do monsoons affect the Bay of Bengal?">
-          <span class="query-icon-box q-purple">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-          </span>
-          <span class="query-text">Monsoons &amp; the Bay of Bengal</span>
-          <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </button>
-        <button class="example-pill query-card query-purple" data-q="How do I read a depth profile chart?">
-          <span class="query-icon-box q-purple">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-          </span>
-          <span class="query-text">How to read a depth profile</span>
-          <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </button>
-      </div>
-
-      <div class="nav-section-label">
-        <span class="section-dot dot-emerald"></span> Discovery &amp; Floats
-      </div>
-      <div class="example-list" id="example-list-discovery">
-        <button class="example-pill query-card query-emerald" data-q="List floats in 2023">
-          <span class="query-icon-box q-emerald">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </span>
-          <span class="query-text">List floats in 2023</span>
-          <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </button>
-        <button class="example-pill query-card query-emerald" data-q="Tell me about float 2902758">
-          <span class="query-icon-box q-emerald">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 9h6v6H9z"/></svg>
-          </span>
-          <span class="query-text">Details of float 2902758</span>
-          <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </button>
-        <button class="example-pill query-card query-emerald" data-q="Where did float 2902758 travel?">
-          <span class="query-icon-box q-emerald">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-          </span>
-          <span class="query-text">Trajectory of float 2902758</span>
-          <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </button>
-        <button class="example-pill query-card query-emerald" data-q="What data do you have in the Bay of Bengal?">
-          <span class="query-icon-box q-emerald">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
-          </span>
-          <span class="query-text">Dataset coverage</span>
-          <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </button>
-        <button class="example-pill query-card query-emerald" data-q="Profiles similar to 2902758_139">
-          <span class="query-icon-box q-emerald">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
-          </span>
-          <span class="query-text">Profiles similar to 2902758_139</span>
-          <span class="query-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
-        </button>
-      </div>
-
-      <div class="nav-section-label">
-        <span class="section-dot dot-blue"></span> Engine Health
-      </div>
-      <button id="health-btn" class="sidebar-btn health-card-btn" aria-label="Check server health">
-        <span class="health-icon-box">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        </span>
-        <span class="health-text">
-          <span class="health-title">Server &amp; RAG Engine</span>
-          <span class="health-status-sub">Operational &amp; verified</span>
-        </span>
-        <span class="health-live-tag">Online</span>
-      </button>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="data-status-pill">
-        <span class="status-pulse-dot"></span>
-        <span class="data-badge-text">ARGO Ocean Array · Bay of Bengal</span>
-      </div>
-    </div>
-  </aside>
-
-  <!-- ── Draggable Sidebar Navigation Resizer ──────────────────────────────── -->
-  <div class="sidebar-resizer" id="sidebar-resizer" role="separator" aria-orientation="vertical" aria-label="Resize sidebar navigation" title="Drag to resize sidebar (double-click to reset)">
-    <div class="resizer-handle"></div>
-  </div>
-
-  <!-- ── Main area ────────────────────────────────────────────────────────── -->
-  <main class="main-area">
-
-    <!-- Session Expiration Warning Banner -->
-    <div id="session-warning-banner" class="session-warning-banner" hidden>
-      <div class="session-warning-content">
-        <span class="session-warning-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-        <span id="session-warning-text">Your session will expire soon.</span>
-      </div>
-      <div class="session-warning-actions">
-        <button type="button" id="session-refresh-btn" class="session-refresh-btn">Extend Session</button>
-        <button type="button" id="session-dismiss-btn" class="session-dismiss-btn" aria-label="Dismiss">✕</button>
-      </div>
-    </div>
-
-    <!-- Top bar -->
-    <header class="topbar">
-      <button class="hamburger" id="sidebar-toggle" aria-label="Toggle sidebar">
-        <span></span><span></span><span></span>
-      </button>
-      <div class="topbar-title" id="current-view-title">ARGO Ocean Data Chat</div>
-      <div class="topbar-actions">
-        <button id="speech-toggle-btn" class="topbar-icon-btn" title="Toggle audio responses (Read answers aloud)" aria-label="Toggle audio response">
-          <svg id="speech-icon-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
-          </svg>
-          <svg id="speech-icon-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <line x1="23" y1="9" x2="17" y2="15"/>
-            <line x1="17" y1="9" x2="23" y2="15"/>
-          </svg>
-        </button>
-        <button id="theme-toggle-btn" class="topbar-icon-btn" title="Toggle light/dark mode" aria-label="Toggle theme">
-          <svg id="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-          <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-            <circle cx="12" cy="12" r="5"/>
-            <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </svg>
-        </button>
-        <button id="dive-sim-top-btn" class="topbar-icon-btn" title="Open ARGO 4D Mission Simulator & Sonar" aria-label="Open Dive Simulator">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
-            <path d="M2 12h20"/>
-          </svg>
-        </button>
-        <button id="share-btn" class="topbar-icon-btn" title="Share this chat" aria-label="Share chat">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-          </svg>
-        </button>
-        <button id="export-btn" class="topbar-icon-btn" title="Export current results as CSV" aria-label="Export CSV">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-        </button>
-        <button id="export-pdf-btn" class="topbar-icon-btn" title="Download Scientific PDF Report" aria-label="Export PDF Report">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-            <polyline points="10 9 9 9 8 9"/>
-          </svg>
-        </button>
-      </div>
-    </header>
-
-    <!-- ── View 1: Chat Feed ──────────────────────────────────────────────── -->
-    <div class="chat-feed" id="chat-feed">
-      <!-- Welcome card -->
-      <div class="welcome-card" id="welcome-card">
-        <div class="welcome-logo-wrap"><img src="argo-logo.svg" alt="ArgoLens Logo" class="welcome-logo-img" /></div>
-        <h1>ArgoLens</h1>
-        <p class="welcome-sub"><strong>Deterministic Natural Language Retrieval &amp; Seawater Density Profiling for ARGO Float Networks</strong></p>
-      </div>
-
-      <!-- Messages injected here -->
-      <div id="messages" role="log" aria-label="Chat messages" aria-live="polite"></div>
-    </div><!-- .chat-feed -->
-
-    <!-- ── View 2: Discover Tab ───────────────────────────────────────────── -->
-    <div class="discover-feed" id="discover-feed" style="display:none;">
-      <div class="discover-container">
-        <!-- Coverage metric cards -->
-        <div class="coverage-grid" id="coverage-grid">
-          <div class="metric-card">
-            <span class="metric-label">Total Profiles</span>
-            <span class="metric-val" id="metric-profiles">-</span>
-          </div>
-          <div class="metric-card">
-            <span class="metric-label">Active Floats</span>
-            <span class="metric-val" id="metric-floats">-</span>
-          </div>
-          <div class="metric-card">
-            <span class="metric-label">Measurement Levels</span>
-            <span class="metric-val" id="metric-measurements">-</span>
-          </div>
-          <div class="metric-card">
-            <span class="metric-label">Observation Window</span>
-            <span class="metric-val small" id="metric-dates">-</span>
-          </div>
-        </div>
-
-        <!-- Coverage Chart Container -->
-        <div class="chart-box" id="coverage-chart-box" style="margin-bottom: 20px;">
-          <div id="coverage-chart-div" class="chart-plotly"></div>
-        </div>
-
-        <!-- Float Search and Filter Bar -->
-        <div class="discover-toolbar">
-          <input type="text" id="float-search-input" class="search-input" placeholder="Filter floats by ID or region..." />
-          <button id="export-floats-csv" class="action-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export Floats CSV
-          </button>
-          <button id="refresh-discover-btn" class="action-btn secondary">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Refresh
-          </button>
-        </div>
-
-        <!-- Floats Table Container -->
-        <div class="table-wrap">
-          <table class="floats-table" id="floats-table">
-            <thead>
-              <tr>
-                <th>Platform ID</th>
-                <th>Profiles</th>
-                <th>First Date</th>
-                <th>Last Date</th>
-                <th>Bounding Lat/Lon</th>
-                <th>Avg Max Depth</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="floats-table-body">
-              <tr><td colspan="7" style="text-align:center; padding: 20px;">Loading ARGO floats data...</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Empty state -->
-        <div class="empty-state" id="db-empty-state" style="display:none;">
-          <h3>Database is Empty</h3>
-          <p>No ARGO float profiles loaded. Please run <code>fetch_data.bat</code> to populate real ocean data.</p>
-        </div>
-      </div>
-    </div><!-- .discover-feed -->
-
-    <!-- ── View 3: ARGO 4D Mission Simulator & Sonar ──────────────────────── -->
-    <div class="simulator-feed" id="simulator-feed" style="display:none;">
-      <div class="sim-container">
-        <!-- Simulator Header & Mission Status -->
-        <div class="sim-header-card">
-          <div class="sim-header-main">
-            <div class="sim-title-wrap">
-              <h2>ARGO 4D Mission Simulator &amp; Underwater Sonar</h2>
-              <p class="sim-desc">Experience an oceanic robotic ARGO float mission in the Bay of Bengal. Follow the 10-day lifecycle from surface satellite fix, 1000 dbar parking drift, and 2000 dbar deep dive, while exploring mixed layer depths and the <strong>SOFAR acoustic sound channel</strong>.</p>
-            </div>
-            <div class="sim-phase-wrap">
-              <span class="sim-phase-label">Mission Cycle Phase:</span>
-              <span id="sim-phase-badge" class="sim-phase-pill phase-surface">Phase 1: Surface GPS &amp; Telemetry (0 dbar)</span>
-            </div>
-          </div>
-
-          <!-- Controls Toolbar -->
-          <div class="sim-toolbar">
-            <div class="sim-control-group">
-              <label for="sim-float-select" class="sim-label">Target Float:</label>
-              <select id="sim-float-select" class="sim-select" aria-label="Select float platform"></select>
-              <button id="sim-load-btn" class="action-btn" title="Load Float Profile">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Load Profile
-              </button>
-            </div>
-            <div class="sim-control-group sim-actions">
-              <button id="sim-play-btn" class="action-btn primary" title="Play / Pause Dive">▶ Start Dive</button>
-              <button id="sim-reset-btn" class="action-btn" title="Reset to Surface">↺ Reset Surface</button>
-              <div class="sim-speed-group">
-                <span class="sim-label">Speed:</span>
-                <button class="sim-speed-btn active" data-speed="1">1x</button>
-                <button class="sim-speed-btn" data-speed="2">2x</button>
-                <button class="sim-speed-btn" data-speed="5">5x</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Split View: Ocean Column Canvas (Left) & Telemetry HUD / Profile Chart (Right) -->
-        <div class="sim-split-layout">
-          <!-- Left: Ocean Column Canvas -->
-          <div class="sim-column-panel">
-            <div class="sim-panel-title">
-              <span>Water Column &amp; Robotic Float</span>
-              <span id="sim-zone-tag" class="zone-badge epipelagic">Sunlight Zone (0–200m)</span>
-            </div>
-            <div class="sim-canvas-wrap">
-              <!-- Depth ruler on left -->
-              <div class="sim-depth-ruler">
-                <span style="top: 2%;">0m Surface</span>
-                <span style="top: 10%;">200m MLD</span>
-                <span style="top: 50%;">1000m Drift</span>
-                <span style="top: 75%;">1500m SOFAR Axis</span>
-                <span style="top: 96%;">2000m Abyss</span>
-              </div>
-              <canvas id="sim-ocean-canvas" width="420" height="580"></canvas>
-              <!-- Depth scrubber slider on right -->
-              <input type="range" id="sim-depth-slider" min="0" max="2000" step="1" value="0" orient="vertical" class="sim-vertical-slider" title="Drag to change depth" aria-label="Depth scrubber" />
-            </div>
-          </div>
-
-          <!-- Right: Telemetry & Sound Speed Profile Graph -->
-          <div class="sim-telemetry-panel">
-            <!-- Telemetry Metrics Grid -->
-            <div class="sim-telemetry-grid">
-              <div class="sim-stat-card">
-                <span class="stat-name">Depth / Pressure</span>
-                <span class="stat-value" id="sim-hud-depth">0.0 <small>dbar</small></span>
-              </div>
-              <div class="sim-stat-card">
-                <span class="stat-name">In-Situ Temperature</span>
-                <span class="stat-value" id="sim-hud-temp">-- <small>°C</small></span>
-              </div>
-              <div class="sim-stat-card">
-                <span class="stat-name">Salinity</span>
-                <span class="stat-value" id="sim-hud-sal">-- <small>PSU</small></span>
-              </div>
-              <div class="sim-stat-card highlight">
-                <span class="stat-name">Underwater Sound Speed</span>
-                <span class="stat-value" id="sim-hud-speed">-- <small>m/s</small></span>
+              <div class="sim-phase-wrap">
+                <span class="sim-phase-label">Mission Cycle Phase:</span>
+                <span id="sim-phase-badge" class="sim-phase-pill phase-surface">Phase 1: Surface GPS &amp; Telemetry (0
+                  dbar)</span>
               </div>
             </div>
 
-            <!-- Oceanographic Physics Features Cards -->
-            <div class="sim-physics-row" style="grid-template-columns: repeat(4, 1fr);">
-              <div class="sim-phys-card">
-                <span class="phys-title">MLD (Temp)</span>
-                <span class="phys-val" id="sim-phys-mld">--</span>
+            <!-- Controls Toolbar -->
+            <div class="sim-toolbar">
+              <div class="sim-control-group">
+                <label for="sim-float-select" class="sim-label">Target Float:</label>
+                <select id="sim-float-select" class="sim-select" aria-label="Select float platform"></select>
+                <button id="sim-load-btn" class="action-btn" title="Load Float Profile">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg> Load Profile
+                </button>
               </div>
-              <div class="sim-phys-card">
-                <span class="phys-title">Barrier Layer (BLT)</span>
-                <span class="phys-val" id="sim-phys-blt">--</span>
-              </div>
-              <div class="sim-phys-card">
-                <span class="phys-title">Thermocline Core</span>
-                <span class="phys-val" id="sim-phys-thermocline">--</span>
-              </div>
-              <div class="sim-phys-card sofar-card">
-                <span class="phys-title">SOFAR Axis</span>
-                <span class="phys-val" id="sim-phys-sofar">--</span>
-              </div>
-            </div>
-
-            <!-- Profile Plotly Graph -->
-            <div class="sim-chart-box">
-              <div class="sim-chart-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <span id="sim-chart-title">Vertical In-Situ Curves (Temperature, Salinity &amp; Sound Speed)</span>
-                <div class="chart-toggle-group">
-                  <button type="button" id="btn-chart-vertical" class="sim-toggle-btn active">Vertical Profiles</button>
-                  <button type="button" id="btn-chart-ts" class="sim-toggle-btn">T-S Diagram (Isopycnals)</button>
+              <div class="sim-control-group sim-actions">
+                <button id="sim-play-btn" class="action-btn primary" title="Play / Pause Dive">▶ Start Dive</button>
+                <button id="sim-reset-btn" class="action-btn" title="Reset to Surface">↺ Reset Surface</button>
+                <div class="sim-speed-group">
+                  <span class="sim-label">Speed:</span>
+                  <button class="sim-speed-btn active" data-speed="1">1x</button>
+                  <button class="sim-speed-btn" data-speed="2">2x</button>
+                  <button class="sim-speed-btn" data-speed="5">5x</button>
                 </div>
               </div>
-              <div id="sim-plotly-chart" class="chart-plotly" style="height: 340px;"></div>
+            </div>
+          </div>
+
+          <!-- Split View: Ocean Column Canvas (Left) & Telemetry HUD / Profile Chart (Right) -->
+          <div class="sim-split-layout">
+            <!-- Left: Ocean Column Canvas -->
+            <div class="sim-column-panel">
+              <div class="sim-panel-title">
+                <span>Water Column &amp; Robotic Float</span>
+                <span id="sim-zone-tag" class="zone-badge epipelagic">Sunlight Zone (0–200m)</span>
+              </div>
+              <div class="sim-canvas-wrap">
+                <!-- Depth ruler on left -->
+                <div class="sim-depth-ruler">
+                  <span style="top: 2%;">0m Surface</span>
+                  <span style="top: 10%;">200m MLD</span>
+                  <span style="top: 50%;">1000m Drift</span>
+                  <span style="top: 75%;">1500m SOFAR Axis</span>
+                  <span style="top: 96%;">2000m Abyss</span>
+                </div>
+                <canvas id="sim-ocean-canvas" width="420" height="580"></canvas>
+                <!-- Depth scrubber slider on right -->
+                <input type="range" id="sim-depth-slider" min="0" max="2000" step="1" value="0" orient="vertical"
+                  class="sim-vertical-slider" title="Drag to change depth" aria-label="Depth scrubber" />
+              </div>
+            </div>
+
+            <!-- Right: Telemetry & Sound Speed Profile Graph -->
+            <div class="sim-telemetry-panel">
+              <!-- Telemetry Metrics Grid -->
+              <div class="sim-telemetry-grid">
+                <div class="sim-stat-card">
+                  <span class="stat-name">Depth / Pressure</span>
+                  <span class="stat-value" id="sim-hud-depth">0.0 <small>dbar</small></span>
+                </div>
+                <div class="sim-stat-card">
+                  <span class="stat-name">In-Situ Temperature</span>
+                  <span class="stat-value" id="sim-hud-temp">-- <small>°C</small></span>
+                </div>
+                <div class="sim-stat-card">
+                  <span class="stat-name">Salinity</span>
+                  <span class="stat-value" id="sim-hud-sal">-- <small>PSU</small></span>
+                </div>
+                <div class="sim-stat-card highlight">
+                  <span class="stat-name">Underwater Sound Speed</span>
+                  <span class="stat-value" id="sim-hud-speed">-- <small>m/s</small></span>
+                </div>
+              </div>
+
+              <!-- Oceanographic Physics Features Cards -->
+              <div class="sim-physics-row" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="sim-phys-card">
+                  <span class="phys-title">MLD (Temp)</span>
+                  <span class="phys-val" id="sim-phys-mld">--</span>
+                </div>
+                <div class="sim-phys-card">
+                  <span class="phys-title">Barrier Layer (BLT)</span>
+                  <span class="phys-val" id="sim-phys-blt">--</span>
+                </div>
+                <div class="sim-phys-card">
+                  <span class="phys-title">Thermocline Core</span>
+                  <span class="phys-val" id="sim-phys-thermocline">--</span>
+                </div>
+                <div class="sim-phys-card sofar-card">
+                  <span class="phys-title">SOFAR Axis</span>
+                  <span class="phys-val" id="sim-phys-sofar">--</span>
+                </div>
+              </div>
+
+              <!-- Profile Plotly Graph -->
+              <div class="sim-chart-box">
+                <div class="sim-chart-header"
+                  style="display: flex; justify-content: space-between; align-items: center;">
+                  <span id="sim-chart-title">Vertical In-Situ Curves (Temperature, Salinity &amp; Sound Speed)</span>
+                  <div class="chart-toggle-group">
+                    <button type="button" id="btn-chart-vertical" class="sim-toggle-btn active">Vertical
+                      Profiles</button>
+                    <button type="button" id="btn-chart-ts" class="sim-toggle-btn">T-S Diagram (Isopycnals)</button>
+                  </div>
+                </div>
+                <div id="sim-plotly-chart" class="chart-plotly" style="height: 340px;"></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div><!-- .simulator-feed -->
+      </div><!-- .simulator-feed -->
 
-    <!-- ── View 4: Interactive Geospatial Ocean Map ────────────────────────── -->
-    <div class="map-feed" id="map-feed" style="display:none;">
-      <div class="map-view-container">
-        <!-- Map Controls Toolbar -->
-        <div class="map-toolbar">
-          <div class="map-tool-group">
-            <label for="map-float-filter">Float:</label>
-            <select id="map-float-filter" class="map-select">
-              <option value="">All Active Floats</option>
-            </select>
-          </div>
-          <div class="map-tool-group">
-            <label for="map-year-filter">Year:</label>
-            <select id="map-year-filter" class="map-select">
-              <option value="">All Years</option>
-              <option value="2023">2023</option>
-              <option value="2024">2024</option>
-            </select>
-          </div>
-          <div class="map-tool-group">
-            <label for="map-basemap-select">Base Layer:</label>
-            <select id="map-basemap-select" class="map-select">
-              <option value="ocean">ESRI Ocean</option>
-              <option value="dark">Dark Canvas</option>
-              <option value="satellite">Satellite</option>
-              <option value="topo">Topographic &amp; Relief</option>
-            </select>
-          </div>
-          <div class="map-tool-group toggles">
-            <button id="map-toggle-lines" class="map-btn active" title="Toggle Trajectory Paths">Drift Paths</button>
-            <button id="map-reset-btn" class="map-btn secondary" title="Reset Map View">Reset View</button>
-          </div>
-          <div class="map-stats-badge" id="map-stats-badge">
-            <span class="pulse-dot"></span> <span id="map-stats-text">Loading ocean observations...</span>
-          </div>
-        </div>
-
-        <!-- The Leaflet Map Canvas -->
-        <div class="map-canvas-wrap">
-          <div id="ocean-leaflet-map"></div>
-
-          <!-- Float Info Overlay Card (Shown when a float is clicked/selected) -->
-          <div id="map-float-card" class="map-float-card" style="display: none;">
-            <div class="map-card-header">
-              <h4 id="map-card-platform">Float #2902758</h4>
-              <button id="map-card-close" class="map-card-close-btn">&times;</button>
+      <!-- ── View 4: Interactive Geospatial Ocean Map ────────────────────────── -->
+      <div class="map-feed" id="map-feed" style="display:none;">
+        <div class="map-view-container">
+          <!-- Map Controls Toolbar -->
+          <div class="map-toolbar">
+            <div class="map-tool-group">
+              <label for="map-float-filter">Float:</label>
+              <select id="map-float-filter" class="map-select">
+                <option value="">All Active Floats</option>
+              </select>
             </div>
-            <div class="map-card-body" id="map-card-body">
-              <!-- Dynamically populated -->
+            <div class="map-tool-group">
+              <label for="map-year-filter">Year:</label>
+              <select id="map-year-filter" class="map-select">
+                <option value="">All Years</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+              </select>
+            </div>
+            <div class="map-tool-group">
+              <label for="map-basemap-select">Base Layer:</label>
+              <select id="map-basemap-select" class="map-select">
+                <option value="ocean">ESRI Ocean</option>
+                <option value="dark">Dark Canvas</option>
+                <option value="satellite">Satellite</option>
+                <option value="topo">Topographic &amp; Relief</option>
+              </select>
+            </div>
+            <div class="map-tool-group toggles">
+              <button id="map-toggle-lines" class="map-btn active" title="Toggle Trajectory Paths">Drift Paths</button>
+              <button id="map-reset-btn" class="map-btn secondary" title="Reset Map View">Reset View</button>
+            </div>
+            <div class="map-stats-badge" id="map-stats-badge">
+              <span class="pulse-dot"></span> <span id="map-stats-text">Loading ocean observations...</span>
             </div>
           </div>
+
+          <!-- The Leaflet Map Canvas -->
+          <div class="map-canvas-wrap">
+            <div id="ocean-leaflet-map"></div>
+
+            <!-- Float Info Overlay Card (Shown when a float is clicked/selected) -->
+            <div id="map-float-card" class="map-float-card" style="display: none;">
+              <div class="map-card-header">
+                <h4 id="map-card-platform">Float #2902758</h4>
+                <button id="map-card-close" class="map-card-close-btn">&times;</button>
+              </div>
+              <div class="map-card-body" id="map-card-body">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div><!-- .map-feed -->
+      </div><!-- .map-feed -->
 
-    <!-- Status bar (health / error notices) -->
-    <div id="status-bar" class="status-bar hidden" role="status"></div>
+      <!-- Status bar (health / error notices) -->
+      <div id="status-bar" class="status-bar hidden" role="status"></div>
 
-    <!-- Voice Waveform / Listening Visualizer -->
-    <div id="voice-visualizer" class="voice-visualizer" hidden>
-      <div class="voice-wave-container">
-        <div class="voice-wave-bar"></div>
-        <div class="voice-wave-bar"></div>
-        <div class="voice-wave-bar"></div>
-        <div class="voice-wave-bar"></div>
-        <div class="voice-wave-bar"></div>
-      </div>
-      <span class="voice-status-text" id="voice-status-text">Listening... Speak your ocean question</span>
-      <button type="button" id="voice-test-sample-btn" class="voice-test-sample-btn" title="Click to test with a sample voice query">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg> Sample Voice Query
-      </button>
-      <button type="button" id="voice-cancel-btn" class="voice-cancel-btn" title="Cancel voice search">✕ Cancel</button>
-    </div>
-
-    <!-- Input form (Visible in Chat view) -->
-    <form id="ask-form" class="input-bar" autocomplete="off">
-      <div class="input-inner">
-        <textarea
-          id="question-input"
-          rows="1"
-          maxlength="500"
-          placeholder="Ask about temperature, salinity, floats, thermoclines… (Bay of Bengal only)"
-          aria-label="Your question"
-          spellcheck="true"
-        ></textarea>
-        <button type="button" id="mic-btn" class="mic-btn" aria-label="Voice search" title="Voice search">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="9" y="1" width="6" height="12" rx="3"/>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-            <line x1="12" y1="19" x2="12" y2="23"/>
-            <line x1="8" y1="23" x2="16" y2="23"/>
-          </svg>
+      <!-- Voice Waveform / Listening Visualizer -->
+      <div id="voice-visualizer" class="voice-visualizer" hidden>
+        <div class="voice-wave-container">
+          <div class="voice-wave-bar"></div>
+          <div class="voice-wave-bar"></div>
+          <div class="voice-wave-bar"></div>
+          <div class="voice-wave-bar"></div>
+          <div class="voice-wave-bar"></div>
+        </div>
+        <span class="voice-status-text" id="voice-status-text">Listening... Speak your ocean question</span>
+        <button type="button" id="voice-test-sample-btn" class="voice-test-sample-btn"
+          title="Click to test with a sample voice query">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+            <line x1="12" y1="19" x2="12" y2="22" />
+          </svg> Sample Voice Query
         </button>
-        <button type="submit" id="send-btn" aria-label="Send message">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"/>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-          </svg>
-        </button>
+        <button type="button" id="voice-cancel-btn" class="voice-cancel-btn" title="Cancel voice search">✕
+          Cancel</button>
       </div>
-      <div class="input-hint">Shift+Enter for new line · Enter to send</div>
-    </form>
 
-  </main><!-- .main-area -->
-</div><!-- .app-shell -->
-
-<!-- ── Profile Modal ──────────────────────────────────────────────────────── -->
-<div class="modal-overlay" id="profile-modal" hidden>
-  <div class="modal-card profile-modal-card" role="dialog" aria-modal="true" aria-label="User Profile">
-    <!-- Fixed Profile Header with Banner -->
-    <div class="profile-modal-top">
-      <div class="profile-banner">
-        <button class="modal-close profile-modal-close" id="profile-modal-close" aria-label="Close">✕</button>
-      </div>
-      <div class="profile-header">
-        <div class="profile-avatar-wrap">
-          <div class="profile-avatar-large" id="profile-avatar-large">U</div>
-          <span class="profile-online-badge" title="Active Session"></span>
+      <!-- Input form (Visible in Chat view) -->
+      <form id="ask-form" class="input-bar" autocomplete="off">
+        <div class="input-inner">
+          <textarea id="question-input" rows="1" maxlength="500"
+            placeholder="Ask about temperature, salinity, floats, thermoclines… (Bay of Bengal only)"
+            aria-label="Your question" spellcheck="true"></textarea>
+          <button type="button" id="mic-btn" class="mic-btn" aria-label="Voice search" title="Voice search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="1" width="6" height="12" rx="3" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+              <line x1="12" y1="19" x2="12" y2="23" />
+              <line x1="8" y1="23" x2="16" y2="23" />
+            </svg>
+          </button>
+          <button type="submit" id="send-btn" aria-label="Send message">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+          </button>
         </div>
-        <div class="profile-header-info">
-          <div class="profile-name-row">
-            <h2 id="profile-display-name">User</h2>
-            <span class="profile-role-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Verified Researcher</span>
+        <div class="input-hint">Shift+Enter for new line · Enter to send</div>
+      </form>
+
+    </main><!-- .main-area -->
+  </div><!-- .app-shell -->
+
+  <!-- ── Profile Modal ──────────────────────────────────────────────────────── -->
+  <div class="modal-overlay" id="profile-modal" hidden>
+    <div class="modal-card profile-modal-card" role="dialog" aria-modal="true" aria-label="User Profile">
+      <!-- Fixed Profile Header with Banner -->
+      <div class="profile-modal-top">
+        <div class="profile-banner">
+          <button class="modal-close profile-modal-close" id="profile-modal-close" aria-label="Close">✕</button>
+        </div>
+        <div class="profile-header">
+          <div class="profile-avatar-wrap">
+            <div class="profile-avatar-large" id="profile-avatar-large">U</div>
+            <span class="profile-online-badge" title="Active Session"></span>
           </div>
-          <p class="profile-email">
-            <span class="profile-email-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
-            <span id="profile-display-email">user@email.com</span>
-          </p>
-          <div class="profile-badges-row">
-            <span class="profile-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg> Ocean Explorer</span>
-            <span class="profile-badge-sub">Bay of Bengal Array</span>
+          <div class="profile-header-info">
+            <div class="profile-name-row">
+              <h2 id="profile-display-name">User</h2>
+              <span class="profile-role-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg> Verified Researcher</span>
+            </div>
+            <p class="profile-email">
+              <span class="profile-email-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="20" height="16" x="2" y="4" rx="2" />
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                </svg></span>
+              <span id="profile-display-email">user@email.com</span>
+            </p>
+            <div class="profile-badges-row">
+              <span class="profile-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  style="margin-right: 4px;">
+                  <circle cx="12" cy="12" r="10" />
+                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+                </svg> Ocean Explorer</span>
+              <span class="profile-badge-sub">Bay of Bengal Array</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-modal-inner">
+
+        <!-- Quick stats row -->
+        <div class="profile-stats-row">
+          <div class="profile-stat-card">
+            <div class="profile-stat-icon-wrap icon-purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg></div>
+            <div class="profile-stat-details">
+              <span class="profile-stat-val" id="profile-total-chats">0</span>
+              <span class="profile-stat-lbl">Saved Chats</span>
+            </div>
+          </div>
+          <div class="profile-stat-card">
+            <div class="profile-stat-icon-wrap icon-blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                <line x1="16" x2="16" y1="2" y2="6" />
+                <line x1="8" x2="8" y1="2" y2="6" />
+                <line x1="3" x2="21" y1="10" y2="10" />
+              </svg></div>
+            <div class="profile-stat-details">
+              <span class="profile-stat-val" id="profile-member-since">-</span>
+              <span class="profile-stat-lbl">Member Since</span>
+            </div>
+          </div>
+          <div class="profile-stat-card">
+            <div class="profile-stat-icon-wrap icon-green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+                <path d="m9 12 2 2 4-4" />
+              </svg></div>
+            <div class="profile-stat-details">
+              <span class="profile-stat-val" id="profile-session-status">Active</span>
+              <span class="profile-stat-lbl">Session Token</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 1: Account Settings -->
+        <div class="profile-section">
+          <div class="profile-section-header">
+            <span class="section-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg></span>
+            <h3>Account Settings</h3>
+          </div>
+
+          <div class="profile-form-grid">
+            <div class="profile-form-group">
+              <label for="profile-edit-username">Display Username</label>
+              <div class="profile-input-btn-wrap">
+                <input type="text" id="profile-edit-username" class="profile-input" placeholder="Your username" />
+                <button type="button" id="profile-save-username" class="profile-save-btn">Save</button>
+              </div>
+              <span class="profile-hint">Visible across saved chats and exports</span>
+            </div>
+
+            <div class="profile-form-group">
+              <label>Registered Email</label>
+              <div class="profile-static-box">
+                <span class="static-email-text" id="profile-static-email">user@email.com</span>
+                <span class="static-lock-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    style="margin-right: 4px;">
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg> Primary</span>
+              </div>
+              <span class="profile-hint">Verified authentication address</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Change Password -->
+        <div class="profile-section">
+          <div class="profile-section-header">
+            <span class="section-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg></span>
+            <h3>Security &amp; Password</h3>
+          </div>
+
+          <div class="profile-pw-form" id="profile-pw-form">
+            <div class="profile-pw-grid">
+              <div class="auth-field profile-pw-full">
+                <label for="profile-current-pw">Current Password</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg></span>
+                  <input type="password" id="profile-current-pw" placeholder="Enter current password"
+                    autocomplete="current-password" />
+                  <button type="button" class="auth-toggle-pw" data-target="profile-current-pw"
+                    aria-label="Toggle password visibility"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg></button>
+                </div>
+              </div>
+
+              <div class="auth-field">
+                <label for="profile-new-pw">New Password</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="7.5" cy="15.5" r="5.5" />
+                      <path d="m21 2-9.6 9.6" />
+                      <path d="m15.5 7.5 3 3L22 7l-3-3" />
+                    </svg></span>
+                  <input type="password" id="profile-new-pw" placeholder="Minimum 10 characters" minlength="10"
+                    maxlength="128" autocomplete="new-password" />
+                  <button type="button" class="auth-toggle-pw" data-target="profile-new-pw"
+                    aria-label="Toggle password visibility"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg></button>
+                </div>
+              </div>
+
+              <div class="auth-field">
+                <label for="profile-confirm-pw">Confirm New Password</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="7.5" cy="15.5" r="5.5" />
+                      <path d="m21 2-9.6 9.6" />
+                      <path d="m15.5 7.5 3 3L22 7l-3-3" />
+                    </svg></span>
+                  <input type="password" id="profile-confirm-pw" placeholder="Re-enter new password" minlength="10"
+                    maxlength="128" autocomplete="new-password" />
+                </div>
+              </div>
+            </div>
+
+            <div id="profile-pw-error" class="auth-error" hidden></div>
+            <div id="profile-pw-success" class="auth-success" hidden></div>
+
+            <button type="button" id="profile-change-pw-btn" class="profile-action-btn primary-action">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+              </svg> Update Password
+            </button>
+          </div>
+        </div>
+
+        <!-- Section 3: Danger Zone -->
+        <div class="profile-section profile-danger-zone">
+          <div class="profile-danger-content">
+            <div>
+              <h4>Sign Out Everywhere</h4>
+              <p>Revoke all active tokens and sessions on other devices.</p>
+            </div>
+            <button type="button" id="profile-logout-all-btn" class="profile-btn-danger">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" x2="9" y1="12" y2="12" />
+              </svg> Sign Out All Sessions
+            </button>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="profile-modal-inner">
-
-      <!-- Quick stats row -->
-      <div class="profile-stats-row">
-        <div class="profile-stat-card">
-          <div class="profile-stat-icon-wrap icon-purple"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-          <div class="profile-stat-details">
-            <span class="profile-stat-val" id="profile-total-chats">0</span>
-            <span class="profile-stat-lbl">Saved Chats</span>
-          </div>
-        </div>
-        <div class="profile-stat-card">
-          <div class="profile-stat-icon-wrap icon-blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg></div>
-          <div class="profile-stat-details">
-            <span class="profile-stat-val" id="profile-member-since">-</span>
-            <span class="profile-stat-lbl">Member Since</span>
-          </div>
-        </div>
-        <div class="profile-stat-card">
-          <div class="profile-stat-icon-wrap icon-green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg></div>
-          <div class="profile-stat-details">
-            <span class="profile-stat-val" id="profile-session-status">Active</span>
-            <span class="profile-stat-lbl">Session Token</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Section 1: Account Settings -->
-      <div class="profile-section">
-        <div class="profile-section-header">
-          <span class="section-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-          <h3>Account Settings</h3>
-        </div>
-        
-        <div class="profile-form-grid">
-          <div class="profile-form-group">
-            <label for="profile-edit-username">Display Username</label>
-            <div class="profile-input-btn-wrap">
-              <input type="text" id="profile-edit-username" class="profile-input" placeholder="Your username" />
-              <button type="button" id="profile-save-username" class="profile-save-btn">Save</button>
-            </div>
-            <span class="profile-hint">Visible across saved chats and exports</span>
-          </div>
-
-          <div class="profile-form-group">
-            <label>Registered Email</label>
-            <div class="profile-static-box">
-              <span class="static-email-text" id="profile-static-email">user@email.com</span>
-              <span class="static-lock-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Primary</span>
-            </div>
-            <span class="profile-hint">Verified authentication address</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Section 2: Change Password -->
-      <div class="profile-section">
-        <div class="profile-section-header">
-          <span class="section-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-          <h3>Security &amp; Password</h3>
-        </div>
-
-        <div class="profile-pw-form" id="profile-pw-form">
-          <div class="profile-pw-grid">
-            <div class="auth-field profile-pw-full">
-              <label for="profile-current-pw">Current Password</label>
-              <div class="auth-input-wrap">
-                <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-                <input type="password" id="profile-current-pw" placeholder="Enter current password" autocomplete="current-password" />
-                <button type="button" class="auth-toggle-pw" data-target="profile-current-pw" aria-label="Toggle password visibility"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-              </div>
-            </div>
-
-            <div class="auth-field">
-              <label for="profile-new-pw">New Password</label>
-              <div class="auth-input-wrap">
-                <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg></span>
-                <input type="password" id="profile-new-pw" placeholder="Minimum 10 characters" minlength="10" maxlength="128" autocomplete="new-password" />
-                <button type="button" class="auth-toggle-pw" data-target="profile-new-pw" aria-label="Toggle password visibility"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-              </div>
-            </div>
-
-            <div class="auth-field">
-              <label for="profile-confirm-pw">Confirm New Password</label>
-              <div class="auth-input-wrap">
-                <span class="auth-input-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg></span>
-                <input type="password" id="profile-confirm-pw" placeholder="Re-enter new password" minlength="10" maxlength="128" autocomplete="new-password" />
-              </div>
-            </div>
-          </div>
-
-          <div id="profile-pw-error" class="auth-error" hidden></div>
-          <div id="profile-pw-success" class="auth-success" hidden></div>
-
-          <button type="button" id="profile-change-pw-btn" class="profile-action-btn primary-action">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg> Update Password
+  <!-- ── Float Detail / Trajectory Modal ────────────────────────────────────── -->
+  <div class="modal-overlay" id="float-modal" hidden>
+    <div class="modal-card float-modal-card" role="dialog" aria-modal="true" aria-label="Float Details">
+      <button class="modal-close" id="float-modal-close" aria-label="Close">✕</button>
+      <h2 id="float-modal-title">ARGO Float Details</h2>
+      <div id="float-modal-body">
+        <div id="float-modal-stats" class="modal-stats-grid"></div>
+        <div id="float-trajectory-chart" class="chart-plotly" style="height: 350px; margin-top: 15px;"></div>
+        <div class="float-modal-actions" style="margin-top: 16px; display: flex; gap: 10px;">
+          <button type="button" id="float-report-btn" class="action-btn secondary" style="flex: 1;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+              <polyline points="6 9 6 2 18 2 18 9" />
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+              <rect width="12" height="8" x="6" y="14" />
+            </svg> Float Summary Report (Print / PDF)
+          </button>
+          <button type="button" id="float-export-chart-btn" class="action-btn" style="flex: 1;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
+            </svg> Download Trajectory Chart (PNG)
           </button>
         </div>
       </div>
-
-      <!-- Section 3: Danger Zone -->
-      <div class="profile-section profile-danger-zone">
-        <div class="profile-danger-content">
-          <div>
-            <h4>Sign Out Everywhere</h4>
-            <p>Revoke all active tokens and sessions on other devices.</p>
-          </div>
-          <button type="button" id="profile-logout-all-btn" class="profile-btn-danger">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg> Sign Out All Sessions
-          </button>
-        </div>
-      </div>
     </div>
   </div>
-</div>
 
-<!-- ── Float Detail / Trajectory Modal ────────────────────────────────────── -->
-<div class="modal-overlay" id="float-modal" hidden>
-  <div class="modal-card float-modal-card" role="dialog" aria-modal="true" aria-label="Float Details">
-    <button class="modal-close" id="float-modal-close" aria-label="Close">✕</button>
-    <h2 id="float-modal-title">ARGO Float Details</h2>
-    <div id="float-modal-body">
-      <div id="float-modal-stats" class="modal-stats-grid"></div>
-      <div id="float-trajectory-chart" class="chart-plotly" style="height: 350px; margin-top: 15px;"></div>
-      <div class="float-modal-actions" style="margin-top: 16px; display: flex; gap: 10px;">
-        <button type="button" id="float-report-btn" class="action-btn secondary" style="flex: 1;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg> Float Summary Report (Print / PDF)
-        </button>
-        <button type="button" id="float-export-chart-btn" class="action-btn" style="flex: 1;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Download Trajectory Chart (PNG)
+  <!-- ── Share chat modal ───────────────────────────────────────────────────── -->
+  <div class="modal-overlay" id="share-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="Share chat">
+      <button class="modal-close" id="share-modal-close" aria-label="Close">✕</button>
+      <h2>Share this chat</h2>
+      <p class="share-note">Anyone with the link can <strong>view</strong> this chat as it is right now (read-only, no
+        sign-in needed). Messages you add later are not included until you refresh the link. Your name and email are
+        never shown.</p>
+      <div class="share-link-row">
+        <input type="text" id="share-link-input" readonly aria-label="Share link" />
+        <button type="button" id="share-copy-btn" class="action-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+          </svg> Copy link
         </button>
       </div>
+      <div class="share-actions">
+        <button type="button" id="share-native-btn" class="action-btn" hidden>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+          </svg> Share…
+        </button>
+        <button type="button" id="share-whatsapp-btn" class="action-btn" title="Share via WhatsApp">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
+            <path
+              d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+          </svg> Share on WhatsApp
+        </button>
+        <button type="button" id="share-refresh-btn" class="action-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+            <path d="M21 3v5h-5" />
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+            <path d="M8 16H3v5" />
+          </svg> Update with latest messages
+        </button>
+        <button type="button" id="share-stop-btn" class="action-btn danger">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+          </svg> Stop sharing
+        </button>
+      </div>
+      <div id="share-status" class="share-status" role="status"></div>
     </div>
   </div>
-</div>
 
-<!-- ── Share chat modal ───────────────────────────────────────────────────── -->
-<div class="modal-overlay" id="share-modal" hidden>
-  <div class="modal-card" role="dialog" aria-modal="true" aria-label="Share chat">
-    <button class="modal-close" id="share-modal-close" aria-label="Close">✕</button>
-    <h2>Share this chat</h2>
-    <p class="share-note">Anyone with the link can <strong>view</strong> this chat as it is right now (read-only, no sign-in needed). Messages you add later are not included until you refresh the link. Your name and email are never shown.</p>
-    <div class="share-link-row">
-      <input type="text" id="share-link-input" readonly aria-label="Share link" />
-      <button type="button" id="share-copy-btn" class="action-btn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copy link
-      </button>
-    </div>
-    <div class="share-actions">
-      <button type="button" id="share-native-btn" class="action-btn" hidden>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share…
-      </button>
-      <button type="button" id="share-whatsapp-btn" class="action-btn" title="Share via WhatsApp">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Share on WhatsApp
-      </button>
-      <button type="button" id="share-refresh-btn" class="action-btn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Update with latest messages
-      </button>
-      <button type="button" id="share-stop-btn" class="action-btn danger">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> Stop sharing
-      </button>
-    </div>
-    <div id="share-status" class="share-status" role="status"></div>
+  <!-- ── Shared (read-only) view banner ─────────────────────────────────────── -->
+  <div id="shared-banner" class="shared-banner" hidden>
+    <span id="shared-banner-text">Shared chat (read-only)</span>
+    <a href="/" class="shared-banner-link">Open ArgoLens</a>
   </div>
-</div>
 
-<!-- ── Shared (read-only) view banner ─────────────────────────────────────── -->
-<div id="shared-banner" class="shared-banner" hidden>
-  <span id="shared-banner-text">Shared chat (read-only)</span>
-  <a href="/" class="shared-banner-link">Open ArgoLens</a>
-</div>
+  <!-- ── Health modal ───────────────────────────────────────────────────────── -->
 
-<!-- ── Health modal ───────────────────────────────────────────────────────── -->
-<div class="modal-overlay" id="health-modal" hidden>
-  <div class="modal-card" role="dialog" aria-modal="true" aria-label="Server status">
-    <button class="modal-close" id="health-modal-close" aria-label="Close">✕</button>
-    <h2>Server Status</h2>
-    <div id="health-content" class="health-content">Checking…</div>
+  <div class="modal-overlay" id="health-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="Server status">
+      <button class="modal-close" id="health-modal-close" aria-label="Close">✕</button>
+      <h2>Server Status</h2>
+      <div id="health-content" class="health-content">Checking…</div>
+    </div>
   </div>
-</div>
 
-<script src="script.js?v=11.0"></script>
+  <script src="script.js?v=13.0"></script>
 </body>
+
 </html>

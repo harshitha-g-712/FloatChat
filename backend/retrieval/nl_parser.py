@@ -425,6 +425,13 @@ def parse_question(
     """
     rules_intent = parse_intent(question, history=history)
 
+    # Conceptual queries (e.g. "What is a thermocline?") are answered via the
+    # RAG pipeline which uses Gemini for answer generation; bypass LLM intent parse
+    # to avoid double latency and quota burn.
+    if rules_intent.get("task") == "concept" or rules_intent.get("is_conceptual"):
+        rules_intent["parser_used"] = PARSER_RULES
+        return rules_intent
+
     try:
         parsed = parse_with_llm(question, llm_call=llm_call)
         intent = to_intent(parsed, rules_intent)

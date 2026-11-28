@@ -41,6 +41,7 @@ const ENDPOINTS = {
   logoutAll:      `${API_BASE}/api/profile/logout-all`,
   forgotPassword: `${API_BASE}/api/forgot-password`,
   resetPassword:  `${API_BASE}/api/reset-password`,
+  aiMode:         `${API_BASE}/api/settings/ai-mode`,
 };
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -167,6 +168,11 @@ const profilePwError       = document.getElementById("profile-pw-error");
 const profilePwSuccess     = document.getElementById("profile-pw-success");
 const profileChangePwBtn   = document.getElementById("profile-change-pw-btn");
 const profileLogoutAllBtn  = document.getElementById("profile-logout-all-btn");
+
+// AI Mode Switcher Elements
+const btnModeRules        = document.getElementById("btn-mode-rules");
+const btnModeGemini       = document.getElementById("btn-mode-gemini");
+const aiModeStatusBadge   = document.getElementById("ai-mode-status-badge");
 
 // Register Form Enhancement Elements
 const regPasswordInput     = document.getElementById("register-password");
@@ -2198,11 +2204,19 @@ async function sendMessage(question) {
   const typingEl = renderTyping();
 
   try {
-    const resp = await fetch(ENDPOINTS.chat, {
-      method: "POST",
-      headers: authHeaders(),
-      body: JSON.stringify({ message: question, conversation_id: sentConvId }),
-    });
+    const fetchController = new AbortController();
+    const fetchTimeoutId = setTimeout(() => fetchController.abort(), 30000);
+    let resp;
+    try {
+      resp = await fetch(ENDPOINTS.chat, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ message: question, conversation_id: sentConvId }),
+        signal: fetchController.signal,
+      });
+    } finally {
+      clearTimeout(fetchTimeoutId);
+    }
 
     typingEl.remove();
     if (resp.status === 401) { showAuth(); return; }
@@ -2234,8 +2248,12 @@ async function sendMessage(question) {
     }
     await loadConversations(searchInput?.value || "");
   } catch (err) {
-    typingEl.remove();
-    renderError("Could not connect to FloatChat backend. Please verify the server is running.");
+    typingEl?.remove();
+    if (err.name === "AbortError") {
+      renderError("The request timed out (30s). Google Gemini took too long to respond. You can switch to Offline Rules mode in the sidebar for instant answers.");
+    } else {
+      renderError("Could not connect to FloatChat backend. Please verify the server is running.");
+    }
   } finally {
     setBusy(false);
   }
@@ -2869,6 +2887,50 @@ healthBtn?.addEventListener("click", async () => {
 });
 healthClose?.addEventListener("click", () => healthModal.hidden = true);
 healthModal?.addEventListener("click", (e) => { if (e.target === healthModal) healthModal.hidden = true; });
+
+// ── AI Engine Mode Switcher (Rules vs. Gemini AI) ─────────────────────────────
+function updateAIModeUI(mode) {
+  const isGemini = mode === "gemini";
+  if (btnModeRules && btnModeGemini && aiModeStatusBadge) {
+    btnModeRules.classList.toggle("active", !isGemini);
+    btnModeGemini.classList.toggle("active", isGemini);
+    aiModeStatusBadge.textContent = isGemini ? "Gemini AI" : "Rules";
+    aiModeStatusBadge.className = `ai-mode-badge ${isGemini ? "badge-gemini" : "badge-rules"}`;
+  }
+}
+
+async function setAIMode(mode) {
+  try {
+    const resp = await fetch(ENDPOINTS.aiMode, {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ mode })
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      alert(data.detail || "Failed to switch AI mode.");
+      return false;
+    }
+    updateAIModeUI(data.mode);
+    return true;
+  } catch (err) {
+    console.error("AI mode switch error:", err);
+    alert("Network error while switching AI mode.");
+    return false;
+  }
+}
+
+btnModeRules?.addEventListener("click", () => setAIMode("rules"));
+btnModeGemini?.addEventListener("click", () => setAIMode("gemini"));
+
+// Sync AI mode on load via /api/health
+async function syncAIModeOnLoad() {
+  const data = await healthPing();
+  if (data) {
+    updateAIModeUI(data.answer_mode);
+  }
+}
+syncAIModeOnLoad();
 
 // ── ARGO 4D Mission Simulator & Deep Sound (SOFAR) Sonar Engine ─────────────
 let simCurrentFloat = null;

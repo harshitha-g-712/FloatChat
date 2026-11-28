@@ -60,7 +60,7 @@ from retrieval.discovery import (
 from rag.indexer import answer_conceptual_query
 from viz.charts import pick_chart
 from voice_service import normalize_marine_speech, prepare_text_for_speech, get_voice_capabilities
-from gemini_service import init_gemini, is_gemini_available, generate_explanation as gemini_explain
+from gemini_service import init_gemini, is_gemini_available, generate_explanation as gemini_explain, set_runtime_gemini_override, get_runtime_gemini_override
 from auth import (
     init_auth_db, register_user, login_user, validate_token, logout_user,
     save_message, get_conversations, get_conversation_messages, is_valid_conversation_id,
@@ -631,11 +631,13 @@ def api_health():
     stats = db_stats()
     gemini_avail = is_gemini_available()
     from config import RAG_MODE
+    override = get_runtime_gemini_override()
     return {
         "status": "ok",
         "answer_mode": "gemini" if gemini_avail else "basic",
         "gemini_ready": gemini_avail,
         "rag_mode": RAG_MODE if gemini_avail else "tfidf",
+        "ai_mode_override": override,  # None = using .env default
         "technologies": {
             "nlp": "rule-based intent parser + typo tolerance",
             "genai_llm": f"Gemini (active)" if gemini_avail else "offline (rules-only)",
@@ -644,6 +646,52 @@ def api_health():
         },
         "db": stats,
     }
+
+
+# ── AI Mode Toggle Endpoint ───────────────────────────────────────────────────
+
+class AIModeRequest(BaseModel):
+    mode: str  # "gemini" or "rules"
+
+@app.post("/api/settings/ai-mode")
+def api_set_ai_mode(req: AIModeRequest, request: Request):
+    """
+    Dynamically switch between Gemini AI and offline Rules Engine mode
+    without restarting the server or editing .env.
+    """
+    if req.mode == "gemini":
+        api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+        if not api_key or api_key.startswith("your_"):
+            raise HTTPException(
+                status_code=400,
+                detail="Gemini API key not configured in .env. Please set GEMINI_API_KEY first."
+            )
+        set_runtime_gemini_override(True)
+        # Re-init Gemini client if not already running
+        init_gemini()
+        gemini_avail = is_gemini_available()
+        if not gemini_avail:
+            set_runtime_gemini_override(None)
+            raise HTTPException(
+                status_code=503,
+                detail="Gemini client could not be initialized. Please check your API key and network connection."
+            )
+        return {
+            "ok": True,
+            "mode": "gemini",
+            "gemini_ready": True,
+            "message": "Switched to Gemini AI mode. Next queries will use Google Gemini."
+        }
+    elif req.mode == "rules":
+        set_runtime_gemini_override(False)
+        return {
+            "ok": True,
+            "mode": "rules",
+            "gemini_ready": False,
+            "message": "Switched to Offline Rules Engine. No API quota used."
+        }
+    else:
+        raise HTTPException(status_code=400, detail="mode must be 'gemini' or 'rules'")
 
 
 # ── Auth Endpoints ────────────────────────────────────────────────────────────
@@ -1571,7 +1619,7 @@ def _chat_pipeline(req: ChatRequest, request: Request):
 
     # 7. Generate Natural Language Answer
     answer = None
-    if USE_LLM_EXPLANATION and is_gemini_available():
+    if (USE_LLM_EXPLANATION or get_runtime_gemini_override() is True) and is_gemini_available():
         answer = gemini_explain(question, db_result)
         if answer:
             answer_mode = "gemini"
